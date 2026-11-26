@@ -26,6 +26,7 @@ test('share text has the day, the score and no answers', () => {
   const t = shareText({ title: 'no. 12', score: -40, of: 700, rows: [row(0.4, 0.6, 0.5), row(0.1, 0.2, 0.9)] });
   const lines = t.split('\n');
   assert.match(lines[0], /no\. 12: −40 of 700/);
-  assert.equal(lines.length, 4);
   assert.equal(lines[3], 'Caught 1 of 2');
+  assert.match(lines[4], /^https:\/\//);
+  assert.ok(!/\d{3,}/.test(lines.slice(1, 3).join('')), 'no numbers in the symbol rows');
 });

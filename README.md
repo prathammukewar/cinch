@@ -1,5 +1,7 @@
 # Cinch
 
+Play it at **https://prathammukewar.github.io/cinch/**
+
 A daily game about knowing what you don't know. Seven questions with number answers, the same for everyone each day. For each one you stretch a rubber band along a ruler until you are 90% sure the answer is inside it. Then the pin drops.
 
 Most people are overconfident the first time they play. Trading interviews ask for exactly this kind of range, and the game tracks over weeks whether your 90% ranges catch 90% of the answers.

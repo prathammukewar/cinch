@@ -122,6 +122,7 @@ test('share copies spoiler-free text', async ({ page, context, isMobile }) => {
   expect(lines[0]).toMatch(/^\S.* no\. 2: −?\d+ of 700$/);
   expect(lines.slice(1, 8).every((l) => [...l].length === 7)).toBe(true);
   expect(text).toContain('Caught');
+  expect(lines[lines.length - 1]).toBe('https://prathammukewar.github.io/cinch/');
 });
 
 test('the story picture is made at 1080 by 1920', async ({ page, isMobile }) => {

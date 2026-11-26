@@ -1,5 +1,5 @@
 export const NAME = 'Cinch';
-export const SITE = ''; // public address, used in share text once there is one
+export const SITE = 'https://prathammukewar.github.io/cinch/';
 export const EPOCH = '2026-11-25'; // day number 1
 export const PER_DAY = 7;
 export const QUANT_LENGTH = 10;
