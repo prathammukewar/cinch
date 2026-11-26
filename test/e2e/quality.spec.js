@@ -1,13 +1,6 @@
-import { test, expect, at, playAll, squeeze } from './helpers.js';
+import { test, expect, at, playAll, squeeze, audit } from './helpers.js';
 import { readFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
-
-const axe = readFileSync(new URL('../../node_modules/axe-core/axe.min.js', import.meta.url), 'utf8');
-const audit = async (page) => {
-  await page.evaluate(axe);
-  const r = await page.evaluate(() => globalThis.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa'] }));
-  return r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`);
-};
 
 for (const scheme of ['light', 'dark']) {
   test(`no accessibility problems on any screen, ${scheme}`, async ({ page }) => {
@@ -24,7 +17,7 @@ for (const scheme of ['light', 'dark']) {
     await page.goto('/#home');
     await page.clock.runFor(1500);
     expect(await audit(page), 'home').toEqual([]);
-    for (const s of ['archive', 'calibration', 'scoring', 'settings', 'draw', 'duel', 'sources']) {
+    for (const s of ['archive', 'calibration', 'scoring', 'settings', 'draw', 'duel', 'sources', 'privacy', 'account', 'leaderboard']) {
       await page.goto(`/#${s}`);
       await page.clock.runFor(500);
       expect(await audit(page), s).toEqual([]);
@@ -42,7 +35,7 @@ for (const scheme of ['light', 'dark']) {
 test('nothing scrolls sideways at any width', async ({ page }) => {
   for (const w of [320, 360, 375, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ width: w, height: 760 });
-    for (const s of ['home', 'today', 'archive', 'calibration', 'scoring', 'settings', 'draw', 'duel', 'practice']) {
+    for (const s of ['home', 'today', 'archive', 'calibration', 'scoring', 'settings', 'draw', 'duel', 'practice', 'privacy', 'account', 'leaderboard']) {
       await page.goto(`/#${s}`);
       await page.waitForTimeout(120);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${s} at ${w}`).toBeLessThanOrEqual(0);

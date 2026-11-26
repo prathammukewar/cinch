@@ -9,6 +9,9 @@ export const ALPHA = 0.1;
 export const MISS = 2 / ALPHA; // 20
 export const PERFECT = 100;
 
+/** Hints and what each one costs, as a share of the points you keep. The server scores with these too. */
+export const HINTS = { scout: 0.85, fence: [1, 0.85, 0.7] };
+
 export function toUnit(value, ruler) {
   const { min, max, scale } = ruler;
   const t = scale === 'log'

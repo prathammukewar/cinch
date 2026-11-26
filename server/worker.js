@@ -1,6 +1,11 @@
 // Cinch standings: anonymous daily scores in, "better than N% of today's riders" out.
 // Stores the day, the score, which of the seven were roped, a random client id and a time.
-// Also runs Side by side rooms, where two riders on two devices rope the same questions at once.
+// Also runs Side by side rooms, where two riders on two devices rope the same questions at once,
+// accounts and the leaderboard (accounts.js), and works scores out from the loops thrown (verify.js).
+import { accounts, who } from './accounts.js';
+import { scoreLoops, Refused } from './verify.js';
+
+const SITE = 'https://playcinch.pages.dev/';
 
 const EPOCH = Date.UTC(2026, 10, 25); // day number 1
 const DAY = 86400000;
@@ -9,14 +14,14 @@ const ALLOWED = ['https://playcinch.pages.dev', 'https://prathammukewar.github.i
 function cors(origin) {
   return {
     'access-control-allow-origin': ALLOWED.includes(origin) ? origin : ALLOWED[0],
-    'access-control-allow-methods': 'GET, POST, OPTIONS',
-    'access-control-allow-headers': 'content-type',
+    'access-control-allow-methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, authorization',
     'access-control-max-age': '86400',
     vary: 'origin',
   };
 }
 
-const json = (body, status, origin) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store', ...cors(origin) } });
+const json = (body, status, origin) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer', ...cors(origin) } });
 
 /** Day numbers that are "today" somewhere on Earth right now (UTC-12 to UTC+14). */
 function liveDays(now = Date.now()) {
@@ -53,9 +58,11 @@ const ROOM_HOURS = 6;
 const LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 const cleanName = (s) => String(s || '').replace(/[^\p{L}\p{N} '.-]/gu, '').trim().slice(0, 20);
 
-async function body(req, limit = 1024) {
+async function body(req, limit = 2048) {
   if (Number(req.headers.get('content-length') || 0) > limit) throw new Error('too big');
-  return req.json();
+  const text = await req.text();
+  if (text.length > limit) throw new Error('too big');
+  try { return JSON.parse(text || '{}'); } catch { throw new Error('bad json'); }
 }
 
 async function roomOf(db, code) {
@@ -124,31 +131,58 @@ async function rooms(req, env, url, origin) {
 }
 
 export default {
+  // Every hour: Side by side rooms older than six hours, and their loops, are deleted, as the privacy page says.
+  async scheduled(event, env) {
+    const old = Date.now() - ROOM_HOURS * 3600000;
+    await env.DB.batch([env.DB.prepare('DELETE FROM rooms WHERE at < ?1').bind(old), env.DB.prepare('DELETE FROM picks WHERE at < ?1').bind(old)]);
+  },
   async fetch(req, env) {
     const origin = req.headers.get('origin') || '';
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(origin) });
     const url = new URL(req.url);
     try {
       if (req.method === 'POST' && url.pathname === '/v1/score') {
-        if (Number(req.headers.get('content-length') || 0) > 768) return json({ error: 'too big' }, 413, origin);
-        const b = await req.json();
+        const b = await body(req, 4096);
         const day = Number(b.day);
-        const score = Number(b.score);
         const [lo, hi] = liveDays();
         if (!Number.isInteger(day) || day < lo || day > hi) return json({ error: 'not a live day' }, 400, origin);
-        if (!Number.isInteger(score) || score < 0 || score > 700) return json({ error: 'bad score' }, 400, origin);
-        if (typeof b.hits !== 'string' || !/^[01]{7}$/.test(b.hits)) return json({ error: 'bad hits' }, 400, origin);
         if (typeof b.client !== 'string' || !/^[a-z0-9]{12,24}$/.test(b.client)) return json({ error: 'bad client' }, 400, origin);
-        const pts = goodPts(b.points, score) ? b.points : null;
-        // First finish counts. A later visit can only fill in per-question points a first visit lacked.
-        await env.DB.prepare(`INSERT INTO scores (day, client, score, hits, at, p1, p2, p3, p4, p5, p6, p7) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
-          ON CONFLICT (day, client) DO UPDATE SET p1 = excluded.p1, p2 = excluded.p2, p3 = excluded.p3, p4 = excluded.p4, p5 = excluded.p5, p6 = excluded.p6, p7 = excluded.p7
-          WHERE scores.p1 IS NULL AND excluded.p1 IS NOT NULL AND scores.score = excluded.score`)
-          .bind(day, b.client, score, b.hits, Date.now(), ...(pts || Array(7).fill(null))).run();
-        const mine = await env.DB.prepare('SELECT score, p1, p2, p3, p4, p5, p6, p7 FROM scores WHERE day = ?1 AND client = ?2').bind(day, b.client).first();
+        let score; let hits; let pts = null; let verified = 0;
+        if (Array.isArray(b.loops)) {
+          // The server works the score out itself from the loops, with the game's own scoring.
+          try { ({ score, hits, points: pts } = await scoreLoops(env.SITE || SITE, day, b.loops)); verified = 1; }
+          catch (e) { if (e instanceof Refused) return json({ error: e.message }, 400, origin); throw e; }
+        } else {
+          score = Number(b.score);
+          hits = b.hits;
+          if (!Number.isInteger(score) || score < 0 || score > 700) return json({ error: 'bad score' }, 400, origin);
+          if (typeof hits !== 'string' || !/^[01]{7}$/.test(hits)) return json({ error: 'bad hits' }, 400, origin);
+          pts = goodPts(b.points, score) ? b.points : null;
+        }
+        const me = verified ? await who(req, env.DB) : null;
+        // One Roundup per account per day: if another device already counted one, this one stays anonymous.
+        let account = me ? me.id : null;
+        if (account && await env.DB.prepare('SELECT 1 FROM scores WHERE day = ?1 AND account = ?2 AND client != ?3').bind(day, account, b.client).first()) account = null;
+        const had = await env.DB.prepare('SELECT score, verified, account, p1 FROM scores WHERE day = ?1 AND client = ?2').bind(day, b.client).first();
+        const p7 = pts || Array(7).fill(null);
+        if (!had) {
+          await env.DB.prepare('INSERT INTO scores (day, client, score, hits, at, p1, p2, p3, p4, p5, p6, p7, account, verified) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)')
+            .bind(day, b.client, score, hits, Date.now(), ...p7, account, verified).run();
+        } else if (verified && !had.verified) {
+          // The same finish, now worked out by the server: its numbers replace the ones the browser sent.
+          await env.DB.prepare('UPDATE scores SET score = ?3, hits = ?4, p1 = ?5, p2 = ?6, p3 = ?7, p4 = ?8, p5 = ?9, p6 = ?10, p7 = ?11, verified = 1, account = COALESCE(account, ?12) WHERE day = ?1 AND client = ?2')
+            .bind(day, b.client, score, hits, ...p7, account).run();
+        } else if (verified && !had.account && account) {
+          await env.DB.prepare('UPDATE scores SET account = ?3 WHERE day = ?1 AND client = ?2').bind(day, b.client, account).run();
+        } else if (pts && had.p1 === null && had.score === score) {
+          await env.DB.prepare('UPDATE scores SET p1 = ?3, p2 = ?4, p3 = ?5, p4 = ?6, p5 = ?7, p6 = ?8, p7 = ?9 WHERE day = ?1 AND client = ?2').bind(day, b.client, ...pts).run();
+        }
+        const mine = await env.DB.prepare('SELECT score, hits, verified, account, p1, p2, p3, p4, p5, p6, p7 FROM scores WHERE day = ?1 AND client = ?2').bind(day, b.client).first();
         const minePts = mine.p1 === null ? null : Q.map((k) => mine[`p${k}`]);
-        return json(await standing(env.DB, day, mine.score, minePts), 200, origin);
+        return json({ ...(await standing(env.DB, day, mine.score, minePts)), score: mine.score, points: minePts, verified: !!mine.verified, counted: !!me && mine.account === me.id }, 200, origin);
       }
+      const acct = await accounts(req, env, url, (b2, st) => json(b2, st, origin), body);
+      if (acct) return acct;
       if (url.pathname.startsWith('/v1/room')) {
         const res = await rooms(req, env, url, origin);
         if (res) return res;
@@ -162,6 +196,7 @@ export default {
       return json({ error: 'not found' }, 404, origin);
     } catch (e) {
       if (e?.message === 'too big') return json({ error: 'too big' }, 413, origin);
+      if (e?.message === 'bad json') return json({ error: 'bad json' }, 400, origin);
       return json({ error: 'server' }, 500, origin);
     }
   },

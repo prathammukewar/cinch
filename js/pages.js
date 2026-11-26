@@ -5,6 +5,7 @@ import { practicePool, index } from './bank.js';
 import { store, askPersist, exportSave, importSave, allRows } from './store.js';
 import { total, kindOf, wilson, tierOf, TIERS, LEANER } from './score.js';
 import { ICONS } from './share.js';
+import * as acct from './account.js';
 
 const LADDER = {
   dead: '96 to 100 points. A hair-thin loop right on the answer, no hints.',
@@ -97,6 +98,7 @@ export async function showSources() {
   const list = await fetch('data/credits.json').then((r) => r.json()).catch(() => []);
   main.replaceChildren(h('div', { class: 'page' },
     h('h1', {}, 'Sources'),
+    h('p', { class: 'fine' }, h('a', { href: '#privacy' }, 'Privacy')),
     h('p', { class: 'lede' }, 'Every answer comes from a source you can open, linked under the answer. Each number was read from its source, then fetched and read a second time before it went in.'),
     h('ul', { class: 'credits' }, list.map((c) => h('li', {}, h('span', {}, c.name), h('span', { class: 'fine' }, `${c.licence}, ${c.n} ${c.n === 1 ? 'question' : 'questions'}`)))),
     h('h2', {}, 'Notices'),
@@ -162,14 +164,16 @@ export function showSettings() {
     h('div', { class: 'set' }, h('div', {}, 'Theme'), seg('theme', [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']])),
     h('div', { class: 'set' }, h('div', {}, 'Sound'), seg('sound', [[false, 'Off'], [true, 'On']])),
     h('div', { class: 'set' }, h('div', {}, 'Vibration', h('p', {}, 'On phones that support it')), seg('haptics', [[false, 'Off'], [true, 'On']])),
+    h('h2', {}, 'Account'),
+    h('div', { class: 'set' }, h('div', {}, acct.signedIn() ? `Signed in as ${acct.me()?.name || 'your account'}` : 'Not signed in', h('p', {}, acct.signedIn() ? 'Name, leaderboard, your sign-in key, your data' : 'Keep your record on every device, and join the leaderboard')), h('a', { class: 'btn', href: '#account', id: 'settings-account' }, acct.signedIn() ? 'Manage' : 'Set up')),
     h('h2', {}, 'Your data'),
-    h('p', {}, 'Your scores, streaks and loops live in this browser. When you finish a Roundup on its own day, three things go to the standings so you can see how you did against other riders: the day, your score, and which of the seven you roped, under a random id made in this browser. No name and no account. Visits to the site are counted by Cloudflare Web Analytics, which sets no cookies and does not follow you to other sites. ', keep),
+    h('p', {}, 'Your scores, streaks and loops live in this browser. When you finish a Roundup on its own day, the loops you threw go to the server, which works out your score, under a random id made in this browser, so you can see how you did against other riders. With an account, your name and Roundups go with it. ', h('a', { href: '#privacy' }, 'Everything about privacy'), '. ', keep),
     h('div', { class: 'set', style: 'margin-top:12px' }, h('div', {}, 'Back up', h('p', {}, 'Saves everything to one file')), h('button', { class: 'btn', type: 'button', id: 'backup', onclick: backup }, 'Save file')),
     h('div', { class: 'set' }, h('div', {}, 'Restore', h('p', {}, 'Adds a backup to what is here and removes nothing')), h('button', { class: 'btn', type: 'button', id: 'restore', onclick: () => file.click() }, 'Choose file'), file),
     h('div', { class: 'set' }, h('div', {}, 'Ask the browser to keep it'), h('button', { class: 'btn', type: 'button', onclick: async () => { const ok = await askPersist(); toast(ok ? 'It will be kept' : 'The browser did not agree'); } }, 'Ask')),
-    h('div', { class: 'set' }, h('div', {}, 'Erase everything', h('p', {}, 'Cannot be undone')), h('button', { class: 'btn', type: 'button', id: 'erase', onclick: (e) => {
+    h('div', { class: 'set' }, h('div', {}, 'Erase everything on this device', h('p', {}, acct.signedIn() ? 'Cannot be undone. Also signs this device out; your account stays on the server.' : 'Cannot be undone')), h('button', { class: 'btn', type: 'button', id: 'erase', onclick: (e) => {
       const b = e.currentTarget;
-      if (b.dataset.sure) { store.reset(); paintTheme(); paintSound(); toast('Erased'); b.textContent = 'Erase'; delete b.dataset.sure; } else { b.dataset.sure = '1'; b.textContent = 'Really erase'; setTimeout(() => { if (b.dataset.sure) { delete b.dataset.sure; b.textContent = 'Erase'; } }, 4000); }
+      if (b.dataset.sure) { store.reset(); acct.signOut(); paintTheme(); paintSound(); toast('Erased'); b.textContent = 'Erase'; delete b.dataset.sure; } else { b.dataset.sure = '1'; b.textContent = 'Really erase'; setTimeout(() => { if (b.dataset.sure) { delete b.dataset.sure; b.textContent = 'Erase'; } }, 4000); }
     } }, 'Erase')),
   ));
 }

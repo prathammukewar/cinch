@@ -111,7 +111,7 @@ test('the dashboard fills in as questions are answered', async ({ page }) => {
   await expect(page.locator('.cats li')).toHaveCount(3);
   await expect(page.locator('.book-hero .state-pill')).toHaveText(/Too tight|On the mark|Too loose/);
   await expect(page.locator('.num-grid .num-tile')).toHaveCount(8);
-  await page.locator('.topic').first().focus();
+  await page.locator('.topic').first().click();
   await expect(page.locator('.topic-peek')).toBeVisible();
   await expect(page.locator('.topic-peek')).toContainText('Roped');
   await page.locator('.tierbar .tseg').first().focus();

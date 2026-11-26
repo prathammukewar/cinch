@@ -1,7 +1,7 @@
 // One round of questions, shared by every mode.
 import { Stage, quickerReveals } from './stage.js';
 import { sound } from './sound.js';
-import { scoreRange, toUnit, tierOf, PERFECT } from './score.js';
+import { scoreRange, toUnit, tierOf, PERFECT, HINTS } from './score.js';
 import { num, withUnit, parse } from './format.js';
 import { h, $, say, reducedMotion, plus } from './dom.js';
 import { store } from './store.js';
@@ -11,8 +11,7 @@ const SUF = { '%': '%', '°C': '°C', '°F': '°F' };
 
 export const rulerOf = (q) => ({ min: q.min, max: q.max, scale: q.scale });
 
-/** Hints and what each one costs, as a share of the points you keep. */
-export const HINTS = { scout: 0.85, fence: [1, 0.85, 0.7] };
+export { HINTS };
 export const DIFFICULTY = { 1: 'Tenderfoot', 2: 'Wrangler', 3: 'Trail boss' };
 const multiplier = (h) => (h.scout ? HINTS.scout : 1) * HINTS.fence[h.fence];
 

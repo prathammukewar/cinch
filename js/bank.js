@@ -6,10 +6,13 @@ import { rng, hash } from './score.js';
 
 const cache = new Map();
 let indexPromise = null;
+let base = '';
+/** The page loads questions from beside itself; the server, which has no page, names the site. */
+export function setBase(url) { base = url; }
 
 async function get(path) {
   if (!cache.has(path)) {
-    cache.set(path, fetch(path).then((r) => {
+    cache.set(path, fetch(base + path).then((r) => {
       if (!r.ok) throw new Error(`${path}: ${r.status}`);
       return r.json();
     }).catch((e) => { cache.delete(path); throw e; }));

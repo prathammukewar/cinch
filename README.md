@@ -15,9 +15,10 @@ Inside your loop you score 100 minus the share of the rail it covers. Just outsi
 - **Roundup**: today's seven, 30 seconds each, one try, a spoiler-free share line and a picture sized for stories
 - **The Corral**: practice in sets of seven, never using daily questions
 - **Quick Draw**: ten questions, 20 seconds each
-- **Showdown**: two riders, the same seven questions. **Side by side** is for two people with one phone: each ropes the question in secret, the phone changes hands, and one horseshoe lands for both. **Send a challenge** is for later: rope seven, send a link, and your friend ropes the same seven when they like
+- **Showdown**: two riders, the same seven questions. **Side by side** is live on two devices: one starts a room, the other joins with its code, and each question shows both loops once both are in. **Same saddle** is for one device passed between two people. **Send a challenge** is for later: rope seven, send a link, and your friend ropes the same seven when they like
+- **Leaderboard**: today, this week and all time, for riders who choose to be listed. Scores are worked out by the server from the loops thrown, so they cannot be made up
 - **Old Trails**: every earlier Roundup
-- **Brand Book**: how often your loops hold the answer, over time and by subject
+- **Brand Book**: your stats: how often your loops hold the answer, every throw by name, each Roundup, your habits, and each topic
 
 Two hints cost a share of the points. **Fence in** shortens the rail to a stretch that holds the answer, and your loop is then measured against that shorter rail, so roping the whole fenced stretch scores nothing. **Scout** marks two known numbers of the same kind on the rail, and the answer is not always between them.
 
@@ -46,9 +47,11 @@ npx playwright test
 
 The site is hosted on Cloudflare Pages. `npm run deploy` copies only the files the site needs into `dist/` and uploads them with wrangler. The standings server in `server/` deploys on its own; see [server/README.md](server/README.md).
 
-## Privacy
+## Accounts and privacy
 
-No accounts and no cookies. Visits are counted by Cloudflare Web Analytics, which sets no cookies and does not follow anyone across sites. Scores live in your browser, and Showdown results travel inside the link you send. When you finish a Roundup on its own day, the day, your score and which questions you roped go to a small standings server (in `server/`, a Cloudflare Worker) under a random id, so the result can say how you did against everyone else that day. The Saddlebag has a backup button that saves everything to one file, and a restore button that merges a backup back in.
+Accounts are optional. One holds a public name, whether to list it on the leaderboard, a one-way fingerprint of a sign-in key, the Roundups finished while signed in, and a copy of the player's record so it can follow them to other devices. There is no email, no password and no real name. The sign-in key is shown once and kept only by the player; a lost key cannot be recovered. Listing on the leaderboard is off until the player turns it on. Players can rename, hide, download everything held for them, or delete it all at once.
+
+Without an account, a Roundup finished on its own day sends the day, the loops thrown and a random id made in the browser, so the result can say how it compares with everyone else that day. Visits are counted by Cloudflare Web Analytics, which sets no cookies. The site sends a strict Content Security Policy, no referrer, and refuses to be framed. Everything is set out on the game's Privacy page.
 
 ## Licence
 

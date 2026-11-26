@@ -21,17 +21,7 @@
 <link rel="preload" href="fonts/familjen.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 <link rel="modulepreload" href="js/main.js">
-<script>
-(function () {
-  // The game moved to Cloudflare. Old GitHub Pages links, Showdown links included, land on the new home.
-  if (/github\.io$/.test(location.hostname)) { location.replace('https://playcinch.pages.dev/' + location.search + location.hash); return; }
-  try {
-    var s = JSON.parse(localStorage.getItem('cinch') || '{}');
-    var t = s.settings && s.settings.theme;
-    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-  } catch (e) {}
-})();
-</script>
+<script src="js/boot.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to the game</a>
@@ -49,15 +39,5 @@
 <div class="live" id="live" aria-live="polite"></div>
 <noscript><p class="noscript">This game runs in your browser and needs JavaScript switched on.</p></noscript>
 <script type="module" src="js/main.js"></script>
-<script>
-// Cloudflare Web Analytics counts visits without cookies. Only on the real site, so tests and previews never count.
-if (location.hostname === 'playcinch.pages.dev') {
-  var b = document.createElement('script');
-  b.defer = true;
-  b.src = 'https://static.cloudflareinsights.com/beacon.min.js';
-  b.setAttribute('data-cf-beacon', '{"token": "9b90ebeab51848e2afcac98c9ce63f9a"}');
-  document.head.appendChild(b);
-}
-</script>
 </body>
 </html>

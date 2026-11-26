@@ -6,3 +6,20 @@ compatibility_date = "2026-11-01"
 binding = "DB"
 database_name = "cinch-standings"
 database_id = "8837103f-77a5-4854-aefe-462332772813"
+
+[triggers]
+crons = ["17 * * * *"]
+
+[vars]
+SITE = "https://playcinch.pages.dev/"
+
+# Cloudflare's rate limiter counts requests per address at the edge; nothing is stored by the worker.
+[[ratelimits]]
+name = "SIGNUP"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }
+
+[[ratelimits]]
+name = "LIMITS"
+namespace_id = "1002"
+simple = { limit = 120, period = 60 }

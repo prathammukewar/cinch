@@ -1,11 +1,25 @@
 import { test as base, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+const axe = readFileSync(new URL('../../node_modules/axe-core/axe.min.js', import.meta.url), 'utf8');
+/** WCAG 2.1 AA problems on the page as it is now, as short lines. */
+export const audit = async (page) => {
+  await page.evaluate(axe);
+  const r = await page.evaluate(() => globalThis.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa'] }));
+  return r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`);
+};
 
 /** A page that fails the test on any error, with an optional fixed clock. */
 export const test = base.extend({
   page: async ({ page }, use) => {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    page.on('console', (m) => { if (m.type() === 'error' && !/favicon/.test(m.text())) errors.push(m.text()); });
+    page.on('console', (m) => {
+      if (m.type() !== 'error' || /favicon/.test(m.text())) return;
+      // The game's own server answering no (a taken name, a wrong key) is expected in some tests.
+      if (/^Failed to load resource/.test(m.text()) && /\/standings\//.test(m.location().url)) return;
+      errors.push(m.text());
+    });
     // Tests never send scores to the real standings server.
     await page.addInitScript(() => { try { if (!localStorage.getItem('cinch-api')) localStorage.setItem('cinch-api', 'off'); } catch { /* no storage */ } });
     await page.route('https://cinch-standings.cinchgame.workers.dev/**', (route) => route.fulfill({ status: 204 }));

@@ -376,9 +376,11 @@ body { position: relative; isolation: isolate; }
 }
 
 /* Home: the Brand Book tile */
-.mode.stats { grid-column: 1 / -1; grid-template-columns: auto 1fr; align-items: center; justify-items: start; text-align: left; column-gap: 14px; padding: 10px 14px; }
+.mode.stats { grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: start; text-align: left; gap: 4px 14px; padding: 10px 14px; }
+@media (min-width: 720px) { .mode.stats { grid-column: span 2; grid-template-columns: auto minmax(0, 1fr); } }
 .mode.stats .names { display: grid; gap: 1px; }
-.mode.stats .nums { justify-self: end; display: flex; gap: 14px; font-variant-numeric: tabular-nums; }
-.mode.stats .nums span { display: grid; justify-items: end; line-height: 1.1; }
+.mode.stats .nums { display: flex; gap: 14px; font-variant-numeric: tabular-nums; }
+@media (min-width: 720px) { .mode.stats .nums { justify-self: end; } }
+.mode.stats .nums span { display: grid; justify-items: start; line-height: 1.1; }
 .mode.stats .nums b { font: 700 18px var(--display); font-stretch: 96%; }
 .mode.stats .nums small { font-size: 12.5px; }

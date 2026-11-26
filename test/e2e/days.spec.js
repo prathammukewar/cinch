@@ -99,11 +99,12 @@ test('a live Roundup result says how you did against other riders', async ({ pag
   await page.locator('.spot').nth(1).focus();
   await expect(page.locator('.peek-crowd')).toHaveText('Better than 12% of players on this one');
   expect(sent.day).toBe(2);
-  expect(sent.hits).toMatch(/^[01]{7}$/);
   expect(sent.client).toMatch(/^[a-z0-9]{12,24}$/);
-  expect(Object.keys(sent).sort()).toEqual(['client', 'day', 'hits', 'points', 'score']);
-  expect(sent.points).toHaveLength(7);
-  expect(sent.points.reduce((a, b) => a + b, 0)).toBe(sent.score);
+  // The loops go up, never a score: the server works the score out itself.
+  expect(Object.keys(sent).sort()).toEqual(['client', 'day', 'loops']);
+  expect(sent.loops).toHaveLength(7);
+  for (const l of sent.loops) expect(Object.keys(l).sort()).toEqual(['fence', 'hi', 'lo', 'scout']);
+  await expect(page.locator('#result-join')).toHaveAttribute('href', '#account');
 });
 
 test('a past day played live shows how it compared, without posting again', async ({ page }) => {

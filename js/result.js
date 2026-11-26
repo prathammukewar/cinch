@@ -1,5 +1,6 @@
 // The result screen: the bands lining up, the score, sharing. Loaded when a round ends.
 import { NAME, SITE, API } from './config.js';
+import { getKey, signedIn, clientId, call as accountCall } from './account.js';
 import { store } from './store.js';
 import { untilMidnight } from './day.js';
 import { total, kindOf, binomCdf, hash, tierOf, TIERS, LEANER } from './score.js';
@@ -163,16 +164,23 @@ async function saveImage({ rows, score, of, shareTitle, hits }) {
 /** The standings server. 'off' in localStorage turns it off for this browser (the tests use it). */
 export const api = () => { try { const o = localStorage.getItem('cinch-api'); return o === 'off' ? '' : o || API; } catch { return API; } };
 
-function clientId() {
-  let id = store.get('client');
-  if (!id) {
-    id = Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => (b % 36).toString(36)).join('');
-    store.set('client', id);
-  }
-  return id;
-}
 
 /** Post today's score once and show where it stands among today's riders. Silent if offline. */
+/** Where this Roundup puts you on today's leaderboard, or how to get on it. */
+async function boardLine(el, day, s) {
+  const tally = el.querySelector('.tally');
+  if (!tally) return;
+  const line = h('p', { class: 'board-line' });
+  tally.append(line);
+  if (!signedIn()) { line.append('Want your name on the leaderboard? ', h('a', { href: '#account', id: 'result-join' }, 'Make an account'), '.'); return; }
+  if (!s.counted) { line.append('Another device already counted a Roundup for your account today. ', h('a', { href: '#leaderboard' }, 'See the leaderboard')); return; }
+  try {
+    const d = await accountCall(`/v1/leaderboard?view=today&day=${day}`);
+    if (!d.you) return;
+    line.append(d.you.listed ? `You are #${d.you.rank} of ${d.players} on today\u2019s leaderboard. ` : 'You are not listed on the leaderboard. ', h('a', { href: '#leaderboard', id: 'result-board' }, d.you.listed ? 'See it' : 'Change that'));
+  } catch { line.remove(); }
+}
+
 /** How this round compares with everyone who played the same day: overall and on each question. */
 async function loadStandings(el, { day, post }, score, rows, done) {
   const base = api();
@@ -180,10 +188,12 @@ async function loadStandings(el, { day, post }, score, rows, done) {
   const line = el.querySelector('#standing');
   const points = rows.map((r) => r.points);
   try {
+    // The loops go up, not the score: the server works the score out itself.
+    const key = getKey();
     const res = post
       ? await fetch(`${base}/v1/score`, {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ day, score, hits: rows.map((r) => (r.hit ? 1 : 0)).join(''), client: clientId(), points }),
+        method: 'POST', headers: { 'content-type': 'application/json', ...(key ? { authorization: `Bearer ${key}` } : {}) },
+        body: JSON.stringify({ day, client: clientId(), loops: rows.map((r) => ({ lo: r.lo, hi: r.hi, fence: r.hints?.fence || 0, scout: !!r.hints?.scout })) }),
       })
       : await fetch(`${base}/v1/day/${day}?score=${score}&pts=${points.join(',')}`);
     if (!res.ok) { if (line) line.hidden = true; return; }
@@ -201,6 +211,7 @@ async function loadStandings(el, { day, post }, score, rows, done) {
       if (parts.length) li.append(h('span', { class: 'crowd' }, parts.join(' \u00b7 ')));
     });
     say(line.textContent);
+    if (post) boardLine(el, day, s);
     done?.(s);
   } catch { if (line) line.hidden = true; }
 }

@@ -3,6 +3,7 @@ import { dayKey, dayNumber, keyOf, longDate, untilMidnight, streaks } from './da
 import { forDay, practicePool, open } from './bank.js';
 import { total as sum } from './score.js';
 import { store, askPersist, allRows } from './store.js';
+import * as acct from './account.js';
 import { sound } from './sound.js';
 import { total, kindOf, tierOf } from './score.js';
 import { h, $, toast, reducedMotion, signed, moreStyles } from './dom.js';
@@ -58,9 +59,12 @@ function drawer(open) {
     item('#archive', 'Old Trails', 'past days'),
     h('hr'),
     item('#calibration', 'Brand Book', 'your stats'),
+    item('#leaderboard', 'Leaderboard', 'top riders'),
+    item('#account', 'Account', acct.signedIn() ? acct.me()?.name || 'signed in' : 'sign in'),
     item('#scoring', 'Ranch rules', 'scoring'),
     item('#settings', 'Saddlebag', 'settings, backup'),
     item('#sources', 'Sources', ''),
+    item('#privacy', 'Privacy', ''),
   );
   d.querySelector('a').focus();
 }
@@ -89,7 +93,12 @@ const lazy = (name) => async (arg) => {
   pages.init({ main, kit: loadResultKit, liveDays, paintTheme, paintSound, paintPips, picker, pickSet, resultView, today: () => today, setCurrent: (v) => { current = v; }, getCurrent: () => current });
   return pages[name](arg);
 };
-const screens = { home: showHome, today: showToday, practice: showPractice, day: showDay, duel: lazyDuel, draw: lazy('showQuant'), quant: lazy('showQuant'), archive: lazy('showArchive'), calibration: lazy('showCalibration'), scoring: lazy('showScoring'), settings: lazy('showSettings'), sources: lazy('showSources') };
+const riders = (name) => async (arg) => {
+  const [m] = await Promise.all([import('./riders.js'), moreStyles()]);
+  m.init({ main });
+  return m[name](arg);
+};
+const screens = { account: riders('showAccount'), leaderboard: riders('showLeaderboard'), privacy: riders('showPrivacy'), home: showHome, today: showToday, practice: showPractice, day: showDay, duel: lazyDuel, draw: lazy('showQuant'), quant: lazy('showQuant'), archive: lazy('showArchive'), calibration: lazy('showCalibration'), scoring: lazy('showScoring'), settings: lazy('showSettings'), sources: lazy('showSources') };
 
 // Screens load in order, so a slow one can never draw over the one that came after it.
 let chain = Promise.resolve();
@@ -135,6 +144,8 @@ setInterval(() => {
   today = n;
   const name = (location.hash.slice(1) || 'home').split('/')[0];
   if ((name === 'today' || name === 'home') && !current?.isRound) route();
+// Signed in: pull this account's record in from other devices, then keep it in step.
+if (acct.signedIn()) acct.refresh().then(() => acct.sync()).catch(() => {});
   else toast('A new day is ready');
 }, 5000);
 
@@ -162,8 +173,17 @@ async function showHome() {
   const statsTile = h('a', { class: 'mode stats', href: '#calibration', id: 'home-stats' },
     h('span', { class: 'names' }, h('b', {}, 'Brand Book'), h('small', {}, 'Your stats')),
     book.length
-      ? h('span', { class: 'nums' }, stat(`${Math.round((100 * roped) / book.length)}%`, 'roped'), stat(`${s.current}`, 'day trail'), dayScores.length ? stat(String(Math.round(dayScores.reduce((a, b) => a + b, 0) / dayScores.length)), 'avg day') : stat(String(book.length), 'answered'))
-      : h('span', { class: 'nums empty' }, h('small', {}, 'Starts with your first round')));
+      ? h('span', { class: 'nums' }, stat(`${Math.round((100 * roped) / book.length)}%`, 'roped'), dayScores.length ? stat(String(Math.round(dayScores.reduce((a, b) => a + b, 0) / dayScores.length)), 'avg day') : stat(`${s.current}`, 'day trail'))
+      : h('span', { class: 'nums empty' }, h('small', {}, 'After your first round')));
+  const boardNum = h('span', { class: 'nums' }, stat('Join', 'the board'));
+  const boardTile = h('a', { class: 'mode stats', href: '#leaderboard', id: 'home-board' },
+    h('span', { class: 'names' }, h('b', {}, 'Leaderboard'), h('small', {}, 'Top riders')), boardNum);
+  if (acct.signedIn()) {
+    boardNum.replaceChildren(stat('\u2013', 'today'));
+    acct.call(`/v1/leaderboard?view=today&day=${today}`).then((d) => {
+      boardNum.replaceChildren(d.you ? stat(`#${d.you.rank}`, d.you.listed ? 'today' : 'hidden') : stat(String(d.players), d.players === 1 ? 'rider today' : 'riders today'));
+    }).catch(() => boardNum.replaceChildren(stat('Top', 'riders')));
+  }
   const view = h('section', { class: 'home', 'aria-label': 'Welcome' },
     h('div', { class: 'hero-box' }, canvas),
     word,
@@ -172,6 +192,7 @@ async function showHome() {
     state,
     h('nav', { class: 'modes', 'aria-label': 'More ways to play' },
       statsTile,
+      boardTile,
       mode('#practice', 'The Corral', 'Practice'),
       mode('#draw', 'Quick Draw', 'Speed round'),
       mode('#duel', 'Showdown', 'Play a friend'),
@@ -243,7 +264,7 @@ async function playDay(n, live) {
   return undefined;
 }
 
-document.addEventListener('round:row', (e) => { if (current?.length) paintPips(e.detail, current.length); });
+document.addEventListener('round:row', (e) => { if (current?.length) paintPips(e.detail, current.length); acct.syncSoon(); });
 
 function finish(n, rows, live) {
   store.change((d) => {

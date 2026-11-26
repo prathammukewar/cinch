@@ -229,8 +229,12 @@ export function showBook(main, { liveDays, today }) {
 
   const peekBox = h('div', { class: 'peek topic-peek', role: 'status', hidden: true });
   let open = null;
+  let openedAt = 0;
   const peek = (c, btn, toggle) => {
-    if (toggle && open === btn) { close(); return; }
+    // A tap focuses the topic and then clicks it: the click right after the focus must not close what it opened.
+    if (toggle && open === btn && performance.now() - openedAt > 350) { close(); return; }
+    if (open === btn) return;
+    openedAt = performance.now();
     open?.setAttribute('aria-expanded', 'false');
     open = btn;
     btn.setAttribute('aria-expanded', 'true');
