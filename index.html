@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cinch</title>
+<meta name="description" content="Seven questions with number answers. Stretch a range you are 90% sure of, then watch the pin drop.">
+<meta name="theme-color" content="#dfe9d6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d332d" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Cinch">
+<meta property="og:description" content="Seven questions with number answers. Stretch a range you are 90% sure of, then watch the pin drop.">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preload" href="fonts/anybody.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/familjen.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+<link rel="modulepreload" href="js/main.js">
+<script>
+(function () {
+  try {
+    var s = JSON.parse(localStorage.getItem('cinch') || '{}');
+    var t = s.settings && s.settings.theme;
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="bar">
+  <a class="mark" href="#today" id="mark"><span class="mark-band" aria-hidden="true"></span><span id="mark-name">Cinch</span></a>
+  <ol class="pips" id="pips" aria-label="Progress" hidden></ol>
+  <nav class="tools" aria-label="Menu">
+    <button class="icon" id="sound" type="button" aria-pressed="false" aria-label="Sound"></button>
+    <button class="icon" id="menu" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Menu"></button>
+  </nav>
+</header>
+<div class="drawer" id="drawer" hidden></div>
+<main id="main" tabindex="-1"></main>
+<div class="live" id="live" aria-live="polite"></div>
+<noscript><p class="noscript">This game runs in your browser and needs JavaScript switched on.</p></noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

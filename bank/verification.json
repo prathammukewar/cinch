@@ -1,0 +1,4512 @@
+{
+ "date": "2026-11-26",
+ "kept": 695,
+ "removed": [
+  {
+   "id": "an-hedgehog-preg",
+   "why": "PanTHERIA says 36.98, bank says 30"
+  },
+  {
+   "id": "an-sloth-preg",
+   "why": "PanTHERIA says 258.54, bank says 350"
+  },
+  {
+   "id": "en-roads",
+   "why": "could not be read again: LookupError: pattern not found: (4,19\\d,\\d{3})"
+  }
+ ],
+ "checks": {
+  "an-albatross-age": {
+   "checked": "2026-11-26",
+   "refetched": 70,
+   "tolerance": 1e-06
+  },
+  "an-barnowl-weight": {
+   "checked": "2026-11-26",
+   "refetched": 580,
+   "tolerance": 1e-06
+  },
+  "an-bat": {
+   "checked": "2026-11-26",
+   "refetched": 41,
+   "tolerance": 1e-06
+  },
+  "an-beaver-age": {
+   "checked": "2026-11-26",
+   "refetched": 23.4,
+   "tolerance": 1e-06
+  },
+  "an-beaver-preg": {
+   "checked": "2026-11-26",
+   "refetched": 128,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 111.59,
+   "second_tolerance": 0.15
+  },
+  "an-blue-whale-preg": {
+   "checked": "2026-11-26",
+   "refetched": 350,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 326.97,
+   "second_tolerance": 0.15
+  },
+  "an-bluewhale-birth": {
+   "checked": "2026-11-26",
+   "refetched": 2000,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 2738.61279,
+   "second_tolerance": 0.4
+  },
+  "an-bluewhale-weight": {
+   "checked": "2026-11-26",
+   "refetched": 136000,
+   "tolerance": 1e-06
+  },
+  "an-bowhead": {
+   "checked": "2026-11-26",
+   "refetched": 211,
+   "tolerance": 1e-06
+  },
+  "an-camel-preg": {
+   "checked": "2026-11-26",
+   "refetched": 405,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 386.51,
+   "second_tolerance": 0.15
+  },
+  "an-capybara-weight": {
+   "checked": "2026-11-26",
+   "refetched": 55,
+   "tolerance": 1e-06
+  },
+  "an-cat-preg": {
+   "checked": "2026-11-26",
+   "refetched": 65,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 62.99,
+   "second_tolerance": 0.15
+  },
+  "an-cheetah-preg": {
+   "checked": "2026-11-26",
+   "refetched": 88,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 92.24,
+   "second_tolerance": 0.15
+  },
+  "an-chimp-preg": {
+   "checked": "2026-11-26",
+   "refetched": 229,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 231.49,
+   "second_tolerance": 0.15
+  },
+  "an-cow-preg": {
+   "checked": "2026-11-26",
+   "refetched": 277,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 280.48,
+   "second_tolerance": 0.15
+  },
+  "an-crow-age": {
+   "checked": "2026-11-26",
+   "refetched": 20,
+   "tolerance": 1e-06
+  },
+  "an-dog-preg": {
+   "checked": "2026-11-26",
+   "refetched": 63,
+   "tolerance": 1e-06
+  },
+  "an-dolphin-age": {
+   "checked": "2026-11-26",
+   "refetched": 51.6,
+   "tolerance": 1e-06
+  },
+  "an-dolphin-preg": {
+   "checked": "2026-11-26",
+   "refetched": 365,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 365.0,
+   "second_tolerance": 0.15
+  },
+  "an-eagle-age": {
+   "checked": "2026-11-26",
+   "refetched": 48,
+   "tolerance": 1e-06
+  },
+  "an-elephant-birth": {
+   "checked": "2026-11-26",
+   "refetched": 105,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 105.0,
+   "second_tolerance": 0.4
+  },
+  "an-elephant-preg": {
+   "checked": "2026-11-26",
+   "refetched": 670,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 660.0,
+   "second_tolerance": 0.15
+  },
+  "an-elephant-weight": {
+   "checked": "2026-11-26",
+   "refetched": 4800,
+   "tolerance": 1e-06
+  },
+  "an-fox-weight": {
+   "checked": "2026-11-26",
+   "refetched": 4.1317,
+   "tolerance": 1e-06
+  },
+  "an-giraffe-birth": {
+   "checked": "2026-11-26",
+   "refetched": 58.5,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 55.2449,
+   "second_tolerance": 0.4
+  },
+  "an-giraffe-preg": {
+   "checked": "2026-11-26",
+   "refetched": 457,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 455.25,
+   "second_tolerance": 0.15
+  },
+  "an-gorilla-weight": {
+   "checked": "2026-11-26",
+   "refetched": 139.842,
+   "tolerance": 1e-06
+  },
+  "an-greenland": {
+   "checked": "2026-11-26",
+   "refetched": 392,
+   "tolerance": 1e-06
+  },
+  "an-grizzly-birth": {
+   "checked": "2026-11-26",
+   "refetched": 510,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 499.99,
+   "second_tolerance": 0.4
+  },
+  "an-hamster-preg": {
+   "checked": "2026-11-26",
+   "refetched": 16,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 15.49,
+   "second_tolerance": 0.15
+  },
+  "an-hippo-birth": {
+   "checked": "2026-11-26",
+   "refetched": 40,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 40.19999,
+   "second_tolerance": 0.4
+  },
+  "an-hippo-preg": {
+   "checked": "2026-11-26",
+   "refetched": 234,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 235.37,
+   "second_tolerance": 0.15
+  },
+  "an-hippo-weight": {
+   "checked": "2026-11-26",
+   "refetched": 3750,
+   "tolerance": 1e-06
+  },
+  "an-horse-birth": {
+   "checked": "2026-11-26",
+   "refetched": 38,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 37.899989999999995,
+   "second_tolerance": 0.4
+  },
+  "an-horse-preg": {
+   "checked": "2026-11-26",
+   "refetched": 337,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 338.97,
+   "second_tolerance": 0.15
+  },
+  "an-hummer-weight": {
+   "checked": "2026-11-26",
+   "refetched": 3.1,
+   "tolerance": 1e-06
+  },
+  "an-hummingbird": {
+   "checked": "2026-11-26",
+   "refetched": 9.1,
+   "tolerance": 1e-06
+  },
+  "an-kangaroo-birth": {
+   "checked": "2026-11-26",
+   "refetched": 0.784,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 0.81,
+   "second_tolerance": 0.4
+  },
+  "an-koala-birth": {
+   "checked": "2026-11-26",
+   "refetched": 0.36,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 0.36,
+   "second_tolerance": 0.4
+  },
+  "an-koala-weight": {
+   "checked": "2026-11-26",
+   "refetched": 9.3,
+   "tolerance": 1e-06
+  },
+  "an-lion-age": {
+   "checked": "2026-11-26",
+   "refetched": 28,
+   "tolerance": 1e-06
+  },
+  "an-lion-birth": {
+   "checked": "2026-11-26",
+   "refetched": 1300,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 1291.71,
+   "second_tolerance": 0.4
+  },
+  "an-mouse-age": {
+   "checked": "2026-11-26",
+   "refetched": 4,
+   "tolerance": 1e-06
+  },
+  "an-mouse-birth": {
+   "checked": "2026-11-26",
+   "refetched": 1.25,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 1.06,
+   "second_tolerance": 0.4
+  },
+  "an-mouse-preg": {
+   "checked": "2026-11-26",
+   "refetched": 19,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 19.6,
+   "second_tolerance": 0.15
+  },
+  "an-mouse-weight": {
+   "checked": "2026-11-26",
+   "refetched": 20.5,
+   "tolerance": 1e-06
+  },
+  "an-opossum-preg": {
+   "checked": "2026-11-26",
+   "refetched": 12,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 12.69,
+   "second_tolerance": 0.15
+  },
+  "an-orca-birth": {
+   "checked": "2026-11-26",
+   "refetched": 180,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 158.74507,
+   "second_tolerance": 0.4
+  },
+  "an-orca-preg": {
+   "checked": "2026-11-26",
+   "refetched": 435,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 456.25,
+   "second_tolerance": 0.15
+  },
+  "an-ostrich-age": {
+   "checked": "2026-11-26",
+   "refetched": 50,
+   "tolerance": 1e-06
+  },
+  "an-ostrich-weight": {
+   "checked": "2026-11-26",
+   "refetched": 111,
+   "tolerance": 1e-06
+  },
+  "an-panda-birth": {
+   "checked": "2026-11-26",
+   "refetched": 110,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 104.39,
+   "second_tolerance": 0.4
+  },
+  "an-pig-preg": {
+   "checked": "2026-11-26",
+   "refetched": 115,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 115.2,
+   "second_tolerance": 0.15
+  },
+  "an-polar-birth": {
+   "checked": "2026-11-26",
+   "refetched": 665,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 670.48,
+   "second_tolerance": 0.4
+  },
+  "an-polar-weight": {
+   "checked": "2026-11-26",
+   "refetched": 475,
+   "tolerance": 1e-06
+  },
+  "an-rabbit-preg": {
+   "checked": "2026-11-26",
+   "refetched": 30,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 30.45,
+   "second_tolerance": 0.15
+  },
+  "an-rhino-birth": {
+   "checked": "2026-11-26",
+   "refetched": 52.5,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 48.5,
+   "second_tolerance": 0.4
+  },
+  "an-rhino-preg": {
+   "checked": "2026-11-26",
+   "refetched": 515,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 534.19,
+   "second_tolerance": 0.15
+  },
+  "an-robin-weight": {
+   "checked": "2026-11-26",
+   "refetched": 75.5,
+   "tolerance": 1e-06
+  },
+  "an-sheep-preg": {
+   "checked": "2026-11-26",
+   "refetched": 146,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 152.54,
+   "second_tolerance": 0.15
+  },
+  "an-shrew-weight": {
+   "checked": "2026-11-26",
+   "refetched": 2.1,
+   "tolerance": 1e-06
+  },
+  "an-squirrel-preg": {
+   "checked": "2026-11-26",
+   "refetched": 44,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 44.79,
+   "second_tolerance": 0.15
+  },
+  "an-squirrel-weight": {
+   "checked": "2026-11-26",
+   "refetched": 533,
+   "tolerance": 1e-06
+  },
+  "an-tiger-birth": {
+   "checked": "2026-11-26",
+   "refetched": 1190,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 1313.5,
+   "second_tolerance": 0.4
+  },
+  "an-tiger-preg": {
+   "checked": "2026-11-26",
+   "refetched": 105,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 105.19,
+   "second_tolerance": 0.15
+  },
+  "an-tuatara": {
+   "checked": "2026-11-26",
+   "refetched": 90,
+   "tolerance": 1e-06
+  },
+  "an-walrus-preg": {
+   "checked": "2026-11-26",
+   "refetched": 331,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 357.39,
+   "second_tolerance": 0.15
+  },
+  "an-wolf-age": {
+   "checked": "2026-11-26",
+   "refetched": 20.6,
+   "tolerance": 1e-06
+  },
+  "an-wolf-preg": {
+   "checked": "2026-11-26",
+   "refetched": 62,
+   "tolerance": 1e-06,
+   "second_source": "PanTHERIA",
+   "second_value": 63.5,
+   "second_tolerance": 0.15
+  },
+  "an-wombat-weight": {
+   "checked": "2026-11-26",
+   "refetched": 25.5,
+   "tolerance": 1e-06
+  },
+  "an-zebra-preg": {
+   "checked": "2026-11-26",
+   "refetched": 365,
+   "tolerance": 1e-06
+  },
+  "bk-alice": {
+   "checked": "2026-11-26",
+   "refetched": 399,
+   "tolerance": 1e-06
+  },
+  "bk-alice-words": {
+   "checked": "2026-11-26",
+   "refetched": 26776,
+   "tolerance": 1e-06
+  },
+  "bk-carol-words": {
+   "checked": "2026-11-26",
+   "refetched": 28848,
+   "tolerance": 1e-06
+  },
+  "bk-darcy": {
+   "checked": "2026-11-26",
+   "refetched": 432,
+   "tolerance": 1e-06
+  },
+  "bk-dorian-words": {
+   "checked": "2026-11-26",
+   "refetched": 79747,
+   "tolerance": 1e-06
+  },
+  "bk-dracula-words": {
+   "checked": "2026-11-26",
+   "refetched": 162259,
+   "tolerance": 1e-06
+  },
+  "bk-frank-words": {
+   "checked": "2026-11-26",
+   "refetched": 75201,
+   "tolerance": 1e-06
+  },
+  "bk-huck-words": {
+   "checked": "2026-11-26",
+   "refetched": 113358,
+   "tolerance": 1e-06
+  },
+  "bk-humbug": {
+   "checked": "2026-11-26",
+   "refetched": 9,
+   "tolerance": 1e-06
+  },
+  "bk-lesmis-words": {
+   "checked": "2026-11-26",
+   "refetched": 570784,
+   "tolerance": 1e-06
+  },
+  "bk-meta-words": {
+   "checked": "2026-11-26",
+   "refetched": 22048,
+   "tolerance": 1e-06
+  },
+  "bk-moby-words": {
+   "checked": "2026-11-26",
+   "refetched": 216606,
+   "tolerance": 1e-06
+  },
+  "bk-monster": {
+   "checked": "2026-11-26",
+   "refetched": 33,
+   "tolerance": 1e-06
+  },
+  "bk-oz-words": {
+   "checked": "2026-11-26",
+   "refetched": 39767,
+   "tolerance": 1e-06
+  },
+  "bk-peter-words": {
+   "checked": "2026-11-26",
+   "refetched": 47518,
+   "tolerance": 1e-06
+  },
+  "bk-pride-words": {
+   "checked": "2026-11-26",
+   "refetched": 127859,
+   "tolerance": 1e-06
+  },
+  "bk-quix-words": {
+   "checked": "2026-11-26",
+   "refetched": 430055,
+   "tolerance": 1e-06
+  },
+  "bk-tale-words": {
+   "checked": "2026-11-26",
+   "refetched": 137429,
+   "tolerance": 1e-06
+  },
+  "bk-the": {
+   "checked": "2026-11-26",
+   "refetched": 14535,
+   "tolerance": 1e-06
+  },
+  "bk-time-words": {
+   "checked": "2026-11-26",
+   "refetched": 32766,
+   "tolerance": 1e-06
+  },
+  "bk-treasure-words": {
+   "checked": "2026-11-26",
+   "refetched": 69089,
+   "tolerance": 1e-06
+  },
+  "bk-war-words": {
+   "checked": "2026-11-26",
+   "refetched": 566511,
+   "tolerance": 1e-06
+  },
+  "bk-whale": {
+   "checked": "2026-11-26",
+   "refetched": 1511,
+   "tolerance": 1e-06
+  },
+  "bk-wotw-words": {
+   "checked": "2026-11-26",
+   "refetched": 60625,
+   "tolerance": 1e-06
+  },
+  "el-alu-dens": {
+   "checked": "2026-11-26",
+   "refetched": 2.7,
+   "tolerance": 1e-06
+  },
+  "el-aluminum": {
+   "checked": "2026-11-26",
+   "refetched": 660,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 660.0,
+   "second_tolerance": 0.03
+  },
+  "el-gallium": {
+   "checked": "2026-11-26",
+   "refetched": 29.8,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 29.760000000000048,
+   "second_tolerance": 0.1
+  },
+  "el-gases": {
+   "checked": "2026-11-26",
+   "refetched": 11,
+   "tolerance": 1e-06
+  },
+  "el-gold": {
+   "checked": "2026-11-26",
+   "refetched": 1064,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 1064.18,
+   "second_tolerance": 0.03
+  },
+  "el-gold-dens": {
+   "checked": "2026-11-26",
+   "refetched": 19.282,
+   "tolerance": 1e-06
+  },
+  "el-helium": {
+   "checked": "2026-11-26",
+   "refetched": -268.9,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": -268.9,
+   "second_tolerance": 0.03
+  },
+  "el-helium-year": {
+   "checked": "2026-11-26",
+   "refetched": 1868,
+   "tolerance": 1e-06
+  },
+  "el-iodine": {
+   "checked": "2026-11-26",
+   "refetched": 114,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 113.7,
+   "second_tolerance": 0.03
+  },
+  "el-iron": {
+   "checked": "2026-11-26",
+   "refetched": 1538,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 1538.0,
+   "second_tolerance": 0.03
+  },
+  "el-lead": {
+   "checked": "2026-11-26",
+   "refetched": 327,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 328.0,
+   "second_tolerance": 0.03
+  },
+  "el-lead-dens": {
+   "checked": "2026-11-26",
+   "refetched": 11.342,
+   "tolerance": 1e-06
+  },
+  "el-lithium-dens": {
+   "checked": "2026-11-26",
+   "refetched": 0.534,
+   "tolerance": 1e-06
+  },
+  "el-mercury": {
+   "checked": "2026-11-26",
+   "refetched": -39,
+   "tolerance": 1e-06
+  },
+  "el-mercury-dens": {
+   "checked": "2026-11-26",
+   "refetched": 13.5336,
+   "tolerance": 1e-06
+  },
+  "el-neon-year": {
+   "checked": "2026-11-26",
+   "refetched": 1898,
+   "tolerance": 1e-06
+  },
+  "el-nitrogen": {
+   "checked": "2026-11-26",
+   "refetched": -196,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": -195.99999999999997,
+   "second_tolerance": 0.03
+  },
+  "el-osmium": {
+   "checked": "2026-11-26",
+   "refetched": 22.57,
+   "tolerance": 1e-06
+  },
+  "el-oxygen-b": {
+   "checked": "2026-11-26",
+   "refetched": -183,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": -182.99999999999997,
+   "second_tolerance": 0.03
+  },
+  "el-oxygen-year": {
+   "checked": "2026-11-26",
+   "refetched": 1774,
+   "tolerance": 1e-06
+  },
+  "el-plutonium-year": {
+   "checked": "2026-11-26",
+   "refetched": 1940,
+   "tolerance": 1e-06
+  },
+  "el-silver": {
+   "checked": "2026-11-26",
+   "refetched": 962,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 960.5555555555555,
+   "second_tolerance": 0.03
+  },
+  "el-sodium": {
+   "checked": "2026-11-26",
+   "refetched": 98,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 97.78,
+   "second_tolerance": 0.03
+  },
+  "el-tin": {
+   "checked": "2026-11-26",
+   "refetched": 232,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 231.66666666666666,
+   "second_tolerance": 0.03
+  },
+  "el-titanium-m": {
+   "checked": "2026-11-26",
+   "refetched": 1668,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 1667.85,
+   "second_tolerance": 0.03
+  },
+  "el-titanium-year": {
+   "checked": "2026-11-26",
+   "refetched": 1791,
+   "tolerance": 1e-06
+  },
+  "el-tungsten": {
+   "checked": "2026-11-26",
+   "refetched": 3422,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 3410.0,
+   "second_tolerance": 0.03
+  },
+  "el-uranium-w": {
+   "checked": "2026-11-26",
+   "refetched": 236,
+   "tolerance": 1e-06
+  },
+  "en-arch-h": {
+   "checked": "2026-11-26",
+   "refetched": 630,
+   "tolerance": 1e-06
+  },
+  "en-arch-steel": {
+   "checked": "2026-11-26",
+   "refetched": 886,
+   "tolerance": 1e-06
+  },
+  "en-arch-top": {
+   "checked": "2026-11-26",
+   "refetched": 17,
+   "tolerance": 1e-06
+  },
+  "en-hoover-h": {
+   "checked": "2026-11-26",
+   "refetched": 726.4,
+   "tolerance": 1e-06
+  },
+  "en-hoover-w": {
+   "checked": "2026-11-26",
+   "refetched": 6600000,
+   "tolerance": 1e-06
+  },
+  "en-liberty-arm": {
+   "checked": "2026-11-26",
+   "refetched": 42,
+   "tolerance": 1e-06
+  },
+  "en-liberty-waist": {
+   "checked": "2026-11-26",
+   "refetched": 35,
+   "tolerance": 1e-06
+  },
+  "en-wash-h": {
+   "checked": "2026-11-26",
+   "refetched": 555,
+   "tolerance": 1e-06
+  },
+  "en-wash-steps": {
+   "checked": "2026-11-26",
+   "refetched": 896,
+   "tolerance": 1e-06
+  },
+  "ev-power": {
+   "checked": "2026-11-26",
+   "refetched": 10791,
+   "tolerance": 1e-06
+  },
+  "ev-power-la": {
+   "checked": "2026-11-26",
+   "refetched": 14774,
+   "tolerance": 1e-06
+  },
+  "ev-shower": {
+   "checked": "2026-11-26",
+   "refetched": 40,
+   "tolerance": 1e-06
+  },
+  "ev-showerhead": {
+   "checked": "2026-11-26",
+   "refetched": 2.5,
+   "tolerance": 1e-06
+  },
+  "ev-toilet": {
+   "checked": "2026-11-26",
+   "refetched": 1.6,
+   "tolerance": 1e-06
+  },
+  "ev-trash": {
+   "checked": "2026-11-26",
+   "refetched": 4.9,
+   "tolerance": 1e-06
+  },
+  "fo-apple-usa": {
+   "checked": "2026-11-26",
+   "refetched": 4922840,
+   "tolerance": 1e-06
+  },
+  "fo-avocado-mex": {
+   "checked": "2026-11-26",
+   "refetched": 2761330,
+   "tolerance": 1e-06
+  },
+  "fo-banana-world": {
+   "checked": "2026-11-26",
+   "refetched": 139414000,
+   "tolerance": 1e-06
+  },
+  "fo-ca-milk": {
+   "checked": "2026-11-26",
+   "refetched": 123,
+   "tolerance": 1e-06
+  },
+  "fo-ca-parm": {
+   "checked": "2026-11-26",
+   "refetched": 950,
+   "tolerance": 1e-06
+  },
+  "fo-caff-coffee": {
+   "checked": "2026-11-26",
+   "refetched": 71,
+   "tolerance": 1e-06
+  },
+  "fo-caff-limit": {
+   "checked": "2026-11-26",
+   "refetched": 400,
+   "tolerance": 1e-06
+  },
+  "fo-chicken": {
+   "checked": "2026-11-26",
+   "refetched": 68.1,
+   "tolerance": 1e-06
+  },
+  "fo-choc-civ": {
+   "checked": "2026-11-26",
+   "refetched": 1890440,
+   "tolerance": 1e-06
+  },
+  "fo-coffee-bra": {
+   "checked": "2026-11-26",
+   "refetched": 3387720,
+   "tolerance": 1e-06
+  },
+  "fo-fat-creamcheese": {
+   "checked": "2026-11-26",
+   "refetched": 33.5,
+   "tolerance": 1e-06
+  },
+  "fo-fat-heavy": {
+   "checked": "2026-11-26",
+   "refetched": 35.6,
+   "tolerance": 1e-06
+  },
+  "fo-fat-macadamia": {
+   "checked": "2026-11-26",
+   "refetched": 64.9,
+   "tolerance": 1e-06
+  },
+  "fo-fe-spinach": {
+   "checked": "2026-11-26",
+   "refetched": 1.05,
+   "tolerance": 1e-06
+  },
+  "fo-icecream-fat": {
+   "checked": "2026-11-26",
+   "refetched": 10,
+   "tolerance": 1e-06
+  },
+  "fo-icecream-lb": {
+   "checked": "2026-11-26",
+   "refetched": 4.5,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-avocado": {
+   "checked": "2026-11-26",
+   "refetched": 223,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-banana": {
+   "checked": "2026-11-26",
+   "refetched": 97,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-blueberry": {
+   "checked": "2026-11-26",
+   "refetched": 64,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-broccoli": {
+   "checked": "2026-11-26",
+   "refetched": 31,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-celery": {
+   "checked": "2026-11-26",
+   "refetched": 17,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-pbutter": {
+   "checked": "2026-11-26",
+   "refetched": 632,
+   "tolerance": 1e-06
+  },
+  "fo-kcal-whiterice": {
+   "checked": "2026-11-26",
+   "refetched": 359,
+   "tolerance": 1e-06
+  },
+  "fo-maple": {
+   "checked": "2026-11-26",
+   "refetched": 66,
+   "tolerance": 1e-06
+  },
+  "fo-margarine": {
+   "checked": "2026-11-26",
+   "refetched": 80,
+   "tolerance": 1e-06
+  },
+  "fo-mayo": {
+   "checked": "2026-11-26",
+   "refetched": 65,
+   "tolerance": 1e-06
+  },
+  "fo-milkchoc": {
+   "checked": "2026-11-26",
+   "refetched": 10,
+   "tolerance": 1e-06
+  },
+  "fo-na-bread": {
+   "checked": "2026-11-26",
+   "refetched": 477,
+   "tolerance": 1e-06
+  },
+  "fo-na-feta": {
+   "checked": "2026-11-26",
+   "refetched": 1030,
+   "tolerance": 1e-06
+  },
+  "fo-na-ketchup": {
+   "checked": "2026-11-26",
+   "refetched": 949,
+   "tolerance": 1e-06
+  },
+  "fo-na-pickle": {
+   "checked": "2026-11-26",
+   "refetched": 808,
+   "tolerance": 1e-06
+  },
+  "fo-peanutb": {
+   "checked": "2026-11-26",
+   "refetched": 55,
+   "tolerance": 1e-06
+  },
+  "fo-pot-banana": {
+   "checked": "2026-11-26",
+   "refetched": 326,
+   "tolerance": 1e-06
+  },
+  "fo-pot-potato": {
+   "checked": "2026-11-26",
+   "refetched": 450,
+   "tolerance": 1e-06
+  },
+  "fo-potato-world": {
+   "checked": "2026-11-26",
+   "refetched": 390429000,
+   "tolerance": 1e-06
+  },
+  "fo-prot-chicken": {
+   "checked": "2026-11-26",
+   "refetched": 22.5,
+   "tolerance": 1e-06
+  },
+  "fo-prot-lentil": {
+   "checked": "2026-11-26",
+   "refetched": 23.6,
+   "tolerance": 1e-06
+  },
+  "fo-prot-parm": {
+   "checked": "2026-11-26",
+   "refetched": 30.1,
+   "tolerance": 1e-06
+  },
+  "fo-prot-peanut": {
+   "checked": "2026-11-26",
+   "refetched": 24,
+   "tolerance": 1e-06
+  },
+  "fo-rice-chn": {
+   "checked": "2026-11-26",
+   "refetched": 207530000,
+   "tolerance": 1e-06
+  },
+  "fo-sug-grape": {
+   "checked": "2026-11-26",
+   "refetched": 17.3,
+   "tolerance": 1e-06
+  },
+  "fo-sug-ketchup": {
+   "checked": "2026-11-26",
+   "refetched": 21.8,
+   "tolerance": 1e-06
+  },
+  "fo-sug-oj": {
+   "checked": "2026-11-26",
+   "refetched": 8.08,
+   "tolerance": 1e-06
+  },
+  "fo-sug-strawberry": {
+   "checked": "2026-11-26",
+   "refetched": 4.86,
+   "tolerance": 1e-06
+  },
+  "fo-tomato-ita": {
+   "checked": "2026-11-26",
+   "refetched": 6022790,
+   "tolerance": 1e-06
+  },
+  "fo-vitc-orange": {
+   "checked": "2026-11-26",
+   "refetched": 59.1,
+   "tolerance": 1e-06
+  },
+  "fo-vitc-redpep": {
+   "checked": "2026-11-26",
+   "refetched": 142,
+   "tolerance": 1e-06
+  },
+  "fo-vitc-strawb": {
+   "checked": "2026-11-26",
+   "refetched": 59.6,
+   "tolerance": 1e-06
+  },
+  "fo-water-apple": {
+   "checked": "2026-11-26",
+   "refetched": 84.6,
+   "tolerance": 1e-06
+  },
+  "fo-water-avocado": {
+   "checked": "2026-11-26",
+   "refetched": 67,
+   "tolerance": 1e-06
+  },
+  "fo-water-bread": {
+   "checked": "2026-11-26",
+   "refetched": 35.7,
+   "tolerance": 1e-06
+  },
+  "fo-water-butter": {
+   "checked": "2026-11-26",
+   "refetched": 17.4,
+   "tolerance": 1e-06
+  },
+  "fo-water-cheddar": {
+   "checked": "2026-11-26",
+   "refetched": 36.6,
+   "tolerance": 1e-06
+  },
+  "fo-water-cuke": {
+   "checked": "2026-11-26",
+   "refetched": 95.9,
+   "tolerance": 1e-06
+  },
+  "fo-water-egg": {
+   "checked": "2026-11-26",
+   "refetched": 86.3,
+   "tolerance": 1e-06
+  },
+  "fo-water-potato": {
+   "checked": "2026-11-26",
+   "refetched": 78.6,
+   "tolerance": 1e-06
+  },
+  "fo-water-salmon": {
+   "checked": "2026-11-26",
+   "refetched": 65.8,
+   "tolerance": 1e-06
+  },
+  "fo-water-steak": {
+   "checked": "2026-11-26",
+   "refetched": 60.6,
+   "tolerance": 1e-06
+  },
+  "ge-air-usa": {
+   "checked": "2026-11-26",
+   "refetched": 941557000,
+   "tolerance": 1e-06
+  },
+  "ge-area-australia": {
+   "checked": "2026-11-26",
+   "refetched": 7741220,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 7686850.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-bhutan": {
+   "checked": "2026-11-26",
+   "refetched": 38390,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 38390.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-brazil": {
+   "checked": "2026-11-26",
+   "refetched": 8510420,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 8511965.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-chile": {
+   "checked": "2026-11-26",
+   "refetched": 756556,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 756950.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-cuba": {
+   "checked": "2026-11-26",
+   "refetched": 109884,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 110860.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-egypt": {
+   "checked": "2026-11-26",
+   "refetched": 1001450,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 1001450.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-iceland": {
+   "checked": "2026-11-26",
+   "refetched": 103000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 103000.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-jamaica": {
+   "checked": "2026-11-26",
+   "refetched": 10991,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 10991.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-japan": {
+   "checked": "2026-11-26",
+   "refetched": 377975,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 377835.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-madagascar": {
+   "checked": "2026-11-26",
+   "refetched": 591896,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 587040.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-mongolia": {
+   "checked": "2026-11-26",
+   "refetched": 1564120,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 1565000.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-nz": {
+   "checked": "2026-11-26",
+   "refetched": 267710,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 268680.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-singapore": {
+   "checked": "2026-11-26",
+   "refetched": 735.6,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 736.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-switz": {
+   "checked": "2026-11-26",
+   "refetched": 41290.7,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 41290.0,
+   "second_tolerance": 0.06
+  },
+  "ge-area-uk": {
+   "checked": "2026-11-26",
+   "refetched": 243610,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 244820.0,
+   "second_tolerance": 0.06
+  },
+  "ge-elec-chad": {
+   "checked": "2026-11-26",
+   "refetched": 13.4,
+   "tolerance": 1e-06
+  },
+  "ge-farm-uk": {
+   "checked": "2026-11-26",
+   "refetched": 69.2,
+   "tolerance": 1e-06
+  },
+  "ge-forest-bhutan": {
+   "checked": "2026-11-26",
+   "refetched": 70.4,
+   "tolerance": 1e-06
+  },
+  "ge-forest-brazil": {
+   "checked": "2026-11-26",
+   "refetched": 58.5,
+   "tolerance": 1e-06
+  },
+  "ge-forest-canada": {
+   "checked": "2026-11-26",
+   "refetched": 42,
+   "tolerance": 1e-06
+  },
+  "ge-forest-costarica": {
+   "checked": "2026-11-26",
+   "refetched": 59.1,
+   "tolerance": 1e-06
+  },
+  "ge-forest-finland": {
+   "checked": "2026-11-26",
+   "refetched": 74.2,
+   "tolerance": 1e-06
+  },
+  "ge-forest-gabon": {
+   "checked": "2026-11-26",
+   "refetched": 91.4,
+   "tolerance": 1e-06
+  },
+  "ge-forest-iceland": {
+   "checked": "2026-11-26",
+   "refetched": 0.6,
+   "tolerance": 1e-06
+  },
+  "ge-forest-ireland": {
+   "checked": "2026-11-26",
+   "refetched": 12,
+   "tolerance": 1e-06
+  },
+  "ge-forest-japan": {
+   "checked": "2026-11-26",
+   "refetched": 68.3,
+   "tolerance": 1e-06
+  },
+  "ge-forest-uk": {
+   "checked": "2026-11-26",
+   "refetched": 13.5,
+   "tolerance": 1e-06
+  },
+  "ge-forest-usa": {
+   "checked": "2026-11-26",
+   "refetched": 33.8,
+   "tolerance": 1e-06
+  },
+  "ge-gc-miles": {
+   "checked": "2026-11-26",
+   "refetched": 278,
+   "tolerance": 1e-06
+  },
+  "ge-gc-river": {
+   "checked": "2026-11-26",
+   "refetched": 300,
+   "tolerance": 1e-06
+  },
+  "ge-gc-width": {
+   "checked": "2026-11-26",
+   "refetched": 18,
+   "tolerance": 1e-06
+  },
+  "ge-life-japan": {
+   "checked": "2026-11-26",
+   "refetched": 84,
+   "tolerance": 1e-06
+  },
+  "ge-life-us": {
+   "checked": "2026-11-26",
+   "refetched": 78.9,
+   "tolerance": 1e-06
+  },
+  "ge-net-iceland": {
+   "checked": "2026-11-26",
+   "refetched": 98.2,
+   "tolerance": 1e-06
+  },
+  "ge-net-world": {
+   "checked": "2026-11-26",
+   "refetched": 73.6,
+   "tolerance": 1e-06
+  },
+  "ge-ocean-deep": {
+   "checked": "2026-11-26",
+   "refetched": 10935,
+   "tolerance": 1e-06
+  },
+  "ge-ocean-mean": {
+   "checked": "2026-11-26",
+   "refetched": 3682,
+   "tolerance": 1e-06
+  },
+  "ge-park-acad": {
+   "checked": "2026-11-26",
+   "refetched": 3961661,
+   "tolerance": 1e-06
+  },
+  "ge-park-arch": {
+   "checked": "2026-11-26",
+   "refetched": 1466528,
+   "tolerance": 1e-06
+  },
+  "ge-park-brca": {
+   "checked": "2026-11-26",
+   "refetched": 2498075,
+   "tolerance": 1e-06
+  },
+  "ge-park-deva": {
+   "checked": "2026-11-26",
+   "refetched": 1440484,
+   "tolerance": 1e-06
+  },
+  "ge-park-ever": {
+   "checked": "2026-11-26",
+   "refetched": 741983,
+   "tolerance": 1e-06
+  },
+  "ge-park-glac": {
+   "checked": "2026-11-26",
+   "refetched": 3208755,
+   "tolerance": 1e-06
+  },
+  "ge-park-grsm": {
+   "checked": "2026-11-26",
+   "refetched": 12191834,
+   "tolerance": 1e-06
+  },
+  "ge-park-olym": {
+   "checked": "2026-11-26",
+   "refetched": 3717267,
+   "tolerance": 1e-06
+  },
+  "ge-park-romo": {
+   "checked": "2026-11-26",
+   "refetched": 4154349,
+   "tolerance": 1e-06
+  },
+  "ge-park-yell": {
+   "checked": "2026-11-26",
+   "refetched": 4744353,
+   "tolerance": 1e-06
+  },
+  "ge-park-yose": {
+   "checked": "2026-11-26",
+   "refetched": 4121807,
+   "tolerance": 1e-06
+  },
+  "ge-park-zion": {
+   "checked": "2026-11-26",
+   "refetched": 4946592,
+   "tolerance": 1e-06
+  },
+  "ge-phones-japan": {
+   "checked": "2026-11-26",
+   "refetched": 178.4,
+   "tolerance": 1e-06
+  },
+  "ge-pop-australia": {
+   "checked": "2026-11-26",
+   "refetched": 27614400,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 27614411.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-bhutan": {
+   "checked": "2026-11-26",
+   "refetched": 796682,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 796682.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-canada": {
+   "checked": "2026-11-26",
+   "refetched": 41651700,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 41651653.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-chile": {
+   "checked": "2026-11-26",
+   "refetched": 19859900,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 19859921.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-egypt": {
+   "checked": "2026-11-26",
+   "refetched": 118366000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 118365995.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-fiji": {
+   "checked": "2026-11-26",
+   "refetched": 933154,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 933154.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-iceland": {
+   "checked": "2026-11-26",
+   "refetched": 392404,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 392404.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-indonesia": {
+   "checked": "2026-11-26",
+   "refetched": 285721000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 285721236.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-ireland": {
+   "checked": "2026-11-26",
+   "refetched": 5484370,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 5484367.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-jamaica": {
+   "checked": "2026-11-26",
+   "refetched": 2837080,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 2837077.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-japan": {
+   "checked": "2026-11-26",
+   "refetched": 123367000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 123366734.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-kenya": {
+   "checked": "2026-11-26",
+   "refetched": 57532500,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 57532493.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-madag": {
+   "checked": "2026-11-26",
+   "refetched": 32740700,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 32740678.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-malta": {
+   "checked": "2026-11-26",
+   "refetched": 579704,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 579704.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-mexico": {
+   "checked": "2026-11-26",
+   "refetched": 131947000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 131946900.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-mongolia": {
+   "checked": "2026-11-26",
+   "refetched": 3568980,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 3568978.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-nigeria": {
+   "checked": "2026-11-26",
+   "refetched": 237528000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 237527782.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-norway": {
+   "checked": "2026-11-26",
+   "refetched": 5610870,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 5610870.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-nz": {
+   "checked": "2026-11-26",
+   "refetched": 5324700,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 5324700.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-portugal": {
+   "checked": "2026-11-26",
+   "refetched": 10804900,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 10804871.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-samoa": {
+   "checked": "2026-11-26",
+   "refetched": 219306,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 219306.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-singapore": {
+   "checked": "2026-11-26",
+   "refetched": 6111180,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 6111175.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-switz": {
+   "checked": "2026-11-26",
+   "refetched": 9092440,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 9092436.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-vietnam": {
+   "checked": "2026-11-26",
+   "refetched": 101599000,
+   "tolerance": 1e-06,
+   "second_source": "GeoNames",
+   "second_value": 101598527.0,
+   "second_tolerance": 0.2
+  },
+  "ge-pop-world": {
+   "checked": "2026-11-26",
+   "refetched": 8215420000,
+   "tolerance": 1e-06
+  },
+  "ge-rail-germany": {
+   "checked": "2026-11-26",
+   "refetched": 33401,
+   "tolerance": 1e-06
+  },
+  "ge-rail-india": {
+   "checked": "2026-11-26",
+   "refetched": 68102.7,
+   "tolerance": 1e-06
+  },
+  "ge-renew-brazil": {
+   "checked": "2026-11-26",
+   "refetched": 77.4,
+   "tolerance": 1e-06
+  },
+  "ge-renew-japan": {
+   "checked": "2026-11-26",
+   "refetched": 21.1,
+   "tolerance": 1e-06
+  },
+  "ge-renew-norway": {
+   "checked": "2026-11-26",
+   "refetched": 99.1,
+   "tolerance": 1e-06
+  },
+  "ge-renew-usa": {
+   "checked": "2026-11-26",
+   "refetched": 20.3,
+   "tolerance": 1e-06
+  },
+  "ge-sherman": {
+   "checked": "2026-11-26",
+   "refetched": 274.9,
+   "tolerance": 1e-06
+  },
+  "ge-sherman-around": {
+   "checked": "2026-11-26",
+   "refetched": 102.6,
+   "tolerance": 1e-06
+  },
+  "ge-st-alaska": {
+   "checked": "2026-11-26",
+   "refetched": 740133,
+   "tolerance": 1e-06
+  },
+  "ge-st-california": {
+   "checked": "2026-11-26",
+   "refetched": 39431263,
+   "tolerance": 1e-06
+  },
+  "ge-st-colorado": {
+   "checked": "2026-11-26",
+   "refetched": 5957493,
+   "tolerance": 1e-06
+  },
+  "ge-st-delaware": {
+   "checked": "2026-11-26",
+   "refetched": 1051917,
+   "tolerance": 1e-06
+  },
+  "ge-st-florida": {
+   "checked": "2026-11-26",
+   "refetched": 23372215,
+   "tolerance": 1e-06
+  },
+  "ge-st-hawaii": {
+   "checked": "2026-11-26",
+   "refetched": 1446146,
+   "tolerance": 1e-06
+  },
+  "ge-st-maine": {
+   "checked": "2026-11-26",
+   "refetched": 1405012,
+   "tolerance": 1e-06
+  },
+  "ge-st-massachusetts": {
+   "checked": "2026-11-26",
+   "refetched": 7136171,
+   "tolerance": 1e-06
+  },
+  "ge-st-montana": {
+   "checked": "2026-11-26",
+   "refetched": 1137233,
+   "tolerance": 1e-06
+  },
+  "ge-st-nevada": {
+   "checked": "2026-11-26",
+   "refetched": 3267467,
+   "tolerance": 1e-06
+  },
+  "ge-st-newyork": {
+   "checked": "2026-11-26",
+   "refetched": 19867248,
+   "tolerance": 1e-06
+  },
+  "ge-st-northdakota": {
+   "checked": "2026-11-26",
+   "refetched": 796568,
+   "tolerance": 1e-06
+  },
+  "ge-st-ohio": {
+   "checked": "2026-11-26",
+   "refetched": 11883304,
+   "tolerance": 1e-06
+  },
+  "ge-st-puertorico": {
+   "checked": "2026-11-26",
+   "refetched": 3203295,
+   "tolerance": 1e-06
+  },
+  "ge-st-rhodeisland": {
+   "checked": "2026-11-26",
+   "refetched": 1112308,
+   "tolerance": 1e-06
+  },
+  "ge-st-texas": {
+   "checked": "2026-11-26",
+   "refetched": 31290831,
+   "tolerance": 1e-06
+  },
+  "ge-st-utah": {
+   "checked": "2026-11-26",
+   "refetched": 3503613,
+   "tolerance": 1e-06
+  },
+  "ge-st-vermont": {
+   "checked": "2026-11-26",
+   "refetched": 648493,
+   "tolerance": 1e-06
+  },
+  "ge-st-wyoming": {
+   "checked": "2026-11-26",
+   "refetched": 587618,
+   "tolerance": 1e-06
+  },
+  "ge-urban-japan": {
+   "checked": "2026-11-26",
+   "refetched": 92.3,
+   "tolerance": 1e-06
+  },
+  "ge-urban-nepal": {
+   "checked": "2026-11-26",
+   "refetched": 67,
+   "tolerance": 1e-06
+  },
+  "ge-urban-world": {
+   "checked": "2026-11-26",
+   "refetched": 57.8,
+   "tolerance": 1e-06
+  },
+  "ge-vol-hood": {
+   "checked": "2026-11-26",
+   "refetched": 3426,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 3425.0376,
+   "second_tolerance": 0.02
+  },
+  "ge-vol-kilauea": {
+   "checked": "2026-11-26",
+   "refetched": 1247,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 1247.0,
+   "second_tolerance": 0.02
+  },
+  "ge-vol-maunaloa": {
+   "checked": "2026-11-26",
+   "refetched": 4170,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 4169.3592,
+   "second_tolerance": 0.02
+  },
+  "ge-vol-rainier": {
+   "checked": "2026-11-26",
+   "refetched": 4392,
+   "tolerance": 1e-06,
+   "second_source": "Wikidata",
+   "second_value": 4389.0,
+   "second_tolerance": 0.02
+  },
+  "ge-vol-shasta": {
+   "checked": "2026-11-26",
+   "refetched": 4317,
+   "tolerance": 1e-06
+  },
+  "ge-water-vol": {
+   "checked": "2026-11-26",
+   "refetched": 860,
+   "tolerance": 1e-06
+  },
+  "ge-wx-boston-snow": {
+   "checked": "2026-11-26",
+   "refetched": 49.2,
+   "tolerance": 1e-06
+  },
+  "ge-wx-lasvegas-prcp": {
+   "checked": "2026-11-26",
+   "refetched": 4.18,
+   "tolerance": 1e-06
+  },
+  "ge-wx-miami-prcp": {
+   "checked": "2026-11-26",
+   "refetched": 67.41,
+   "tolerance": 1e-06
+  },
+  "ge-wx-minneapolis-snow": {
+   "checked": "2026-11-26",
+   "refetched": 51.2,
+   "tolerance": 1e-06
+  },
+  "ge-wx-phoenix-prcp": {
+   "checked": "2026-11-26",
+   "refetched": 7.22,
+   "tolerance": 1e-06
+  },
+  "ge-wx-seattle-prcp": {
+   "checked": "2026-11-26",
+   "refetched": 39.34,
+   "tolerance": 1e-06
+  },
+  "ge-wx-syracuse-snow": {
+   "checked": "2026-11-26",
+   "refetched": 127.8,
+   "tolerance": 1e-06
+  },
+  "ge-yell-acres": {
+   "checked": "2026-11-26",
+   "refetched": 2221766,
+   "tolerance": 1e-06
+  },
+  "ge-yell-fall-h": {
+   "checked": "2026-11-26",
+   "refetched": 308,
+   "tolerance": 1e-06
+  },
+  "ge-yell-falls": {
+   "checked": "2026-11-26",
+   "refetched": 290,
+   "tolerance": 1e-06
+  },
+  "ge-yell-springs": {
+   "checked": "2026-11-26",
+   "refetched": 10000,
+   "tolerance": 1e-06
+  },
+  "hi-decl-words": {
+   "checked": "2026-11-26",
+   "refetched": 1322,
+   "tolerance": 1e-06
+  },
+  "hi-lewis": {
+   "checked": "2026-11-26",
+   "refetched": 4900,
+   "tolerance": 1e-06
+  },
+  "hi-nara": {
+   "checked": "2026-11-26",
+   "refetched": 13500000000,
+   "tolerance": 1e-06
+  },
+  "hi-parks-1904": {
+   "checked": "2026-11-26",
+   "refetched": 120690,
+   "tolerance": 1e-06
+  },
+  "hi-wright-first": {
+   "checked": "2026-11-26",
+   "refetched": 120,
+   "tolerance": 1e-06
+  },
+  "hi-wright-ft": {
+   "checked": "2026-11-26",
+   "refetched": 852,
+   "tolerance": 1e-06
+  },
+  "hu-bone-water": {
+   "checked": "2026-11-26",
+   "refetched": 31,
+   "tolerance": 1e-06
+  },
+  "hu-bones-app": {
+   "checked": "2026-11-26",
+   "refetched": 126,
+   "tolerance": 1e-06
+  },
+  "hu-brain-water": {
+   "checked": "2026-11-26",
+   "refetched": 73,
+   "tolerance": 1e-06
+  },
+  "hu-chr1": {
+   "checked": "2026-11-26",
+   "refetched": 248956422,
+   "tolerance": 1e-06
+  },
+  "hu-chr21": {
+   "checked": "2026-11-26",
+   "refetched": 46709983,
+   "tolerance": 1e-06
+  },
+  "hu-chrM": {
+   "checked": "2026-11-26",
+   "refetched": 16569,
+   "tolerance": 1e-06
+  },
+  "hu-genome": {
+   "checked": "2026-11-26",
+   "refetched": 3099441038,
+   "tolerance": 1e-06
+  },
+  "hu-kidney": {
+   "checked": "2026-11-26",
+   "refetched": 150,
+   "tolerance": 1e-06
+  },
+  "hu-lung-water": {
+   "checked": "2026-11-26",
+   "refetched": 83,
+   "tolerance": 1e-06
+  },
+  "hu-skin-water": {
+   "checked": "2026-11-26",
+   "refetched": 64,
+   "tolerance": 1e-06
+  },
+  "hu-taste": {
+   "checked": "2026-11-26",
+   "refetched": 10000,
+   "tolerance": 1e-06
+  },
+  "ma-100fact": {
+   "checked": "2026-11-26",
+   "refetched": 158,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 158,
+   "second_tolerance": 1e-09
+  },
+  "ma-2-64": {
+   "checked": "2026-11-26",
+   "refetched": 9223372036854775808,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 9223372036854775808,
+   "second_tolerance": 1e-09
+  },
+  "ma-52fact": {
+   "checked": "2026-11-26",
+   "refetched": 68,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 68,
+   "second_tolerance": 1e-09
+  },
+  "ma-bday-today": {
+   "checked": "2026-11-26",
+   "refetched": 253,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 253,
+   "second_tolerance": 1e-09
+  },
+  "ma-birthday": {
+   "checked": "2026-11-26",
+   "refetched": 23,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 23,
+   "second_tolerance": 1e-09
+  },
+  "ma-change": {
+   "checked": "2026-11-26",
+   "refetched": 292,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 292,
+   "second_tolerance": 1e-09
+  },
+  "ma-chess-squares": {
+   "checked": "2026-11-26",
+   "refetched": 204,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 204,
+   "second_tolerance": 1e-09
+  },
+  "ma-compound": {
+   "checked": "2026-11-26",
+   "refetched": 29457,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 29457,
+   "second_tolerance": 1e-09
+  },
+  "ma-coupon": {
+   "checked": "2026-11-26",
+   "refetched": 72,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 71.87515,
+   "second_tolerance": 0.01
+  },
+  "ma-paper": {
+   "checked": "2026-11-26",
+   "refetched": 439805,
+   "tolerance": 1e-06
+  },
+  "ma-penny": {
+   "checked": "2026-11-26",
+   "refetched": 5368709.12,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 5368709.12,
+   "second_tolerance": 1e-09
+  },
+  "ma-poker-flush": {
+   "checked": "2026-11-26",
+   "refetched": 2598960,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 2598960,
+   "second_tolerance": 1e-09
+  },
+  "ma-powerball": {
+   "checked": "2026-11-26",
+   "refetched": 292201338,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 292201338,
+   "second_tolerance": 1e-09
+  },
+  "ma-primes-1000": {
+   "checked": "2026-11-26",
+   "refetched": 168,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 168,
+   "second_tolerance": 1e-09
+  },
+  "ma-primes-million": {
+   "checked": "2026-11-26",
+   "refetched": 78498,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 78498,
+   "second_tolerance": 1e-09
+  },
+  "ma-queens": {
+   "checked": "2026-11-26",
+   "refetched": 92,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 92,
+   "second_tolerance": 1e-09
+  },
+  "ma-royal": {
+   "checked": "2026-11-26",
+   "refetched": 649740,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 649740,
+   "second_tolerance": 1e-09
+  },
+  "ma-rubik": {
+   "checked": "2026-11-26",
+   "refetched": 20,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 20,
+   "second_tolerance": 1e-09
+  },
+  "ma-sudoku-fri13": {
+   "checked": "2026-11-26",
+   "refetched": 688,
+   "tolerance": 1e-06,
+   "second_source": "recomputed with a different method",
+   "second_value": 688,
+   "second_tolerance": 1e-09
+  },
+  "ma-tictac": {
+   "checked": "2026-11-26",
+   "refetched": 255168,
+   "tolerance": 1e-06
+  },
+  "mlb-attend": {
+   "checked": "2026-11-26",
+   "refetched": 29568,
+   "tolerance": 1e-06
+  },
+  "mlb-hr": {
+   "checked": "2026-11-26",
+   "refetched": 5453,
+   "tolerance": 1e-06
+  },
+  "mlb-runs": {
+   "checked": "2026-11-26",
+   "refetched": 21343,
+   "tolerance": 1e-06
+  },
+  "mlb-so": {
+   "checked": "2026-11-26",
+   "refetched": 41197,
+   "tolerance": 1e-06
+  },
+  "mlb-time": {
+   "checked": "2026-11-26",
+   "refetched": 156.3,
+   "tolerance": 1e-06
+  },
+  "mo-banks": {
+   "checked": "2026-11-26",
+   "refetched": 4204,
+   "tolerance": 0.01
+  },
+  "mo-cost-1": {
+   "checked": "2026-11-26",
+   "refetched": 4.1,
+   "tolerance": 1e-06
+  },
+  "mo-cost-100": {
+   "checked": "2026-11-26",
+   "refetched": 11.3,
+   "tolerance": 1e-06
+  },
+  "mo-cost-20": {
+   "checked": "2026-11-26",
+   "refetched": 7.3,
+   "tolerance": 1e-06
+  },
+  "mo-dime-w": {
+   "checked": "2026-11-26",
+   "refetched": 2.268,
+   "tolerance": 1e-06
+  },
+  "mo-half-w": {
+   "checked": "2026-11-26",
+   "refetched": 11.34,
+   "tolerance": 1e-06
+  },
+  "mo-knox": {
+   "checked": "2026-11-26",
+   "refetched": 4582.8,
+   "tolerance": 1e-06
+  },
+  "mo-life-1": {
+   "checked": "2026-11-26",
+   "refetched": 7.2,
+   "tolerance": 1e-06
+  },
+  "mo-life-10": {
+   "checked": "2026-11-26",
+   "refetched": 5.7,
+   "tolerance": 1e-06
+  },
+  "mo-life-100": {
+   "checked": "2026-11-26",
+   "refetched": 24,
+   "tolerance": 1e-06
+  },
+  "mo-life-20": {
+   "checked": "2026-11-26",
+   "refetched": 11.1,
+   "tolerance": 1e-06
+  },
+  "mo-life-5": {
+   "checked": "2026-11-26",
+   "refetched": 5.8,
+   "tolerance": 1e-06
+  },
+  "mo-life-50": {
+   "checked": "2026-11-26",
+   "refetched": 14.9,
+   "tolerance": 1e-06
+  },
+  "mo-nickel-w": {
+   "checked": "2026-11-26",
+   "refetched": 5,
+   "tolerance": 1e-06
+  },
+  "mo-quarter-w": {
+   "checked": "2026-11-26",
+   "refetched": 5.67,
+   "tolerance": 1e-06
+  },
+  "mo-rev-cost": {
+   "checked": "2026-11-26",
+   "refetched": 303154000000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-crox": {
+   "checked": "2026-11-26",
+   "refetched": 4040647000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-dis": {
+   "checked": "2026-11-26",
+   "refetched": 102344000000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-dpz": {
+   "checked": "2026-11-26",
+   "refetched": 4939994000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-hsy": {
+   "checked": "2026-11-26",
+   "refetched": 11692576000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-mat": {
+   "checked": "2026-11-26",
+   "refetched": 5347623000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-mcd": {
+   "checked": "2026-11-26",
+   "refetched": 26885000000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-mnst": {
+   "checked": "2026-11-26",
+   "refetched": 8294343000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-nflx": {
+   "checked": "2026-11-26",
+   "refetched": 45183036000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-nke": {
+   "checked": "2026-11-26",
+   "refetched": 46398000000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-sbux": {
+   "checked": "2026-11-26",
+   "refetched": 37910600000,
+   "tolerance": 1e-06
+  },
+  "mo-rev-wwe": {
+   "checked": "2026-11-26",
+   "refetched": 10064700000,
+   "tolerance": 1e-06
+  },
+  "mo-vol-1": {
+   "checked": "2026-11-26",
+   "refetched": 15200000000,
+   "tolerance": 1e-06
+  },
+  "mo-vol-100": {
+   "checked": "2026-11-26",
+   "refetched": 19900000000,
+   "tolerance": 1e-06
+  },
+  "mo-vol-2": {
+   "checked": "2026-11-26",
+   "refetched": 1800000000,
+   "tolerance": 1e-06
+  },
+  "nfl-by-three": {
+   "checked": "2026-11-26",
+   "refetched": 15.1,
+   "tolerance": 1e-06
+  },
+  "nfl-home-win": {
+   "checked": "2026-11-26",
+   "refetched": 56.4,
+   "tolerance": 1e-06
+  },
+  "nfl-most-points": {
+   "checked": "2026-11-26",
+   "refetched": 106,
+   "tolerance": 1e-06
+  },
+  "nfl-overtime": {
+   "checked": "2026-11-26",
+   "refetched": 6.1,
+   "tolerance": 1e-06
+  },
+  "ru-ft": {
+   "checked": "2026-11-26",
+   "refetched": 15,
+   "tolerance": 1e-06
+  },
+  "ru-goal-h": {
+   "checked": "2026-11-26",
+   "refetched": 2.44,
+   "tolerance": 1e-06
+  },
+  "ru-goal-w": {
+   "checked": "2026-11-26",
+   "refetched": 7.32,
+   "tolerance": 1e-06
+  },
+  "ru-pen": {
+   "checked": "2026-11-26",
+   "refetched": 11,
+   "tolerance": 1e-06
+  },
+  "ru-rim": {
+   "checked": "2026-11-26",
+   "refetched": 18,
+   "tolerance": 1e-06
+  },
+  "sc-light": {
+   "checked": "2026-11-26",
+   "refetched": 299792.458,
+   "tolerance": 1e-06
+  },
+  "sc-sound-g": {
+   "checked": "2026-11-26",
+   "refetched": 980.665,
+   "tolerance": 1e-06
+  },
+  "so-brazil-goals": {
+   "checked": "2026-11-26",
+   "refetched": 2329,
+   "tolerance": 0.01
+  },
+  "so-games-total": {
+   "checked": "2026-11-26",
+   "refetched": 50093,
+   "tolerance": 0.01
+  },
+  "so-home-wins": {
+   "checked": "2026-11-26",
+   "refetched": 50.8,
+   "tolerance": 1e-06
+  },
+  "so-most-goals": {
+   "checked": "2026-11-26",
+   "refetched": 31,
+   "tolerance": 1e-06
+  },
+  "so-nil-nil": {
+   "checked": "2026-11-26",
+   "refetched": 8,
+   "tolerance": 1e-06
+  },
+  "so-wc-1994": {
+   "checked": "2026-11-26",
+   "refetched": 141,
+   "tolerance": 1e-06
+  },
+  "so-wc-2014": {
+   "checked": "2026-11-26",
+   "refetched": 171,
+   "tolerance": 1e-06
+  },
+  "so-wc-2022": {
+   "checked": "2026-11-26",
+   "refetched": 172,
+   "tolerance": 1e-06
+  },
+  "sp-apollo-rock": {
+   "checked": "2026-11-26",
+   "refetched": 382,
+   "tolerance": 1e-06
+  },
+  "sp-bennu-diam": {
+   "checked": "2026-11-26",
+   "refetched": 484.44,
+   "tolerance": 1e-06
+  },
+  "sp-ceres-diam": {
+   "checked": "2026-11-26",
+   "refetched": 939.4,
+   "tolerance": 1e-06
+  },
+  "sp-enceladus-diam": {
+   "checked": "2026-11-26",
+   "refetched": 504.2,
+   "tolerance": 1e-06
+  },
+  "sp-eros-diam": {
+   "checked": "2026-11-26",
+   "refetched": 16.84,
+   "tolerance": 1e-06
+  },
+  "sp-europa-diam": {
+   "checked": "2026-11-26",
+   "refetched": 3121.6,
+   "tolerance": 1e-06
+  },
+  "sp-exoplanets": {
+   "checked": "2026-11-26",
+   "refetched": 6473,
+   "tolerance": 0.02
+  },
+  "sp-ganymede-diam": {
+   "checked": "2026-11-26",
+   "refetched": 5262.4,
+   "tolerance": 1e-06
+  },
+  "sp-halley-years": {
+   "checked": "2026-11-26",
+   "refetched": 75.8,
+   "tolerance": 1e-06
+  },
+  "sp-iss-length": {
+   "checked": "2026-11-26",
+   "refetched": 356,
+   "tolerance": 1e-06
+  },
+  "sp-iss-mass": {
+   "checked": "2026-11-26",
+   "refetched": 925335,
+   "tolerance": 1e-06
+  },
+  "sp-iss-orbits": {
+   "checked": "2026-11-26",
+   "refetched": 16,
+   "tolerance": 1e-06
+  },
+  "sp-jup-day": {
+   "checked": "2026-11-26",
+   "refetched": 9.9,
+   "tolerance": 1e-06
+  },
+  "sp-jup-diam": {
+   "checked": "2026-11-26",
+   "refetched": 142984,
+   "tolerance": 1e-06,
+   "second_source": "JPL planetary parameters",
+   "second_value": 142984.0,
+   "second_tolerance": 0.02
+  },
+  "sp-jup-esc": {
+   "checked": "2026-11-26",
+   "refetched": 59.5,
+   "tolerance": 1e-06
+  },
+  "sp-jup-year": {
+   "checked": "2026-11-26",
+   "refetched": 4331,
+   "tolerance": 1e-06
+  },
+  "sp-mars-diam": {
+   "checked": "2026-11-26",
+   "refetched": 6792,
+   "tolerance": 1e-06,
+   "second_source": "JPL planetary parameters",
+   "second_value": 6792.38,
+   "second_tolerance": 0.02
+  },
+  "sp-mars-temp": {
+   "checked": "2026-11-26",
+   "refetched": -65,
+   "tolerance": 1e-06
+  },
+  "sp-mars-year": {
+   "checked": "2026-11-26",
+   "refetched": 687,
+   "tolerance": 1e-06
+  },
+  "sp-merc-day": {
+   "checked": "2026-11-26",
+   "refetched": 4222.6,
+   "tolerance": 1e-06
+  },
+  "sp-merc-diam": {
+   "checked": "2026-11-26",
+   "refetched": 4879,
+   "tolerance": 1e-06,
+   "second_source": "JPL planetary parameters",
+   "second_value": 4881.06,
+   "second_tolerance": 0.02
+  },
+  "sp-mimas-diam": {
+   "checked": "2026-11-26",
+   "refetched": 396.4,
+   "tolerance": 1e-06
+  },
+  "sp-moon-diam": {
+   "checked": "2026-11-26",
+   "refetched": 3475,
+   "tolerance": 1e-06
+  },
+  "sp-moon-dist": {
+   "checked": "2026-11-26",
+   "refetched": 238855,
+   "tolerance": 1e-06
+  },
+  "sp-moon-esc": {
+   "checked": "2026-11-26",
+   "refetched": 2.4,
+   "tolerance": 1e-06
+  },
+  "sp-nep-sun": {
+   "checked": "2026-11-26",
+   "refetched": 4515000000,
+   "tolerance": 1e-06
+  },
+  "sp-nep-temp": {
+   "checked": "2026-11-26",
+   "refetched": -200,
+   "tolerance": 1e-06
+  },
+  "sp-nep-year": {
+   "checked": "2026-11-26",
+   "refetched": 59800,
+   "tolerance": 1e-06
+  },
+  "sp-numbered-asteroids": {
+   "checked": "2026-11-26",
+   "refetched": 895910,
+   "tolerance": 0.02
+  },
+  "sp-phobos-diam": {
+   "checked": "2026-11-26",
+   "refetched": 22.2,
+   "tolerance": 1e-06
+  },
+  "sp-pluto-diam": {
+   "checked": "2026-11-26",
+   "refetched": 2376,
+   "tolerance": 1e-06,
+   "second_source": "JPL planetary parameters",
+   "second_value": 2376.6,
+   "second_tolerance": 0.02
+  },
+  "sp-psyche-diam": {
+   "checked": "2026-11-26",
+   "refetched": 222,
+   "tolerance": 1e-06
+  },
+  "sp-sat-dens": {
+   "checked": "2026-11-26",
+   "refetched": 687,
+   "tolerance": 1e-06
+  },
+  "sp-sat-moons": {
+   "checked": "2026-11-26",
+   "refetched": 274,
+   "tolerance": 1e-06
+  },
+  "sp-sun-core": {
+   "checked": "2026-11-26",
+   "refetched": 27000000,
+   "tolerance": 1e-06
+  },
+  "sp-sun-earth": {
+   "checked": "2026-11-26",
+   "refetched": 149600000,
+   "tolerance": 1e-06
+  },
+  "sp-titan-diam": {
+   "checked": "2026-11-26",
+   "refetched": 5149.5,
+   "tolerance": 1e-06
+  },
+  "sp-triton-diam": {
+   "checked": "2026-11-26",
+   "refetched": 2705.2,
+   "tolerance": 1e-06
+  },
+  "sp-ven-day": {
+   "checked": "2026-11-26",
+   "refetched": 2802,
+   "tolerance": 1e-06
+  },
+  "sp-ven-temp": {
+   "checked": "2026-11-26",
+   "refetched": 464,
+   "tolerance": 1e-06
+  },
+  "sp-ven-year": {
+   "checked": "2026-11-26",
+   "refetched": 224.7,
+   "tolerance": 1e-06
+  },
+  "sp-vesta-diam": {
+   "checked": "2026-11-26",
+   "refetched": 522.77,
+   "tolerance": 1e-06
+  },
+  "te-crates": {
+   "checked": "2026-11-26",
+   "refetched": 388340,
+   "tolerance": 0.02
+  },
+  "te-emoji": {
+   "checked": "2026-11-26",
+   "refetched": 3963,
+   "tolerance": 1e-06
+  },
+  "te-flags": {
+   "checked": "2026-11-26",
+   "refetched": 262,
+   "tolerance": 1e-06
+  },
+  "te-pv-alberteinstein": {
+   "checked": "2026-11-26",
+   "refetched": 4579178,
+   "tolerance": 1e-06
+  },
+  "te-pv-axolotl": {
+   "checked": "2026-11-26",
+   "refetched": 2242647,
+   "tolerance": 1e-06
+  },
+  "te-pv-capybara": {
+   "checked": "2026-11-26",
+   "refetched": 2164599,
+   "tolerance": 1e-06
+  },
+  "te-pv-chess": {
+   "checked": "2026-11-26",
+   "refetched": 1261994,
+   "tolerance": 1e-06
+  },
+  "te-pv-coffee": {
+   "checked": "2026-11-26",
+   "refetched": 717591,
+   "tolerance": 1e-06
+  },
+  "te-pv-dinosaur": {
+   "checked": "2026-11-26",
+   "refetched": 1574289,
+   "tolerance": 1e-06
+  },
+  "te-pv-elvispresley": {
+   "checked": "2026-11-26",
+   "refetched": 5487164,
+   "tolerance": 1e-06
+  },
+  "te-pv-leonardodavinci": {
+   "checked": "2026-11-26",
+   "refetched": 2444569,
+   "tolerance": 1e-06
+  },
+  "te-pv-moon": {
+   "checked": "2026-11-26",
+   "refetched": 1937249,
+   "tolerance": 1e-06
+  },
+  "te-pv-pizza": {
+   "checked": "2026-11-26",
+   "refetched": 691072,
+   "tolerance": 1e-06
+  },
+  "te-pv-rubikscube": {
+   "checked": "2026-11-26",
+   "refetched": 506457,
+   "tolerance": 1e-06
+  },
+  "te-pv-shrek": {
+   "checked": "2026-11-26",
+   "refetched": 1315567,
+   "tolerance": 1e-06
+  },
+  "te-pv-sudoku": {
+   "checked": "2026-11-26",
+   "refetched": 559482,
+   "tolerance": 1e-06
+  },
+  "te-pv-titanic": {
+   "checked": "2026-11-26",
+   "refetched": 3059593,
+   "tolerance": 1e-06
+  },
+  "te-rfcs": {
+   "checked": "2026-11-26",
+   "refetched": 10097,
+   "tolerance": 0.01
+  },
+  "te-tlds": {
+   "checked": "2026-11-26",
+   "refetched": 1435,
+   "tolerance": 0.01
+  },
+  "te-wiki-articles": {
+   "checked": "2026-11-26",
+   "refetched": 7269544,
+   "tolerance": 0.01
+  },
+  "te-wiki-edits": {
+   "checked": "2026-11-26",
+   "refetched": 1383319915,
+   "tolerance": 0.01
+  },
+  "te-wiki-words": {
+   "checked": "2026-11-26",
+   "refetched": 5325457319,
+   "tolerance": 0.02
+  },
+  "wd-aconcagua-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 6962,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 6962,
+   "second_tolerance": 0
+  },
+  "wd-airbusa380-p2050": {
+   "checked": "2026-11-26",
+   "refetched": 79.8,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 79.8,
+   "second_tolerance": 0
+  },
+  "wd-akashikaikyobridge-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 3911,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 3911,
+   "second_tolerance": 0
+  },
+  "wd-americangothic-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 78,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 78,
+   "second_tolerance": 0
+  },
+  "wd-andorra-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 468,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 468,
+   "second_tolerance": 0
+  },
+  "wd-anfield-p1083": {
+   "checked": "2026-11-26",
+   "refetched": 61276,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 61276,
+   "second_tolerance": 0
+  },
+  "wd-aorakimountcook-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 3724,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 3724,
+   "second_tolerance": 0
+  },
+  "wd-arcdetriomphe-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 49.54,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 49.54,
+   "second_tolerance": 0
+  },
+  "wd-avatarthelastairbender-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 61,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 61,
+   "second_tolerance": 0
+  },
+  "wd-avengersendgame-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 181,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 181,
+   "second_tolerance": 0
+  },
+  "wd-bennevis-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 1344.53,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1344.53,
+   "second_tolerance": 0
+  },
+  "wd-boeing747-p2050": {
+   "checked": "2026-11-26",
+   "refetched": 59.64,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 59.64,
+   "second_tolerance": 0
+  },
+  "wd-breakingbad-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 62,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 62,
+   "second_tolerance": 0
+  },
+  "wd-brooklynbridge-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 1825.45,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1825.45,
+   "second_tolerance": 0
+  },
+  "wd-burjkhalifa-p1101": {
+   "checked": "2026-11-26",
+   "refetched": 163,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 163,
+   "second_tolerance": 0
+  },
+  "wd-burjkhalifa-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 828,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 828,
+   "second_tolerance": 0
+  },
+  "wd-casablancafilm-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 102,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 102,
+   "second_tolerance": 0
+  },
+  "wd-channeltunnel-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 50.45,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 50.45,
+   "second_tolerance": 0
+  },
+  "wd-cheers-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 275,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 275,
+   "second_tolerance": 0
+  },
+  "wd-colognecathedral-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 157,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 157,
+   "second_tolerance": 0
+  },
+  "wd-concorde-p2050": {
+   "checked": "2026-11-26",
+   "refetched": 25.56,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 25.56,
+   "second_tolerance": 0
+  },
+  "wd-corsica-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 8680,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 8680,
+   "second_tolerance": 0
+  },
+  "wd-crete-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 8335.88,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 8335.88,
+   "second_tolerance": 0
+  },
+  "wd-davidmichelangelo-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 517,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 517,
+   "second_tolerance": 0
+  },
+  "wd-denali-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 6190,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 6190,
+   "second_tolerance": 0
+  },
+  "wd-denver-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 1609,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1609,
+   "second_tolerance": 0
+  },
+  "wd-easterisland-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 164,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 164,
+   "second_tolerance": 0
+  },
+  "wd-eiffeltower-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 330,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 330,
+   "second_tolerance": 0
+  },
+  "wd-friends-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 236,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 236,
+   "second_tolerance": 0
+  },
+  "wd-gameofthrones-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 73,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 73,
+   "second_tolerance": 0
+  },
+  "wd-girlwithapearlearring-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 44.5,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 44.5,
+   "second_tolerance": 0
+  },
+  "wd-goldengatebridge-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 2737.41,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2737.41,
+   "second_tolerance": 0
+  },
+  "wd-gotthardbasetunnel-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 57.09,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 57.09,
+   "second_tolerance": 0
+  },
+  "wd-guernicapicasso-p2049": {
+   "checked": "2026-11-26",
+   "refetched": 776,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 776,
+   "second_tolerance": 0
+  },
+  "wd-hughesh4hercules-p2050": {
+   "checked": "2026-11-26",
+   "refetched": 97.54,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 97.54,
+   "second_tolerance": 0
+  },
+  "wd-k2-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 8611,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 8611,
+   "second_tolerance": 0
+  },
+  "wd-lakebaikal-p4511": {
+   "checked": "2026-11-26",
+   "refetched": 1642,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1642,
+   "second_tolerance": 0
+  },
+  "wd-lakeerie-p4511": {
+   "checked": "2026-11-26",
+   "refetched": 64,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 64,
+   "second_tolerance": 0
+  },
+  "wd-lakemichigan-p4511": {
+   "checked": "2026-11-26",
+   "refetched": 281,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 281,
+   "second_tolerance": 0
+  },
+  "wd-lakesuperior-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 82350,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 82350,
+   "second_tolerance": 0
+  },
+  "wd-lakesuperior-p4511": {
+   "checked": "2026-11-26",
+   "refetched": 406,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 406,
+   "second_tolerance": 0
+  },
+  "wd-laketahoe-p4511": {
+   "checked": "2026-11-26",
+   "refetched": 501,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 501,
+   "second_tolerance": 0
+  },
+  "wd-laketiticaca-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 3812,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 3812,
+   "second_tolerance": 0
+  },
+  "wd-lawrenceofarabiafilm-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 216,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 216,
+   "second_tolerance": 0
+  },
+  "wd-liechtenstein-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 160.5,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 160.5,
+   "second_tolerance": 0
+  },
+  "wd-londoneye-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 135,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 135,
+   "second_tolerance": 0
+  },
+  "wd-lost2004tvseries-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 121,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 121,
+   "second_tolerance": 0
+  },
+  "wd-lotteworldtower-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 554.5,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 554.5,
+   "second_tolerance": 0
+  },
+  "wd-luxembourg-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 2593.05,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2593.05,
+   "second_tolerance": 0
+  },
+  "wd-machupicchu-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 2430,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2430,
+   "second_tolerance": 0
+  },
+  "wd-maracanstadium-p1083": {
+   "checked": "2026-11-26",
+   "refetched": 78838,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 78838,
+   "second_tolerance": 0
+  },
+  "wd-mashtvseries-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 256,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 256,
+   "second_tolerance": 0
+  },
+  "wd-matterhorn-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 4477.54,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 4477.54,
+   "second_tolerance": 0
+  },
+  "wd-maunakea-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 4207.3,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 4207.3,
+   "second_tolerance": 0
+  },
+  "wd-melbournecricketground-p1083": {
+   "checked": "2026-11-26",
+   "refetched": 100024,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 100024,
+   "second_tolerance": 0
+  },
+  "wd-merdeka118-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 678.9,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 678.9,
+   "second_tolerance": 0
+  },
+  "wd-mexicocity-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 2240,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2240,
+   "second_tolerance": 0
+  },
+  "wd-michiganstadium-p1083": {
+   "checked": "2026-11-26",
+   "refetched": 107601,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 107601,
+   "second_tolerance": 0
+  },
+  "wd-millauviaduct-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 2460,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2460,
+   "second_tolerance": 0
+  },
+  "wd-millauviaduct-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 343,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 343,
+   "second_tolerance": 0
+  },
+  "wd-monaco-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 2.08,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2.08,
+   "second_tolerance": 0
+  },
+  "wd-montblanc-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 4805.59,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 4805.59,
+   "second_tolerance": 0
+  },
+  "wd-mountelbrus-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 5642,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 5642,
+   "second_tolerance": 0
+  },
+  "wd-mountetna-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 3357,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 3357,
+   "second_tolerance": 0
+  },
+  "wd-mounteverest-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 8848.86,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 8848.86,
+   "second_tolerance": 0
+  },
+  "wd-mountfuji-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 3777.24,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 3777.24,
+   "second_tolerance": 0
+  },
+  "wd-mountkilimanjaro-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 5895,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 5895,
+   "second_tolerance": 0
+  },
+  "wd-mountkosciuszko-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 2228,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2228,
+   "second_tolerance": 0
+  },
+  "wd-mountolympus-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 2917.73,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2917.73,
+   "second_tolerance": 0
+  },
+  "wd-mountvesuvius-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 1281,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1281,
+   "second_tolerance": 0
+  },
+  "wd-oneworldtradecenter-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 541.3,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 541.3,
+   "second_tolerance": 0
+  },
+  "wd-panamacanal-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 82,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 82,
+   "second_tolerance": 0
+  },
+  "wd-resundbridge-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 7845,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 7845,
+   "second_tolerance": 0
+  },
+  "wd-sanmarino-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 61.2,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 61.2,
+   "second_tolerance": 0
+  },
+  "wd-saturnv-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 110.65,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 110.65,
+   "second_tolerance": 0
+  },
+  "wd-seinfeld-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 180,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 180,
+   "second_tolerance": 0
+  },
+  "wd-shanghaitower-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 632,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 632,
+   "second_tolerance": 0
+  },
+  "wd-shrek-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 90,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 90,
+   "second_tolerance": 0
+  },
+  "wd-sicily-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 25711,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 25711,
+   "second_tolerance": 0
+  },
+  "wd-spaceshuttle-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 56.11,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 56.11,
+   "second_tolerance": 0
+  },
+  "wd-spiritofstlouis-p2050": {
+   "checked": "2026-11-26",
+   "refetched": 14.02,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 14.02,
+   "second_tolerance": 0
+  },
+  "wd-sputnik1-p2067": {
+   "checked": "2026-11-26",
+   "refetched": 83.6,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 83.6,
+   "second_tolerance": 0
+  },
+  "wd-suezcanal-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 193.3,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 193.3,
+   "second_tolerance": 0
+  },
+  "wd-sydneyharbourbridge-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 1149,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1149,
+   "second_tolerance": 0
+  },
+  "wd-tablemountain-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 1085,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1085,
+   "second_tolerance": 0
+  },
+  "wd-tasmania-p2046": {
+   "checked": "2026-11-26",
+   "refetched": 68401,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 68401,
+   "second_tolerance": 0
+  },
+  "wd-thebigbangtheory-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 279,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 279,
+   "second_tolerance": 0
+  },
+  "wd-thegodfather-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 175,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 175,
+   "second_tolerance": 0
+  },
+  "wd-thelionking-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 88,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 88,
+   "second_tolerance": 0
+  },
+  "wd-thenightwatch-p2049": {
+   "checked": "2026-11-26",
+   "refetched": 437,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 437,
+   "second_tolerance": 0
+  },
+  "wd-thescream-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 91,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 91,
+   "second_tolerance": 0
+  },
+  "wd-thesopranos-p1113": {
+   "checked": "2026-11-26",
+   "refetched": 86,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 86,
+   "second_tolerance": 0
+  },
+  "wd-thestarrynight-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 73.7,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 73.7,
+   "second_tolerance": 0
+  },
+  "wd-threegorgesdam-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 181,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 181,
+   "second_tolerance": 0
+  },
+  "wd-titanic1997film-p2047": {
+   "checked": "2026-11-26",
+   "refetched": 194,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 194,
+   "second_tolerance": 0
+  },
+  "wd-tokyoskytree-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 634,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 634,
+   "second_tolerance": 0
+  },
+  "wd-tokyotower-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 332.6,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 332.6,
+   "second_tolerance": 0
+  },
+  "wd-transsiberianrailway-p2043": {
+   "checked": "2026-11-26",
+   "refetched": 9288,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 9288,
+   "second_tolerance": 0
+  },
+  "wd-uluru-p2044": {
+   "checked": "2026-11-26",
+   "refetched": 863,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 863,
+   "second_tolerance": 0
+  },
+  "wd-wembleystadium-p1083": {
+   "checked": "2026-11-26",
+   "refetched": 90000,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 90000,
+   "second_tolerance": 0
+  },
+  "wd-willistower-p2048": {
+   "checked": "2026-11-26",
+   "refetched": 442.1,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 442.1,
+   "second_tolerance": 0
+  },
+  "yr-achristmascarol-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1843,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1843,
+   "second_tolerance": 0
+  },
+  "yr-alicesadventuresinwond-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1865,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1865,
+   "second_tolerance": 0
+  },
+  "yr-apollo11-p619": {
+   "checked": "2026-11-26",
+   "refetched": 1969,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1969,
+   "second_tolerance": 0
+  },
+  "yr-backtothefuture-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1985,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1985,
+   "second_tolerance": 0
+  },
+  "yr-bankofengland-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1694,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1694,
+   "second_tolerance": 0
+  },
+  "yr-barbie-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1959,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1959,
+   "second_tolerance": 0
+  },
+  "yr-basketball-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1891,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1891,
+   "second_tolerance": 0
+  },
+  "yr-boeing747-p606": {
+   "checked": "2026-11-26",
+   "refetched": 1969,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1969,
+   "second_tolerance": 0
+  },
+  "yr-bostonmarathon-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1897,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1897,
+   "second_tolerance": 0
+  },
+  "yr-britishmuseum-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1753,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1753,
+   "second_tolerance": 0
+  },
+  "yr-brooklynbridge-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1883,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1883,
+   "second_tolerance": 0
+  },
+  "yr-catan-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1995,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1995,
+   "second_tolerance": 0
+  },
+  "yr-ceresdwarfplanet-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1801,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1801,
+   "second_tolerance": 0
+  },
+  "yr-channeltunnel-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1994,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1994,
+   "second_tolerance": 0
+  },
+  "yr-concorde-p606": {
+   "checked": "2026-11-26",
+   "refetched": 1969,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1969,
+   "second_tolerance": 0
+  },
+  "yr-curiosityrover-p619": {
+   "checked": "2026-11-26",
+   "refetched": 2011,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2011,
+   "second_tolerance": 0
+  },
+  "yr-disneyland-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1955,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1955,
+   "second_tolerance": 0
+  },
+  "yr-doctorwho-p580": {
+   "checked": "2026-11-26",
+   "refetched": 1963,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1963,
+   "second_tolerance": 0
+  },
+  "yr-dracula-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1897,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1897,
+   "second_tolerance": 0
+  },
+  "yr-dungeonsdragons-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1974,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1974,
+   "second_tolerance": 0
+  },
+  "yr-ebay-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1995,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1995,
+   "second_tolerance": 0
+  },
+  "yr-eiffeltower-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1889,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1889,
+   "second_tolerance": 0
+  },
+  "yr-electron-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1897,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1897,
+   "second_tolerance": 0
+  },
+  "yr-empirestatebuilding-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1931,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1931,
+   "second_tolerance": 0
+  },
+  "yr-ettheextraterrestrial-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1982,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1982,
+   "second_tolerance": 0
+  },
+  "yr-fcbarcelona-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1899,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1899,
+   "second_tolerance": 0
+  },
+  "yr-fedex-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1971,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1971,
+   "second_tolerance": 0
+  },
+  "yr-fifa-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1904,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1904,
+   "second_tolerance": 0
+  },
+  "yr-fifaworldcup-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1930,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1930,
+   "second_tolerance": 0
+  },
+  "yr-findingnemo-p577": {
+   "checked": "2026-11-26",
+   "refetched": 2003,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2003,
+   "second_tolerance": 0
+  },
+  "yr-fordmodelt-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1908,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1908,
+   "second_tolerance": 0
+  },
+  "yr-frankenstein-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1818,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1818,
+   "second_tolerance": 0
+  },
+  "yr-galileospacecraft-p619": {
+   "checked": "2026-11-26",
+   "refetched": 1989,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1989,
+   "second_tolerance": 0
+  },
+  "yr-gameboy-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1989,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1989,
+   "second_tolerance": 0
+  },
+  "yr-goldengatebridge-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1937,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1937,
+   "second_tolerance": 0
+  },
+  "yr-goodnightmoon-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1947,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1947,
+   "second_tolerance": 0
+  },
+  "yr-guinness-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1759,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1759,
+   "second_tolerance": 0
+  },
+  "yr-harleydavidson-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1903,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1903,
+   "second_tolerance": 0
+  },
+  "yr-harrypotterandthephilo-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1997,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1997,
+   "second_tolerance": 0
+  },
+  "yr-harvarduniversity-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1636,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1636,
+   "second_tolerance": 0
+  },
+  "yr-hubblespacetelescope-p619": {
+   "checked": "2026-11-26",
+   "refetched": 1990,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1990,
+   "second_tolerance": 0
+  },
+  "yr-ibm-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1911,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1911,
+   "second_tolerance": 0
+  },
+  "yr-ikea-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1943,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1943,
+   "second_tolerance": 0
+  },
+  "yr-indianapolis500-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1911,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1911,
+   "second_tolerance": 0
+  },
+  "yr-intel-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1968,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1968,
+   "second_tolerance": 0
+  },
+  "yr-internationalspacestat-p619": {
+   "checked": "2026-11-26",
+   "refetched": 1998,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1998,
+   "second_tolerance": 0
+  },
+  "yr-iphone1stgeneration-p577": {
+   "checked": "2026-11-26",
+   "refetched": 2007,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2007,
+   "second_tolerance": 0
+  },
+  "yr-jameswebbspacetelescop-p619": {
+   "checked": "2026-11-26",
+   "refetched": 2021,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2021,
+   "second_tolerance": 0
+  },
+  "yr-javascript-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1995,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1995,
+   "second_tolerance": 0
+  },
+  "yr-jawsfilm-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1975,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1975,
+   "second_tolerance": 0
+  },
+  "yr-jurassicparkfilm-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1993,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1993,
+   "second_tolerance": 0
+  },
+  "yr-kfc-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1930,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1930,
+   "second_tolerance": 0
+  },
+  "yr-kingkong1933film-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1933,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1933,
+   "second_tolerance": 0
+  },
+  "yr-linuxkernel-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1991,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1991,
+   "second_tolerance": 0
+  },
+  "yr-littlewomen-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1868,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1868,
+   "second_tolerance": 0
+  },
+  "yr-londonunderground-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1863,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1863,
+   "second_tolerance": 0
+  },
+  "yr-massachusettsinstitute-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1861,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1861,
+   "second_tolerance": 0
+  },
+  "yr-metropolitanmuseumofar-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1870,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1870,
+   "second_tolerance": 0
+  },
+  "yr-microsoft-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1975,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1975,
+   "second_tolerance": 0
+  },
+  "yr-minecraft-p577": {
+   "checked": "2026-11-26",
+   "refetched": 2011,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2011,
+   "second_tolerance": 0
+  },
+  "yr-mobydick-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1851,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1851,
+   "second_tolerance": 0
+  },
+  "yr-nationalgeographicsoci-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1888,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1888,
+   "second_tolerance": 0
+  },
+  "yr-neptune-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1846,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1846,
+   "second_tolerance": 0
+  },
+  "yr-newhorizons-p619": {
+   "checked": "2026-11-26",
+   "refetched": 2006,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2006,
+   "second_tolerance": 0
+  },
+  "yr-nineteeneightyfour-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1949,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1949,
+   "second_tolerance": 0
+  },
+  "yr-olympicgames-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1896,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1896,
+   "second_tolerance": 0
+  },
+  "yr-ontheoriginofspecies-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1859,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1859,
+   "second_tolerance": 0
+  },
+  "yr-panamacanal-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1914,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1914,
+   "second_tolerance": 0
+  },
+  "yr-penicillin-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1928,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1928,
+   "second_tolerance": 0
+  },
+  "yr-pluto-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1930,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1930,
+   "second_tolerance": 0
+  },
+  "yr-polaroidcorporation-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1937,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1937,
+   "second_tolerance": 0
+  },
+  "yr-pong-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1972,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1972,
+   "second_tolerance": 0
+  },
+  "yr-premierleague-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1992,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1992,
+   "second_tolerance": 0
+  },
+  "yr-prideandprejudice-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1813,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1813,
+   "second_tolerance": 0
+  },
+  "yr-pythonprogramminglangu-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1991,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1991,
+   "second_tolerance": 0
+  },
+  "yr-redcross-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1863,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1863,
+   "second_tolerance": 0
+  },
+  "yr-rollingstone-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1967,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1967,
+   "second_tolerance": 0
+  },
+  "yr-rubikscube-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1974,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1974,
+   "second_tolerance": 0
+  },
+  "yr-sesamestreet-p580": {
+   "checked": "2026-11-26",
+   "refetched": 1969,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1969,
+   "second_tolerance": 0
+  },
+  "yr-snowwhiteandthesevendw-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1937,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1937,
+   "second_tolerance": 0
+  },
+  "yr-sony-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1946,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1946,
+   "second_tolerance": 0
+  },
+  "yr-spaceneedle-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1962,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1962,
+   "second_tolerance": 0
+  },
+  "yr-sputnik1-p619": {
+   "checked": "2026-11-26",
+   "refetched": 1957,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1957,
+   "second_tolerance": 0
+  },
+  "yr-starbucks-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1971,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1971,
+   "second_tolerance": 0
+  },
+  "yr-steamboatwillie-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1928,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1928,
+   "second_tolerance": 0
+  },
+  "yr-subwayrestaurant-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1965,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1965,
+   "second_tolerance": 0
+  },
+  "yr-suezcanal-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1869,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1869,
+   "second_tolerance": 0
+  },
+  "yr-superbowl-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1967,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1967,
+   "second_tolerance": 0
+  },
+  "yr-sydneyoperahouse-p1619": {
+   "checked": "2026-11-26",
+   "refetched": 1973,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1973,
+   "second_tolerance": 0
+  },
+  "yr-theadventuresoftomsawy-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1876,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1876,
+   "second_tolerance": 0
+  },
+  "yr-thebeatles-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1960,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1960,
+   "second_tolerance": 0
+  },
+  "yr-thecatinthehat-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1957,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1957,
+   "second_tolerance": 0
+  },
+  "yr-thechampionshipswimble-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1877,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1877,
+   "second_tolerance": 0
+  },
+  "yr-theeconomist-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1843,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1843,
+   "second_tolerance": 0
+  },
+  "yr-thegreatgatsby-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1925,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1925,
+   "second_tolerance": 0
+  },
+  "yr-thehobbit-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1937,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1937,
+   "second_tolerance": 0
+  },
+  "yr-thematrix-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1999,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1999,
+   "second_tolerance": 0
+  },
+  "yr-thenewyorktimes-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1851,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1851,
+   "second_tolerance": 0
+  },
+  "yr-thesimpsons-p580": {
+   "checked": "2026-11-26",
+   "refetched": 1989,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1989,
+   "second_tolerance": 0
+  },
+  "yr-theveryhungrycaterpill-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1969,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1969,
+   "second_tolerance": 0
+  },
+  "yr-thewizardofoz1939film-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1939,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1939,
+   "second_tolerance": 0
+  },
+  "yr-thewonderfulwizardofoz-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1900,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1900,
+   "second_tolerance": 0
+  },
+  "yr-titanmoon-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1655,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1655,
+   "second_tolerance": 0
+  },
+  "yr-tourdefrance-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1903,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1903,
+   "second_tolerance": 0
+  },
+  "yr-toyota-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1937,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1937,
+   "second_tolerance": 0
+  },
+  "yr-toystory-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1995,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1995,
+   "second_tolerance": 0
+  },
+  "yr-transistor-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1947,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1947,
+   "second_tolerance": 0
+  },
+  "yr-treasureisland-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1883,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1883,
+   "second_tolerance": 0
+  },
+  "yr-twistergame-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1966,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1966,
+   "second_tolerance": 0
+  },
+  "yr-uefaeuropeanchampionsh-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1960,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1960,
+   "second_tolerance": 0
+  },
+  "yr-unocardgame-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1971,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1971,
+   "second_tolerance": 0
+  },
+  "yr-uranus-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1781,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1781,
+   "second_tolerance": 0
+  },
+  "yr-voyager1-p619": {
+   "checked": "2026-11-26",
+   "refetched": 1977,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1977,
+   "second_tolerance": 0
+  },
+  "yr-walkman-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1979,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1979,
+   "second_tolerance": 0
+  },
+  "yr-waltdisneystudiosdivis-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1923,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1923,
+   "second_tolerance": 0
+  },
+  "yr-wherethewildthingsare-p577": {
+   "checked": "2026-11-26",
+   "refetched": 1963,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1963,
+   "second_tolerance": 0
+  },
+  "yr-wikipedia-p571": {
+   "checked": "2026-11-26",
+   "refetched": 2001,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2001,
+   "second_tolerance": 0
+  },
+  "yr-worldwideweb-p575": {
+   "checked": "2026-11-26",
+   "refetched": 1989,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1989,
+   "second_tolerance": 0
+  },
+  "yr-yellowstonenationalpar-p571": {
+   "checked": "2026-11-26",
+   "refetched": 1872,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 1872,
+   "second_tolerance": 0
+  },
+  "yr-youtube-p571": {
+   "checked": "2026-11-26",
+   "refetched": 2005,
+   "tolerance": 1e-06,
+   "second_source": "English Wikipedia article",
+   "second_value": 2005,
+   "second_tolerance": 0
+  }
+ }
+}
