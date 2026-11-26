@@ -49,5 +49,15 @@
 <div class="live" id="live" aria-live="polite"></div>
 <noscript><p class="noscript">This game runs in your browser and needs JavaScript switched on.</p></noscript>
 <script type="module" src="js/main.js"></script>
+<script>
+// Cloudflare Web Analytics counts visits without cookies. Only on the real site, so tests and previews never count.
+if (location.hostname === 'playcinch.pages.dev') {
+  var b = document.createElement('script');
+  b.defer = true;
+  b.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  b.setAttribute('data-cf-beacon', '{"token": "9b90ebeab51848e2afcac98c9ce63f9a"}');
+  document.head.appendChild(b);
+}
+</script>
 </body>
 </html>

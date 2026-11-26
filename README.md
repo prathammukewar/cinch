@@ -48,7 +48,7 @@ The site is hosted on Cloudflare Pages. `npm run deploy` copies only the files t
 
 ## Privacy
 
-No accounts and no tracking. Scores live in your browser, and Showdown results travel inside the link you send. When you finish a Roundup on its own day, the day, your score and which questions you roped go to a small standings server (in `server/`, a Cloudflare Worker) under a random id, so the result can say how you did against everyone else that day. The Saddlebag has a backup button that saves everything to one file, and a restore button that merges a backup back in.
+No accounts and no cookies. Visits are counted by Cloudflare Web Analytics, which sets no cookies and does not follow anyone across sites. Scores live in your browser, and Showdown results travel inside the link you send. When you finish a Roundup on its own day, the day, your score and which questions you roped go to a small standings server (in `server/`, a Cloudflare Worker) under a random id, so the result can say how you did against everyone else that day. The Saddlebag has a backup button that saves everything to one file, and a restore button that merges a backup back in.
 
 ## Licence
 
