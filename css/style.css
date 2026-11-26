@@ -200,12 +200,13 @@ main { flex: 1; display: flex; flex-direction: column; width: 100%; }
 @media (max-height: 700px) {
   .panel { padding-bottom: 10px; }
   .pts { font-size: 44px; } .teach { font-size: 16px; margin-top: 6px; } .teach-wrap { margin-bottom: 10px; }
-  .ask { min-height: 100px; } .ask h1 { font-size: 25px; } .ask.long h1 { font-size: 22px; }
+  .ask { min-height: 100px; } .ask h1 { font-size: 25px; } .ask.long h1 { font-size: 22px; } .ask.longer h1 { font-size: 20px; } .ask .note { font-size: 14px; margin-top: 3px; line-height: 1.3; }
   .panel { min-height: 236px; padding-top: 8px; } .desk { min-height: 200px; }
   .worth { padding: 4px 0; }
 }
 @media (max-height: 640px) {
   .ask { min-height: 88px; } .ask h1 { font-size: 22px; } .ask .note { margin-top: 2px; }
+  .ask.long h1 { font-size: 19px; } .ask.longer h1 { font-size: 17.5px; line-height: 1.12; }
   .panel { min-height: 220px; padding-top: 6px; padding-bottom: 10px; } .desk { min-height: 180px; }
   .end input { font-size: 28px; } .go { min-height: 50px; }
   .worth { padding: 6px 0; } .worth b { font-size: 20px; }

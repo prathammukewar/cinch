@@ -1,10 +1,12 @@
 -- One row per player per day. No names, no addresses: the client id is a random string made in the browser.
+-- p1 to p7 are the points on each question, for per-question standings. Older databases add them with migrate-1.sql.
 CREATE TABLE IF NOT EXISTS scores (
   day INTEGER NOT NULL,
   client TEXT NOT NULL,
   score INTEGER NOT NULL,
   hits TEXT NOT NULL,
   at INTEGER NOT NULL,
+  p1 INTEGER, p2 INTEGER, p3 INTEGER, p4 INTEGER, p5 INTEGER, p6 INTEGER, p7 INTEGER,
   PRIMARY KEY (day, client)
 );
 CREATE INDEX IF NOT EXISTS scores_day_score ON scores (day, score);

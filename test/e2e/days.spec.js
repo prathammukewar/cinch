@@ -89,15 +89,36 @@ test('a live Roundup result says how you did against other riders', async ({ pag
   let sent = null;
   await page.route('**/standings/v1/score', async (route) => {
     sent = JSON.parse(route.request().postData());
-    await route.fulfill({ json: { day: sent.day, riders: 120, better: 63, roped: [80, 70, 60, 50, 40, 30, 20] } });
+    await route.fulfill({ json: { day: sent.day, riders: 120, better: 63, roped: [80, 70, 60, 50, 40, 30, 20], qriders: 118, qbetter: [91, 12, 50, 0, 100, 47, 66] } });
   });
   await at(page, '2026-11-26T09:00:00');
   await page.goto('/#today');
   await playAll(page);
-  await expect(page.locator('#standing')).toHaveText('Better than 63% of today’s 120 riders.');
-  await expect(page.locator('.recap .crowd').first()).toHaveText('80% of riders roped this one');
+  await expect(page.locator('#standing')).toHaveText('You did better than 63% of the 120 players today.');
+  await expect(page.locator('.recap .crowd').first()).toHaveText('Better than 91% of players on this one \u00b7 80% roped it');
+  await page.locator('.spot').nth(1).focus();
+  await expect(page.locator('.peek-crowd')).toHaveText('Better than 12% of players on this one');
   expect(sent.day).toBe(2);
   expect(sent.hits).toMatch(/^[01]{7}$/);
   expect(sent.client).toMatch(/^[a-z0-9]{12,24}$/);
-  expect(Object.keys(sent).sort()).toEqual(['client', 'day', 'hits', 'score']);
+  expect(Object.keys(sent).sort()).toEqual(['client', 'day', 'hits', 'points', 'score']);
+  expect(sent.points).toHaveLength(7);
+  expect(sent.points.reduce((a, b) => a + b, 0)).toBe(sent.score);
+});
+
+test('a past day played live shows how it compared, without posting again', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('cinch-api', `${location.origin}/standings`));
+  let posts = 0;
+  await page.route('**/standings/v1/score', (route) => { posts++; route.fulfill({ json: { day: 2, riders: 40, better: 55, roped: [1, 2, 3, 4, 5, 6, 7], qriders: 40, qbetter: [10, 20, 30, 40, 50, 60, 70] } }); });
+  await page.route('**/standings/v1/day/2?**', (route) => route.fulfill({ json: { day: 2, riders: 41, better: 52, roped: [1, 2, 3, 4, 5, 6, 7], qriders: 41, qbetter: [11, 21, 31, 41, 51, 61, 71] } }));
+  await at(page, '2026-11-26T09:00:00');
+  await page.goto('/#today');
+  await playAll(page);
+  await expect(page.locator('#standing')).toContainText('55%');
+  await page.clock.setSystemTime(new Date('2026-11-28T09:00:00'));
+  await page.goto('/#day/2');
+  await page.reload();
+  await expect(page.locator('#standing')).toHaveText('You did better than 52% of the 41 players that day.');
+  await expect(page.locator('.recap .crowd').first()).toContainText('Better than 11% of players on this one');
+  expect(posts).toBe(1);
 });

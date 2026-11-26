@@ -264,7 +264,7 @@ async function showResult(n, { instant }) {
       h('a', { class: 'go quiet', href: '#practice' }, 'The Corral'),
     ],
     foot: isToday ? K.countdown() : null,
-    standings: isToday && rec.live ? { day: n } : null,
+    standings: rec.live ? { day: n, post: isToday } : null,
   });
   main.replaceChildren(view.el);
   current = view;

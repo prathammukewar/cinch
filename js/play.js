@@ -120,6 +120,7 @@ export class Round {
     u.tag.textContent = `${q.category} \u00b7 ${DIFFICULTY[q.difficulty] || ''}`;
     u.q.textContent = q.question;
     u.ask.classList.toggle('long', q.question.length > 78);
+    u.ask.classList.toggle('longer', q.question.length > 95);
     const said = q.unit && q.question.toLowerCase().includes(q.unit.toLowerCase().split(' ')[0].replace(/s$/, ''));
     u.note.textContent = [q.unit && q.unit !== 'year' && !said && !PRE[q.unit] && !SUF[q.unit] ? `Answer in ${q.unit}.` : '', q.as_of ? `${q.as_of}.` : ''].filter(Boolean).join(' ');
     for (const side of ['low', 'high']) {

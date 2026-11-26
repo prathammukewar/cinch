@@ -25,21 +25,29 @@ function liveDays(now = Date.now()) {
   return [a, b];
 }
 
-async function standing(db, day, score) {
+const Q = [1, 2, 3, 4, 5, 6, 7];
+/** Share of the other riders you beat, ties counting half. null until someone else is in. */
+const beat = (below, same, n) => (n > 1 ? Math.round((100 * ((below || 0) + Math.max(0, (same || 0) - 1) / 2)) / (n - 1)) : null);
+
+async function standing(db, day, score, pts) {
+  const per = pts ? Q.map((k) => `SUM(p${k} < ?${k + 2}) AS b${k}, SUM(p${k} = ?${k + 2}) AS s${k}`).join(', ') : '';
   const r = await db.prepare(
-    `SELECT COUNT(*) AS n, SUM(score < ?2) AS below, SUM(score = ?2) AS same,
-       SUM(substr(hits,1,1)='1') AS h1, SUM(substr(hits,2,1)='1') AS h2, SUM(substr(hits,3,1)='1') AS h3,
-       SUM(substr(hits,4,1)='1') AS h4, SUM(substr(hits,5,1)='1') AS h5, SUM(substr(hits,6,1)='1') AS h6, SUM(substr(hits,7,1)='1') AS h7
+    `SELECT COUNT(*) AS n, SUM(score < ?2) AS below, SUM(score = ?2) AS same, COUNT(p1) AS nq,
+       ${Q.map((k) => `SUM(substr(hits,${k},1)='1') AS h${k}`).join(', ')}${per ? `, ${per}` : ''}
      FROM scores WHERE day = ?1`,
-  ).bind(day, score).first();
+  ).bind(day, score, ...(pts || [])).first();
   const n = r.n || 0;
   return {
     day,
     riders: n,
-    better: n ? Math.round((100 * ((r.below || 0) + Math.max(0, (r.same || 0) - 1) / 2)) / Math.max(1, n - 1)) : null,
-    roped: n ? [r.h1, r.h2, r.h3, r.h4, r.h5, r.h6, r.h7].map((x) => Math.round((100 * (x || 0)) / n)) : [],
+    better: beat(r.below, r.same, n),
+    roped: n ? Q.map((k) => Math.round((100 * (r[`h${k}`] || 0)) / n)) : [],
+    qriders: r.nq || 0,
+    qbetter: pts ? Q.map((k) => beat(r[`b${k}`], r[`s${k}`], r.nq || 0)) : [],
   };
 }
+
+const goodPts = (p, score) => Array.isArray(p) && p.length === 7 && p.every((x) => Number.isInteger(x) && x >= 0 && x <= 100) && p.reduce((a, b) => a + b, 0) === score;
 
 const ROOM_HOURS = 6;
 const LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -122,7 +130,7 @@ export default {
     const url = new URL(req.url);
     try {
       if (req.method === 'POST' && url.pathname === '/v1/score') {
-        if (Number(req.headers.get('content-length') || 0) > 512) return json({ error: 'too big' }, 413, origin);
+        if (Number(req.headers.get('content-length') || 0) > 768) return json({ error: 'too big' }, 413, origin);
         const b = await req.json();
         const day = Number(b.day);
         const score = Number(b.score);
@@ -131,10 +139,15 @@ export default {
         if (!Number.isInteger(score) || score < 0 || score > 700) return json({ error: 'bad score' }, 400, origin);
         if (typeof b.hits !== 'string' || !/^[01]{7}$/.test(b.hits)) return json({ error: 'bad hits' }, 400, origin);
         if (typeof b.client !== 'string' || !/^[a-z0-9]{12,24}$/.test(b.client)) return json({ error: 'bad client' }, 400, origin);
-        await env.DB.prepare('INSERT OR IGNORE INTO scores (day, client, score, hits, at) VALUES (?1, ?2, ?3, ?4, ?5)')
-          .bind(day, b.client, score, b.hits, Date.now()).run();
-        const mine = await env.DB.prepare('SELECT score FROM scores WHERE day = ?1 AND client = ?2').bind(day, b.client).first();
-        return json(await standing(env.DB, day, mine.score), 200, origin);
+        const pts = goodPts(b.points, score) ? b.points : null;
+        // First finish counts. A later visit can only fill in per-question points a first visit lacked.
+        await env.DB.prepare(`INSERT INTO scores (day, client, score, hits, at, p1, p2, p3, p4, p5, p6, p7) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+          ON CONFLICT (day, client) DO UPDATE SET p1 = excluded.p1, p2 = excluded.p2, p3 = excluded.p3, p4 = excluded.p4, p5 = excluded.p5, p6 = excluded.p6, p7 = excluded.p7
+          WHERE scores.p1 IS NULL AND excluded.p1 IS NOT NULL AND scores.score = excluded.score`)
+          .bind(day, b.client, score, b.hits, Date.now(), ...(pts || Array(7).fill(null))).run();
+        const mine = await env.DB.prepare('SELECT score, p1, p2, p3, p4, p5, p6, p7 FROM scores WHERE day = ?1 AND client = ?2').bind(day, b.client).first();
+        const minePts = mine.p1 === null ? null : Q.map((k) => mine[`p${k}`]);
+        return json(await standing(env.DB, day, mine.score, minePts), 200, origin);
       }
       if (url.pathname.startsWith('/v1/room')) {
         const res = await rooms(req, env, url, origin);
@@ -143,7 +156,8 @@ export default {
       const m = url.pathname.match(/^\/v1\/day\/(\d{1,5})$/);
       if (req.method === 'GET' && m) {
         const score = Number(url.searchParams.get('score') || 0);
-        return json(await standing(env.DB, Number(m[1]), Number.isFinite(score) ? score : 0), 200, origin);
+        const pts = (url.searchParams.get('pts') || '').split(',').filter(Boolean).map(Number);
+        return json(await standing(env.DB, Number(m[1]), Number.isFinite(score) ? score : 0, goodPts(pts, score) ? pts : null), 200, origin);
       }
       return json({ error: 'not found' }, 404, origin);
     } catch (e) {

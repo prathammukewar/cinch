@@ -60,7 +60,8 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
 
   const text = () => shareText({ title: shareTitle, score, of, rows });
   const el = h('section', { class: 'result', 'aria-label': 'Result' },
-    h('div', { class: 'tally' }, h('p', { class: 'day' }, heading), big, h('p', { class: 'of' }, `of ${of}. A loop around the whole rail scores 0.`)),
+    h('div', { class: 'tally' }, h('p', { class: 'day' }, heading), big, h('p', { class: 'of' }, `of ${of}. A loop around the whole rail scores 0.`),
+      h('p', { class: 'standing', id: 'standing', role: 'status', hidden: !standings || !api() }, standings && api() ? 'Comparing with everyone else' : '')),
     box,
     brands,
     h('dl', { class: 'facts' },
@@ -73,8 +74,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
       ...(restart ? [h('button', { class: 'go quiet wide', type: 'button', id: 'again', onclick: restart }, restartText)] : []),
       ...extras),
     h('div', { class: 'says' },
-      h('p', { class: 'cheer' }, luckLine(hits, rows.length)),
-      h('p', { class: 'standing', id: 'standing', hidden: true })),
+      h('p', { class: 'cheer' }, luckLine(hits, rows.length))),
     h('details', { class: 'maths' }, h('summary', {}, 'How the points work'),
       h('div', {}, h('p', {}, 'Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop\u2019s width. Fence in measures your loop against the shorter rail it leaves, and each hint keeps only a share of the points.'),
         h('p', { class: 'fine', style: 'margin-top:8px' }, h('a', { href: '#scoring' }, 'Ranch rules')))),
@@ -89,6 +89,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
   const lineup = new Lineup(canvas, rows, { reduced: reducedMotion(), sound, instant });
   // Hover, focus or tap a loop to see its question, your loop and the answer.
   let shown = -1;
+  let crowd = null;
   const open = (i) => {
     const q = questions[i];
     const r = rows[i];
@@ -98,7 +99,8 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
     peek.replaceChildren(
       h('p', { class: 'peek-q' }, q.question),
       h('dl', {}, h('div', {}, h('dt', {}, 'Your loop'), h('dd', {}, `${withUnit(r.lo, q)} to ${withUnit(r.hi, q)}`)), h('div', {}, h('dt', {}, 'Answer'), h('dd', {}, withUnit(q.answer, q)))),
-      h('p', { class: `peek-v${r.hit ? ' hit' : ''}` }, h('b', { class: `tier-pill t-${tierOf(r).key}` }, verdictOf(r)), ` ${plus(r.points)}${r.hints ? ' with hints' : ''}`));
+      h('p', { class: `peek-v${r.hit ? ' hit' : ''}` }, h('b', { class: `tier-pill t-${tierOf(r).key}` }, verdictOf(r)), ` ${plus(r.points)}${r.hints ? ' with hints' : ''}`),
+      crowd?.qbetter?.[i] != null ? h('p', { class: 'peek-crowd' }, `Better than ${crowd.qbetter[i]}% of players on this one`) : '');
     const step = (box.clientHeight - 44) / rows.length;
     const y = 22 + step * (i + 0.5);
     peek.hidden = false;
@@ -126,7 +128,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
     start: () => {
       say(`Score ${score} of ${of}. Roped ${hits} of ${rows.length}.`);
       lineup.start(() => { if (!instant && !reducedMotion()) countUp(big, score); });
-      if (standings) loadStandings(el, standings.day, score, rows);
+      if (standings) loadStandings(el, standings, score, rows, (s) => { crowd = s; if (shown >= 0) { const i = shown; shown = -1; open(i); } });
     },
     destroy: () => lineup.destroy(),
   };
@@ -171,24 +173,34 @@ function clientId() {
 }
 
 /** Post today's score once and show where it stands among today's riders. Silent if offline. */
-async function loadStandings(el, day, score, rows) {
+/** How this round compares with everyone who played the same day: overall and on each question. */
+async function loadStandings(el, { day, post }, score, rows, done) {
   const base = api();
   if (!base) return;
+  const line = el.querySelector('#standing');
+  const points = rows.map((r) => r.points);
   try {
-    const res = await fetch(`${base}/v1/score`, {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ day, score, hits: rows.map((r) => (r.hit ? 1 : 0)).join(''), client: clientId() }),
-    });
-    if (!res.ok) return;
+    const res = post
+      ? await fetch(`${base}/v1/score`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ day, score, hits: rows.map((r) => (r.hit ? 1 : 0)).join(''), client: clientId(), points }),
+      })
+      : await fetch(`${base}/v1/day/${day}?score=${score}&pts=${points.join(',')}`);
+    if (!res.ok) { if (line) line.hidden = true; return; }
     const s = await res.json();
-    const line = el.querySelector('#standing');
     if (!line) return;
-    line.textContent = s.riders < 5 ? `You are one of the first ${s.riders} riders today.` : `Better than ${s.better}% of today\u2019s ${s.riders.toLocaleString('en-US')} riders.`;
+    const when = post ? 'today' : 'that day';
+    line.textContent = s.riders > 1 && s.better !== null
+      ? `You did better than ${s.better}% of the ${s.riders.toLocaleString('en-US')} players ${when}.`
+      : post ? 'You are the first player today. Come back later to see how you compare.' : 'You were the only player that day.';
     line.hidden = false;
     el.querySelectorAll('.recap li').forEach((li, i) => {
-      if (s.roped?.[i] === undefined || s.riders < 5) return;
-      li.append(h('span', { class: 'crowd' }, `${s.roped[i]}% of riders roped this one`));
+      const parts = [];
+      if (s.qbetter?.[i] != null) parts.push(`Better than ${s.qbetter[i]}% of players on this one`);
+      if (s.riders > 1 && s.roped?.[i] !== undefined) parts.push(`${s.roped[i]}% roped it`);
+      if (parts.length) li.append(h('span', { class: 'crowd' }, parts.join(' \u00b7 ')));
     });
     say(line.textContent);
-  } catch { /* offline: say nothing */ }
+    done?.(s);
+  } catch { if (line) line.hidden = true; }
 }
