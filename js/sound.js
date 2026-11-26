@@ -1,4 +1,5 @@
-// Sound is off until the player turns it on, so the synthesizer loads only then.
+// Sound is on by default. Browsers keep audio locked until the first tap or key press,
+// so the synthesizer loads early and wakes up on that first touch, wherever it lands.
 import { store } from './store.js';
 
 let synth = null;
@@ -12,6 +13,16 @@ const buzz = (p) => {
   try { if (store.get('haptics') !== false && navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.(p); } catch { /* not supported */ }
 };
 const VIBRATE = { grab: 5, lock: 10, thunk: 18, twang: [10, 30, 16], slip: 20 };
+
+const wake = () => {
+  if (!store.get('sound')) return;
+  if (synth) synth.unlock(); else load().then(() => synth.unlock());
+};
+for (const type of ['pointerdown', 'touchend', 'keydown', 'click']) document.addEventListener(type, wake, { capture: true, passive: true });
+if (store.get('sound')) {
+  const early = () => load();
+  if ('requestIdleCallback' in globalThis) requestIdleCallback(early, { timeout: 1500 }); else setTimeout(early, 300);
+}
 
 export const sound = new Proxy({}, {
   get(_, name) {

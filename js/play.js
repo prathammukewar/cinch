@@ -29,8 +29,9 @@ export class Round {
    * next(i) -> question or null, rows: already answered rows,
    * label(i) -> text at the top, onRow(row, q), onEnd(rows), seconds: time limit per question
    */
-  constructor(root, { next, rows = [], length = 0, label, onRow, onEnd, lastText = 'See your roundup', seconds = 0, quickNext = false }) {
-    Object.assign(this, { root, next, rows, length, label, onRow, onEnd, lastText, seconds, quickNext });
+  constructor(root, opts) {
+    const { next, rows = [], length = 0, label, onRow, onEnd, lastText = 'See your roundup', seconds = 0, quickNext = false } = opts;
+    Object.assign(this, { root, next, rows, length, label, onRow, onEnd, lastText, seconds, quickNext, opts });
     this.isRound = true;
     this.build();
     this.ask();

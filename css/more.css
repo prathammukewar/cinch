@@ -170,3 +170,18 @@ table.maths tr.us td { font-weight: 700; }
 .ladder { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; }
 .ladder li { color: var(--mute); }
 .ladder .tier-pill { margin-right: 6px; }
+
+.ways { display: grid; gap: 12px; margin-top: 20px; max-width: 520px; }
+.way { display: grid; gap: 6px; padding: 18px 18px 20px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); text-decoration: none; transition: border-color .2s, transform .2s var(--ease); }
+.way:hover, .way:focus-visible { border-color: var(--band); transform: translateY(-2px); }
+.way b { font: 700 22px/1.1 var(--display); font-stretch: 100%; }
+.way span { color: var(--mute); line-height: 1.4; }
+
+/* Side by side rooms */
+.or { margin: 22px 0 8px; color: var(--mute); font-size: 15px; }
+.join-row { display: flex; gap: 8px; max-width: 360px; }
+.join-row input { flex: 1; min-width: 0; min-height: 52px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); padding: 0 14px; font: 700 24px var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--ink); }
+.join-row input:focus { outline: none; border-color: var(--band); }
+.join-row .go { width: auto; margin: 0; padding: 0 22px; }
+.room-msg { margin-top: 10px; color: var(--band-text); min-height: 1.4em; }
+.room-code { margin: 18px 0 8px; font: 760 64px/1 var(--display); letter-spacing: .14em; font-stretch: 110%; color: var(--ink); }

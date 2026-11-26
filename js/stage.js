@@ -70,7 +70,13 @@ export class Stage {
     this.wake();
   }
 
-  theme() { this.pal = palette(); this.wake(); }
+  theme() { this.pal = { ...palette(), ...(this.rope || {}) }; this.wake(); }
+
+  /** Side by side: each rider's rope has its own colours. null goes back to the theme's red. */
+  setRope(colors) { this.rope = colors; this.theme(); }
+
+  /** The other rider's loop, shown while the horseshoe flies. l and u are shares of the full rail. */
+  setGhost(g) { this.ghost = g; this.wake(); }
 
   x(t) { return this.pad + t * (this.w - this.pad * 2); }
   unX(px) { return clamp((px - this.pad) / (this.w - this.pad * 2), 0, 1); }
@@ -86,8 +92,8 @@ export class Stage {
     this.landmarks = [];
     this.worthNow = null;
     this.phase = 'set';
-    this.flyer = null; this.close = null; this.result = null; this.pin = null; this.pinSettled = false;
-    this.dots = []; this.rings = []; this.tumble = null;
+    this.flyer = null; this.close = null; this.result = null; this.pin = null; this.pinSettled = false; this.landed = false;
+    this.dots = []; this.rings = []; this.tumble = null; this.ghost = null;
     this.gapAlpha = 0;
     this.marks = ticks(ruler, q, this.w - this.pad * 2);
     this.setUnits(start[0], start[1], true);
@@ -515,6 +521,7 @@ export class Stage {
     const worth = this.worthNow ?? 1 - (this.t[1] - this.t[0]);
     pointsBand(ctx, pal, xs[0], xs[1], this.top + 1, this.rulerH - 1, (after ? 0.1 : 0.12) + 0.3 * Math.max(0, worth), FADE);
     this.drawLandmarks(after);
+    if (this.ghost) this.drawGhost();
     for (const r of this.rings) this.drawRing(r);
     if (this.phase === 'reveal' && !this.landed) this.drawPinShadow();
 
@@ -530,6 +537,7 @@ export class Stage {
     if (this.flyer) this.drawFlyer();
     for (const d of this.dots) this.drawDot(d);
     if (this.tumble) this.drawTumble();
+    if (this.ghost) this.drawGhostTag();
     if (!after) this.drawLandmarkTags();
     if (after && !this.result.hit && this.gapAlpha > 0) this.drawGap(xs);
     if (this.phase === 'set') this.drawTags(xs);
@@ -585,6 +593,39 @@ export class Stage {
       prev = m;
     }
     return spots;
+  }
+
+  drawGhost() {
+    const { ctx, w } = this;
+    const g = this.ghost;
+    const [a, b] = this.view;
+    const at = (t) => this.x(clamp((t - a) / (b - a), 0, 1));
+    const xl = at(g.l);
+    const xr = Math.max(at(g.u), xl + 3);
+    const y = this.top - 8;
+    ctx.save();
+    ctx.lineCap = 'round';
+    for (const x of [xl, xr]) {
+      ctx.strokeStyle = g.dark; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x, this.top + 3); ctx.lineTo(x, y - 8); ctx.stroke();
+    }
+    ctx.strokeStyle = g.dark; ctx.lineWidth = 8;
+    ctx.beginPath(); ctx.moveTo(xl, y); ctx.lineTo(xr, y); ctx.stroke();
+    ctx.strokeStyle = g.color; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(xl, y); ctx.lineTo(xr, y); ctx.stroke();
+    ctx.setLineDash([2, 5]); ctx.strokeStyle = g.lite; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xl, y - 1); ctx.lineTo(xr, y - 1); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  /** The other rider's name rides above everything, so the rope never hides it. */
+  drawGhostTag() {
+    const { ctx, w } = this;
+    const g = this.ghost;
+    const [a, b] = this.view;
+    const xl = this.x(clamp((g.l - a) / (b - a), 0, 1));
+    tag(ctx, g.name, xl, this.top - 22, { fill: g.color, ink: '#fff', font: `650 12px ${TEXT}`, w, h: 20, padX: 7, align: 'left' });
   }
 
   drawTumble() {

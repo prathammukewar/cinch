@@ -5,7 +5,8 @@ test('a stranger gets a welcome screen, the rules once, then the first question'
   await expect(page.locator('.wordmark')).toHaveText('Cinch');
   await expect(page.locator('#play')).toBeInViewport();
   await expect(page.locator('.home-date')).toContainText('Roundup No.');
-  await expect(page.locator('#play')).toHaveText('Saddle up');
+  await expect(page.locator('#play .say')).toHaveText('Saddle up');
+  await expect(page.locator('#play .plain')).toHaveText('Play today\u2019s 7');
   await page.click('#play');
   await expect(page.locator('#howto')).toBeVisible();
   await expect(page.locator('#howto .steps li')).toHaveCount(3);
@@ -26,7 +27,7 @@ test('the welcome screen changes for a returning player', async ({ page }) => {
   await page.click('#drop');
   await page.clock.runFor(3000);
   await page.goto('/');
-  await expect(page.locator('#play')).toHaveText(/Back in the saddle, 1 of 7/);
+  await expect(page.locator('#play')).toHaveText(/Back in the saddle\s*1 of 7 done/);
   await page.click('#play');
   await expect(page.locator('#howto')).toBeHidden();
   await expect(page.locator('.ask .meta')).toContainText('2 of 7');
@@ -159,8 +160,9 @@ test('share copies spoiler-free text', async ({ page, context, isMobile }) => {
   await page.click('#share');
   const text = await page.evaluate(() => navigator.clipboard.readText());
   const lines = text.split('\n');
-  expect(lines[0]).toMatch(/^Cinch Roundup No\. 2: roped \d of 7, \d+ points$/);
-  expect(lines.slice(1, 8).every((l) => [...l].length === 7)).toBe(true);
+  expect(lines).toHaveLength(3);
+  expect(lines[0]).toMatch(/^Cinch Roundup No\. 2 \u00b7 \d+ of 700 \u00b7 roped \d of 7$/);
+  expect([...lines[1]].filter((c) => /\p{Extended_Pictographic}/u.test(c))).toHaveLength(7);
   expect(text).not.toContain('Caught');
   expect(lines[lines.length - 1]).toBe('https://playcinch.pages.dev/');
 });

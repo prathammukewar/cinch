@@ -1,43 +1,18 @@
 import { NAME, SITE } from './config.js';
 
-const CELL = 0.11;
-const reach = (d) => Math.min(3, Math.max(1, Math.ceil(d / CELL - 1e-9)));
-const GREEN = '\u{1F7E9}';
-const ORANGE = '\u{1F7E7}';
-const RED = '\u{1F7E5}';
-const SHOE = '\u{1F7E1}';
-const MISS = '\u274c';
-const EMPTY = '\u2b1c';
+import { tierOf } from './score.js';
 
-/**
- * One row of seven symbols, always centred on the answer, so it gives nothing away.
- * The coloured cells are your loop: green when it roped the answer, orange when it
- * nearly did, red when it missed.
- */
-export function symbolRow(row) {
-  const cells = Array(7).fill(EMPTY);
-  if (row.hit) {
-    const a = reach(row.x - row.l);
-    const b = reach(row.u - row.x);
-    for (let i = 3 - a; i <= 3 + b; i++) cells[i] = GREEN;
-    cells[3] = SHOE;
-  } else {
-    const dir = row.x < row.l ? 1 : -1;
-    const gap = dir > 0 ? row.l - row.x : row.x - row.u;
-    const start = Math.min(3, 1 + Math.floor(gap / CELL));
-    const len = Math.max(1, Math.round((row.u - row.l) / CELL));
-    const color = row.points >= 10 ? ORANGE : RED;
-    for (let i = 0; i < len && start + i <= 3; i++) cells[3 + dir * (start + i)] = color;
-    cells[3] = MISS;
-  }
-  return cells.join('');
-}
+/** One emoji per named throw. Older emoji only, so every phone shows them. */
+export const ICONS = { dead: '\u{1F3AF}', ringer: '\u{1F514}', hogtied: '\u{1F437}', roped: '\u{1F920}', leaner: '\u{1F90F}', snagged: '\u{1F3A3}', dust: '\u{1F4A8}', tumble: '\u{1F335}' };
+
+/** The emoji for one throw. It shows how well the throw went and never the answer. */
+export const iconOf = (row) => ICONS[tierOf(row).key];
 
 export function shareText({ title, score, of, rows }) {
   const hits = rows.filter((r) => r.hit).length;
   const hinted = rows.filter((r) => r.hints).length;
-  const head = `${NAME} ${title}: roped ${hits} of ${rows.length}, ${String(score).replace('-', '\u2212')} points`;
-  return [head, ...rows.map(symbolRow), hinted ? `${hinted} with hints` : '', SITE].filter(Boolean).join('\n');
+  const head = [`${NAME} ${title}`, `${score} of ${of}`, `roped ${hits} of ${rows.length}`, hinted ? `${hinted} with hints` : ''].filter(Boolean).join(' \u00b7 ');
+  return [head, rows.map(iconOf).join(''), SITE].join('\n');
 }
 
 export async function copy(text) {

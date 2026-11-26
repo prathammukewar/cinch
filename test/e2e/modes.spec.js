@@ -193,6 +193,7 @@ test('questions show their difficulty', async ({ page }) => {
 test('a Showdown: send a link, a friend plays it, both see who won', async ({ page, browser }) => {
   await at(page, '2026-11-27T09:00:00');
   await page.goto('/#duel');
+  await page.click('#way-send');
   await page.fill('#duel-name', 'Sam');
   await page.click('#duel-start');
   for (let i = 0; i < 7; i++) {
@@ -219,5 +220,123 @@ test('a Showdown: send a link, a friend plays it, both see who won', async ({ pa
   await expect(friend.locator('.verdict-line')).toHaveText(/wins by|dead heat/);
   await expect(friend.locator('.duel-rows li')).toHaveCount(7);
   await expect(friend.locator('#duel-reply')).toBeVisible();
+  await ctx.close();
+});
+
+test('Same saddle: two riders pass one phone, rope in secret, and one horseshoe lands for both', async ({ page }) => {
+  await at(page, '2026-11-27T09:00:00');
+  await page.goto('/#duel');
+  await page.click('#way-same');
+  await page.fill('#rider-1', 'Ana');
+  await page.fill('#rider-2', 'Ben');
+  await page.click('#side-start');
+  for (let i = 0; i < 7; i++) {
+    const [first, second] = i % 2 === 0 ? ['Ana', 'Ben'] : ['Ben', 'Ana'];
+    await expect(page.locator('.ask .meta span').first()).toContainText(`${first}\u2019s turn`);
+    await expect(page.locator('#drop')).toHaveText('Lock it in');
+    await squeeze(page, 0.2, 0.6);
+    await page.clock.runFor(200);
+    const firstLoop = await page.evaluate(() => [document.getElementById('low-value').value, document.getElementById('high-value').value]);
+    await page.click('#drop');
+    await expect(page.locator('.handoff h2')).toHaveText(`Pass the phone to ${second}`);
+    await page.click('#handoff-go');
+    await expect(page.locator('.handoff')).toHaveCount(0);
+    await expect(page.locator('.ask .meta span').first()).toContainText(`${second}\u2019s turn`);
+    await page.clock.runFor(200);
+    // The first loop is hidden: the second rider starts from the full rail.
+    const fresh = await page.evaluate(() => [document.getElementById('low-value').value, document.getElementById('high-value').value]);
+    expect(fresh).not.toEqual(firstLoop);
+    await expect(page.locator('#drop')).toHaveText('Pitch the shoe');
+    await squeeze(page, 0.4, 0.9);
+    await page.click('#drop');
+    await page.clock.runFor(3000);
+    await expect(page.locator('.panel.done')).toBeVisible();
+    await expect(page.locator('.pair-res li')).toHaveCount(2);
+    await expect(page.locator('.pair-res li').first()).toContainText('Ana');
+    await next(page);
+  }
+  await expect(page.locator('.vs')).toBeVisible();
+  await expect(page.locator('.vs .who').first()).toHaveText('Ana');
+  await expect(page.locator('.vs .who').nth(1)).toHaveText('Ben');
+  await expect(page.locator('.verdict-line')).toHaveText(/wins by|dead heat/);
+  await expect(page.locator('.duel-rows li')).toHaveCount(7);
+  await expect(page.locator('#side-again')).toBeVisible();
+});
+
+/** A stand-in for the room server, shared by every page that routes to it. */
+function fakeRooms() {
+  const rooms = new Map();
+  let made = 0;
+  return async (route) => {
+    const req = route.request();
+    const url = new URL(req.url());
+    const path = url.pathname.replace(/^\/standings/, '');
+    const body = req.postData() ? JSON.parse(req.postData()) : null;
+    const reply = (status, json) => route.fulfill({ status, json });
+    if (path === '/v1/room' && req.method() === 'POST') {
+      const code = `ROO${'ABCDEFGH'[made++]}`;
+      const token = `host-token-${code}-0123456789`;
+      rooms.set(code, { q: body.q, names: [body.name, null], tokens: [token, null], picks: [] });
+      return reply(200, { code, seat: 0, token, q: body.q, names: [body.name, null] });
+    }
+    const m = path.match(/^\/v1\/room\/([A-Z]{4})(\/join|\/pick)?$/);
+    const room = m && rooms.get(m[1]);
+    if (!room) return reply(404, { error: 'no such room' });
+    if (m[2] === '/join') {
+      if (room.names[1]) return reply(409, { error: 'full' });
+      room.names[1] = body.name;
+      room.tokens[1] = `guest-token-${m[1]}-0123456789`;
+      return reply(200, { code: m[1], seat: 1, token: room.tokens[1], q: room.q, names: room.names });
+    }
+    const seat = room.tokens.indexOf(m[2] === '/pick' ? body.token : url.searchParams.get('token'));
+    if (seat < 0) return reply(403, { error: 'not your seat' });
+    if (m[2] === '/pick') {
+      if (!room.picks.some((p) => p.seat === seat && p.i === body.i)) room.picks.push({ seat, i: body.i, lo: body.lo, hi: body.hi, fence: body.fence, scout: body.scout ? 1 : 0 });
+      return reply(200, { ok: true });
+    }
+    const mine = new Set(room.picks.filter((p) => p.seat === seat).map((p) => p.i));
+    return reply(200, { code: m[1], seat, q: room.q, names: room.names, picks: room.picks.filter((p) => p.seat === seat || mine.has(p.i)), roped: room.picks.filter((p) => p.seat !== seat).map((p) => p.i) });
+  };
+}
+
+test('Side by side: two devices share a room and rope the same questions live', async ({ page, browser }) => {
+  test.setTimeout(120000);
+  const rooms = fakeRooms();
+  const setup = async (p) => {
+    await p.addInitScript(() => localStorage.setItem('cinch-api', `${location.origin}/standings`));
+    await p.route('**/standings/v1/room**', rooms);
+  };
+  await setup(page);
+  await page.goto('/#duel');
+  await page.click('#way-side');
+  await page.fill('#duel-name', 'Ana');
+  await page.click('#room-start');
+  const code = (await page.locator('#room-code-show').textContent()).trim();
+  expect(code).toMatch(/^[A-Z]{4}$/);
+  const ctx = await browser.newContext();
+  const guest = await ctx.newPage();
+  await setup(guest);
+  await guest.goto(`/#duel/${code}`);
+  await guest.fill('#duel-name', 'Ben');
+  await guest.click('#room-join-go');
+  await expect(page.locator('.ask .meta span').first()).toContainText('1 of 7 \u00b7 vs Ben', { timeout: 8000 });
+  await expect(guest.locator('.ask .meta span').first()).toContainText('1 of 7 \u00b7 vs Ana');
+  await expect(page.locator('.ask h1')).toHaveText(await guest.locator('.ask h1').textContent());
+  for (let i = 0; i < 7; i++) {
+    await squeeze(page, 0.2, 0.7);
+    await page.click('#drop');
+    await expect(page.locator('.wait-line')).toContainText('Waiting for Ben');
+    await squeeze(guest, 0.3, 0.8);
+    await guest.click('#drop');
+    for (const p of [page, guest]) {
+      await expect(p.locator('.panel.done')).toBeVisible({ timeout: 10000 });
+      await expect(p.locator('.pair-res li')).toHaveCount(2);
+    }
+    expect(await page.locator('.pair-res').innerText()).toBe(await guest.locator('.pair-res').innerText());
+    for (const p of [page, guest]) await next(p);
+  }
+  await expect(page.locator('.verdict-line')).toHaveText(/You win by|Ben wins by|dead heat/);
+  await expect(guest.locator('.verdict-line')).toHaveText(/You win by|Ana wins by|dead heat/);
+  await expect(guest.locator('.duel-rows li')).toHaveCount(7);
   await ctx.close();
 });

@@ -4,6 +4,7 @@ import { dayKey, keyOf, longDate, streaks } from './day.js';
 import { practicePool, index } from './bank.js';
 import { store, askPersist, exportSave, importSave, allRows } from './store.js';
 import { total, kindOf, wilson, tierOf, TIERS, LEANER } from './score.js';
+import { ICONS } from './share.js';
 
 const LADDER = {
   dead: '96 to 100 points. A hair-thin loop right on the answer, no hints.',
@@ -151,6 +152,7 @@ export function showScoring() {
     h('p', {}, 'Fence in shortens the rail to a stretch that holds the answer, and from then on your loop is measured against that shorter rail. A loop around the whole fenced stretch scores 0, so the fence never pays for a blind guess. Fencing once keeps 85% of the points, twice keeps 70%. Scout marks two known numbers of the same kind on the rail and keeps 85%. The answer can sit between them or outside them. Hints never change your Brand Book record of how often your loops hold the answer.'),
     h('h2', {}, 'Names for a throw'),
     h('ul', { class: 'ladder' }, [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)].map((t) => h('li', {}, h('span', { class: `tier-pill t-${t.key}` }, t.name), ' ', LADDER[t.key]))),
+    h('p', {}, 'When you share a result, each throw shows as one emoji, in this order from best to nothing: ', [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)].map((t) => `${ICONS[t.key]} ${t.name}`).join(', '), '.'),
     h('h2', {}, 'Honest loops'),
     h('p', {}, 'The goal is a loop that ropes the answer nine times in ten. On questions you know something about, that is also close to the best-scoring loop. On questions you are very unsure of, a slightly tighter loop pays a little more on average, because points cannot go below zero. The Brand Book keeps you honest: it tracks how often your 90% loops really hold the answer.'),
     h('div', { id: 'proof' }),

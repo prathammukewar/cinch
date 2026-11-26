@@ -15,7 +15,7 @@ Inside your loop you score 100 minus the share of the rail it covers. Just outsi
 - **Roundup**: today's seven, 30 seconds each, one try, a spoiler-free share line and a picture sized for stories
 - **The Corral**: practice in sets of seven, never using daily questions
 - **Quick Draw**: ten questions, 20 seconds each
-- **Showdown**: rope seven, send a link, and your friend ropes the same seven to see who wins
+- **Showdown**: two riders, the same seven questions. **Side by side** is for two people with one phone: each ropes the question in secret, the phone changes hands, and one horseshoe lands for both. **Send a challenge** is for later: rope seven, send a link, and your friend ropes the same seven when they like
 - **Old Trails**: every earlier Roundup
 - **Brand Book**: how often your loops hold the answer, over time and by subject
 

@@ -13,6 +13,7 @@ const note = (i) => SCALE[Math.max(0, Math.min(SCALE.length - 1, Math.round(i)))
 
 function ready() {
   if (!store.get('sound') || document.hidden) return false;
+  if (!ctx && navigator.userActivation && !navigator.userActivation.hasBeenActive) return false;
   if (!ctx) {
     const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!AC) return false;
@@ -35,7 +36,12 @@ function ready() {
     dark.connect(soften);
     document.addEventListener('visibilitychange', () => { if (document.hidden) ctx.suspend(); });
   }
-  if (ctx.state === 'suspended') { ctx.resume(); return false; }
+  if (ctx.state === 'suspended') {
+    // Resuming needs a tap or key press. Notes scheduled now play the moment it resumes.
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return false;
+    ctx.resume();
+    return true;
+  }
   return ctx.state === 'running';
 }
 

@@ -1,45 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { symbolRow, shareText } from '../../js/share.js';
+import { shareText, iconOf, ICONS } from '../../js/share.js';
+import { scoreRange } from '../../js/score.js';
 
-const GREEN = '\u{1F7E9}';
-const ORANGE = '\u{1F7E7}';
-const RED = '\u{1F7E5}';
-const SHOE = '\u{1F7E1}';
-const MISS = '❌';
-const EMPTY = '⬜';
-const cells = (s) => [...s];
-const row = (l, u, x, points = 0) => ({ l, u, x, hit: x >= l && x <= u, width: u - l, points });
+const rail = { min: 0, max: 100, scale: 'linear' };
+const row = (lo, hi, x, extra = {}) => ({ ...scoreRange(lo, hi, x, rail), ...extra });
 
-test('every row is seven symbols with the answer in the middle', () => {
-  for (const [l, u, x] of [[0.4, 0.6, 0.5], [0, 1, 0.5], [0.1, 0.2, 0.9], [0.8, 0.9, 0.1], [0.5, 0.5, 0.5], [0.49, 0.5, 0.51], [0, 0.01, 0.02]]) {
-    const c = cells(symbolRow(row(l, u, x)));
-    assert.equal(c.length, 7);
-    assert.equal(c[3], x >= l && x <= u ? SHOE : MISS);
-  }
+test('each throw is one emoji for its name, from the best to nothing', () => {
+  assert.equal(iconOf(row(49, 51, 50)), ICONS.dead);
+  assert.equal(iconOf(row(45, 55, 50)), ICONS.ringer);
+  assert.equal(iconOf(row(35, 65, 50)), ICONS.hogtied);
+  assert.equal(iconOf(row(25, 75, 50)), ICONS.roped);
+  assert.equal(iconOf(row(10, 80, 50)), ICONS.snagged);
+  assert.equal(iconOf(row(5, 95, 50)), ICONS.dust);
+  assert.equal(iconOf(row(0, 100, 50)), ICONS.tumble);
+  assert.equal(iconOf(row(80, 90, 20)), ICONS.tumble);
+  assert.equal(iconOf(row(45, 49, 49.5)), ICONS.leaner);
 });
 
-test('roped, close and missed look different, and a catch is never red', () => {
-  assert.equal(symbolRow(row(0.45, 0.55, 0.5)), [EMPTY, EMPTY, GREEN, SHOE, GREEN, EMPTY, EMPTY].join(''));
-  assert.equal(symbolRow(row(0.1, 0.9, 0.5)), [GREEN, GREEN, GREEN, SHOE, GREEN, GREEN, GREEN].join(''));
-  const low = cells(symbolRow(row(0.1, 0.3, 0.5)));
-  assert.ok(low.slice(0, 3).includes(RED) && !low.slice(4).includes(RED));
-  const high = cells(symbolRow(row(0.7, 0.9, 0.5)));
-  assert.ok(!high.slice(0, 3).includes(RED) && high.slice(4).includes(RED));
-  assert.ok(cells(symbolRow(row(0.3, 0.48, 0.5, 12))).includes(ORANGE));
-  assert.ok(!cells(symbolRow(row(0.3, 0.48, 0.5, 4))).includes(ORANGE));
+test('share text is three lines: the score, one emoji per question, the link', () => {
+  const rows = [row(45, 55, 50), row(80, 90, 20), row(25, 75, 50)];
+  const score = rows.reduce((s, r) => s + r.points, 0);
+  const lines = shareText({ title: 'No. 12', score, of: 700, rows }).split('\n');
+  assert.equal(lines.length, 3);
+  assert.equal(lines[0], `Cinch No. 12 \u00b7 ${score} of 700 \u00b7 roped 2 of 3`);
+  assert.equal(lines[1], ICONS.ringer + ICONS.tumble + ICONS.roped);
+  assert.match(lines[2], /^https:\/\//);
+  assert.ok(!/\d/.test(lines[1]), 'no numbers, so no answers, in the emoji row');
 });
 
-test('share text leads with the catches, then rows, then the link, and no answers', () => {
-  const t = shareText({ title: 'Roundup No. 12', score: 40, of: 700, rows: [row(0.4, 0.6, 0.5), row(0.1, 0.2, 0.9)] });
-  const lines = t.split('\n');
-  assert.match(lines[0], /Roundup No\. 12: roped 1 of 2, 40 points$/);
-  assert.equal(lines.length, 4);
-  assert.match(lines[3], /^https:\/\//);
-  assert.ok(!/\d{3,}/.test(lines.slice(1, 3).join('')), 'no numbers in the symbol rows');
-});
-
-test('hints are owned up to', () => {
-  const t = shareText({ title: 'x', score: 10, of: 700, rows: [{ ...row(0.4, 0.6, 0.5), hints: { scout: true, fence: 0 } }] });
-  assert.match(t, /1 with hints/);
+test('hints are owned up to on the first line', () => {
+  const t = shareText({ title: 'x', score: 10, of: 700, rows: [row(40, 60, 50, { hints: { scout: true, fence: 0 } })] });
+  assert.match(t.split('\n')[0], /1 with hints$/);
 });

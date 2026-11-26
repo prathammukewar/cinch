@@ -159,7 +159,7 @@ async function saveImage({ rows, score, of, shareTitle, hits }) {
 
 
 /** The standings server. 'off' in localStorage turns it off for this browser (the tests use it). */
-const api = () => { try { const o = localStorage.getItem('cinch-api'); return o === 'off' ? '' : o || API; } catch { return API; } };
+export const api = () => { try { const o = localStorage.getItem('cinch-api'); return o === 'off' ? '' : o || API; } catch { return API; } };
 
 function clientId() {
   let id = store.get('client');

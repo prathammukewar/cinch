@@ -149,24 +149,23 @@ async function showHome() {
   const fresh = !Object.keys(d.days).length && !draft;
   const canvas = h('canvas', { class: 'hero', 'aria-hidden': 'true' });
   const word = h('h1', { class: 'wordmark' }, NAME);
-  const playText = done ? 'See today\u2019s roundup' : draft?.rows?.length ? `Back in the saddle, ${draft.rows.length} of ${PER_DAY}` : 'Saddle up';
-  const play = h('button', { class: 'go big', type: 'button', id: 'play', onclick: () => { sound.tap(); if (!store.data().seenHowTo && !store.data().seenIntro && !done && !draft) howTo(true); else location.hash = '#today'; } }, playText);
+  const [playText, playPlain] = done ? ['See today\u2019s roundup', 'Your result'] : draft?.rows?.length ? ['Back in the saddle', `${draft.rows.length} of ${PER_DAY} done`] : ['Saddle up', `Play today\u2019s ${PER_DAY}`];
+  const play = h('button', { class: 'go big', type: 'button', id: 'play', onclick: () => { sound.tap(); if (!store.data().seenHowTo && !store.data().seenIntro && !done && !draft) howTo(true); else location.hash = '#today'; } }, h('span', { class: 'say' }, playText), h('small', { class: 'plain' }, playPlain));
   const state = done
     ? h('p', { class: 'home-state' }, `You scored ${signed(total(done.rows))} today and roped ${done.rows.filter((r) => r.hit).length} of ${done.rows.length}. `, nextIn())
     : s.current > 1 ? h('p', { class: 'home-state' }, `${s.current} days on the trail. Keep it going.`) : fresh ? h('p', { class: 'home-state' }, 'About three minutes. No sign-up.') : null;
-  const soundChip = h('button', { class: 'chip', type: 'button', id: 'home-sound', 'aria-pressed': String(!!store.get('sound')), onclick: (e) => { store.set('sound', !store.get('sound')); paintSound(); e.currentTarget.setAttribute('aria-pressed', String(!!store.get('sound'))); e.currentTarget.textContent = store.get('sound') ? 'Sound on' : 'Sound off'; if (store.get('sound')) { sound.unlock(); sound.hello(); } } }, store.get('sound') ? 'Sound on' : 'Sound off');
+  const mode = (href, name, plain) => h('a', { class: 'mode', href }, h('b', {}, name), h('small', {}, plain));
   const view = h('section', { class: 'home', 'aria-label': 'Welcome' },
     h('div', { class: 'hero-box' }, canvas),
     word,
     h('p', { class: 'tag' }, 'Seven numbers a day. Throw a loop you are 90% sure will rope each one.'),
     h('div', { class: 'home-actions' }, play, h('button', { class: 'go quiet', type: 'button', id: 'howto-open', onclick: () => howTo(false) }, 'How to rope')),
     state,
-    h('nav', { class: 'chips', 'aria-label': 'More' },
-      h('a', { class: 'chip', href: '#practice' }, 'The Corral'),
-      h('a', { class: 'chip', href: '#draw' }, 'Quick Draw'),
-      h('a', { class: 'chip', href: '#duel' }, 'Showdown'),
-      h('a', { class: 'chip', href: '#archive' }, 'Old Trails'),
-      soundChip),
+    h('nav', { class: 'modes', 'aria-label': 'More ways to play' },
+      mode('#practice', 'The Corral', 'Practice'),
+      mode('#draw', 'Quick Draw', 'Speed round'),
+      mode('#duel', 'Showdown', 'Play a friend'),
+      mode('#archive', 'Old Trails', 'Past days')),
     h('p', { class: 'home-date' }, `Roundup No. ${today}`, h('span', { 'aria-hidden': 'true' }, ' \u00b7 '), longDate(keyOf(today))));
   main.replaceChildren(view);
   const { Hero } = await import('./hero.js');
