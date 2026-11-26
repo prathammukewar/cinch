@@ -1,6 +1,6 @@
 # Cinch
 
-Play it at **https://prathammukewar.github.io/cinch/**
+Play it at **https://playcinch.pages.dev/**
 
 A daily game set on a ranch. Seven questions with number answers, the same for everyone each day. For each one you set a lasso between two fence posts on a notched rail, as tight as you dare while staying 90% sure it will rope the answer. Then the horseshoe is pitched.
 
@@ -43,6 +43,8 @@ npx playwright install chromium
 npm run test:unit
 npx playwright test
 ```
+
+The site is hosted on Cloudflare Pages. `npm run deploy` copies only the files the site needs into `dist/` and uploads them with wrangler. The standings server in `server/` deploys on its own; see [server/README.md](server/README.md).
 
 ## Privacy
 

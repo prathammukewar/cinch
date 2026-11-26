@@ -206,7 +206,7 @@ test('a Showdown: send a link, a friend plays it, both see who won', async ({ pa
   const ctx = await browser.newContext();
   const friend = await ctx.newPage();
   await friend.clock.install({ time: new Date('2026-11-27T10:00:00') });
-  await friend.goto(url.replace('https://prathammukewar.github.io/cinch/', 'http://127.0.0.1:8692/'));
+  await friend.goto(url.replace('https://playcinch.pages.dev/', 'http://127.0.0.1:8692/'));
   await expect(friend.locator('.big-line')).toContainText('Sam scored');
   await friend.click('#duel-go');
   for (let i = 0; i < 7; i++) {

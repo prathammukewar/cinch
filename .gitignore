@@ -5,3 +5,4 @@ playwright-report/
 tools/bank/cache/
 pw.log
 server/.wrangler/
+dist/

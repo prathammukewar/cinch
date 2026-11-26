@@ -3,7 +3,7 @@
 
 const EPOCH = Date.UTC(2026, 10, 25); // day number 1
 const DAY = 86400000;
-const ALLOWED = ['https://prathammukewar.github.io', 'http://127.0.0.1:8691', 'http://localhost:8691', 'http://127.0.0.1:8692'];
+const ALLOWED = ['https://playcinch.pages.dev', 'https://prathammukewar.github.io', 'http://127.0.0.1:8691', 'http://localhost:8691', 'http://127.0.0.1:8692'];
 
 function cors(origin) {
   return {

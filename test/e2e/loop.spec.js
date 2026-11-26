@@ -162,7 +162,7 @@ test('share copies spoiler-free text', async ({ page, context, isMobile }) => {
   expect(lines[0]).toMatch(/^Cinch Roundup No\. 2: roped \d of 7, \d+ points$/);
   expect(lines.slice(1, 8).every((l) => [...l].length === 7)).toBe(true);
   expect(text).not.toContain('Caught');
-  expect(lines[lines.length - 1]).toBe('https://prathammukewar.github.io/cinch/');
+  expect(lines[lines.length - 1]).toBe('https://playcinch.pages.dev/');
 });
 
 test('the story picture is made at 1080 by 1920', async ({ page, isMobile }) => {

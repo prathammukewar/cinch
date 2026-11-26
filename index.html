@@ -9,10 +9,10 @@
 <meta name="theme-color" content="#0f1027" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="Cinch">
 <meta property="og:description" content="Seven numbers a day. Throw a loop you are 90% sure will rope the answer.">
-<meta property="og:image" content="https://prathammukewar.github.io/cinch/og.png">
-<meta property="og:url" content="https://prathammukewar.github.io/cinch/">
+<meta property="og:image" content="https://playcinch.pages.dev/og.png">
+<meta property="og:url" content="https://playcinch.pages.dev/">
 <meta property="og:type" content="website">
-<link rel="canonical" href="https://prathammukewar.github.io/cinch/">
+<link rel="canonical" href="https://playcinch.pages.dev/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -23,6 +23,8 @@
 <link rel="modulepreload" href="js/main.js">
 <script>
 (function () {
+  // The game moved to Cloudflare. Old GitHub Pages links, Showdown links included, land on the new home.
+  if (/github\.io$/.test(location.hostname)) { location.replace('https://playcinch.pages.dev/' + location.search + location.hash); return; }
   try {
     var s = JSON.parse(localStorage.getItem('cinch') || '{}');
     var t = s.settings && s.settings.theme;

@@ -11,6 +11,7 @@
     "test": "node --test test/unit/*.test.js && playwright test",
     "test:unit": "node --test test/unit/*.test.js",
     "serve": "node tools/serve.mjs 8691",
+    "deploy": "node tools/deploy.mjs",
     "bank": "python3 tools/bank/build.py && python3 tools/bank/validate.py && python3 tools/bank/verify.py && node tools/bank/ship.mjs"
   }
 }
