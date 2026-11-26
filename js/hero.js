@@ -214,7 +214,11 @@ export function howTo(thenPlay, { sound, h, store, reducedMotion }) {
     sheet.draws = steps;
     sheet.addEventListener('click', (e) => { if (e.target === sheet) closer(); });
     sheet.addEventListener('cancel', (e) => { e.preventDefault(); closer(); });
-    go.addEventListener('click', () => { sound.tap(); closer(); if (sheet.thenPlay) location.hash = '#today'; });
+    go.addEventListener('click', () => {
+      sound.tap();
+      // Starting the game closes the sheet at once so the first question is ready to touch.
+      if (sheet.thenPlay) { sheet.close(); location.hash = '#today'; } else closer();
+    });
     document.body.append(sheet);
   }
   sheet.thenPlay = thenPlay;
