@@ -6,6 +6,9 @@ export const test = base.extend({
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => { if (m.type() === 'error' && !/favicon/.test(m.text())) errors.push(m.text()); });
+    // Tests never send scores to the real standings server.
+    await page.addInitScript(() => { try { if (!localStorage.getItem('cinch-api')) localStorage.setItem('cinch-api', 'off'); } catch { /* no storage */ } });
+    await page.route('https://cinch-standings.cinchgame.workers.dev/**', (route) => route.fulfill({ status: 204 }));
     await use(page);
     expect(errors).toEqual([]);
   },

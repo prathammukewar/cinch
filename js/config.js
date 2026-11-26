@@ -8,4 +8,4 @@ export const DAILY_SECONDS = 30;
 export const CURVE_MIN = 50; // questions before the calibration curve shows
 export const STORE_KEY = 'cinch';
 // Standings server (server/). Empty until it is deployed; the game then hides standings.
-export const API = '';
+export const API = 'https://cinch-standings.cinchgame.workers.dev';

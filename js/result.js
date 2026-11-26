@@ -2,7 +2,7 @@
 import { NAME, SITE, API } from './config.js';
 import { store } from './store.js';
 import { untilMidnight } from './day.js';
-import { total, kindOf, binomCdf, hash } from './score.js';
+import { total, kindOf, binomCdf, hash, tierOf, TIERS, LEANER } from './score.js';
 import { withUnit } from './format.js';
 import { Lineup, storyImage } from './lineup.js';
 import { shareText, shareOrCopy } from './share.js';
@@ -44,7 +44,12 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
   const big = h('div', { class: 'big num', 'aria-label': `Score ${score}` }, instant || reducedMotion() ? signed(score) : '0');
   const canvas = h('canvas', { 'aria-hidden': 'true' });
   const peek = h('div', { class: 'peek', role: 'status', hidden: true });
-  const verdictOf = (r) => (r.hit ? (r.width <= 0.25 ? 'Ringer' : 'Roped') : r.points >= 10 ? 'Close' : 'Missed');
+  const verdictOf = (r) => tierOf(r).name;
+  const ladder = [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)];
+  const counts = new Map();
+  for (const r of rows) { const k = tierOf(r).key; counts.set(k, (counts.get(k) || 0) + 1); }
+  const brands = h('ul', { class: 'brands', 'aria-label': 'Your throws by name' }, ladder.filter((t) => counts.has(t.key)).map((t, i) =>
+    h('li', { class: `tier-pill t-${t.key}`, style: `animation-delay:${0.9 + i * 0.12}s` }, t.name, counts.get(t.key) > 1 ? h('span', { class: 'x' }, `\u00d7${counts.get(t.key)}`) : null)));
   const spots = h('ol', { class: 'spots', 'aria-label': 'Your loops, one per question' }, rows.map((r, i) => h('li', {}, h('button', {
     type: 'button', class: 'spot', 'data-i': String(i),
     'aria-label': questions[i] ? `${i + 1}. ${questions[i].question} ${verdictOf(r)}, ${r.points} points` : `${i + 1}`,
@@ -57,6 +62,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
   const el = h('section', { class: 'result', 'aria-label': 'Result' },
     h('div', { class: 'tally' }, h('p', { class: 'day' }, heading), big, h('p', { class: 'of' }, `of ${of}. A loop around the whole rail scores 0.`)),
     box,
+    brands,
     h('dl', { class: 'facts' },
       h('div', {}, h('dt', {}, 'Roped'), h('dd', { class: 'num' }, `${hits} of ${rows.length}`)),
       h('div', {}, h('dt', {}, 'Loop size'), h('dd', { class: 'num' }, `${Math.round(avgWidth * 100)}%`)),
@@ -70,13 +76,13 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
       h('p', { class: 'cheer' }, luckLine(hits, rows.length)),
       h('p', { class: 'standing', id: 'standing', hidden: true })),
     h('details', { class: 'maths' }, h('summary', {}, 'How the points work'),
-      h('div', {}, h('p', {}, 'Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop\u2019s width. Hints keep a share of the points.'),
+      h('div', {}, h('p', {}, 'Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop\u2019s width. Fence in measures your loop against the shorter rail it leaves, and each hint keeps only a share of the points.'),
         h('p', { class: 'fine', style: 'margin-top:8px' }, h('a', { href: '#scoring' }, 'Ranch rules')))),
     foot,
     h('ol', { class: 'recap' }, rows.map((r, i) => {
       const q = questions[i];
       if (!q) return null;
-      return h('li', {}, h('span', { class: 'qq' }, q.question), h('span', { class: `pp num${r.points < 0 ? ' miss' : ''}` }, plus(r.points)),
+      return h('li', {}, h('span', { class: 'qq' }, q.question), h('span', { class: `pp num t-${tierOf(r).key}`, title: verdictOf(r) }, plus(r.points)),
         h('span', { class: 'aa' }, `${withUnit(q.answer, q)}. You said ${withUnit(r.lo, q)} to ${withUnit(r.hi, q)}. `, h('a', { href: q.source_url, target: '_blank', rel: 'noopener noreferrer' }, q.source_name)));
     })));
 
@@ -92,7 +98,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
     peek.replaceChildren(
       h('p', { class: 'peek-q' }, q.question),
       h('dl', {}, h('div', {}, h('dt', {}, 'Your loop'), h('dd', {}, `${withUnit(r.lo, q)} to ${withUnit(r.hi, q)}`)), h('div', {}, h('dt', {}, 'Answer'), h('dd', {}, withUnit(q.answer, q)))),
-      h('p', { class: `peek-v${r.hit ? ' hit' : ''}` }, `${verdictOf(r)}, ${plus(r.points)}${r.hints ? ' with hints' : ''}`));
+      h('p', { class: `peek-v${r.hit ? ' hit' : ''}` }, h('b', { class: `tier-pill t-${tierOf(r).key}` }, verdictOf(r)), ` ${plus(r.points)}${r.hints ? ' with hints' : ''}`));
     const step = (box.clientHeight - 44) / rows.length;
     const y = 22 + step * (i + 0.5);
     peek.hidden = false;
@@ -152,7 +158,8 @@ async function saveImage({ rows, score, of, shareTitle, hits }) {
 }
 
 
-const api = () => { try { return localStorage.getItem('cinch-api') || API; } catch { return API; } };
+/** The standings server. 'off' in localStorage turns it off for this browser (the tests use it). */
+const api = () => { try { const o = localStorage.getItem('cinch-api'); return o === 'off' ? '' : o || API; } catch { return API; } };
 
 function clientId() {
   let id = store.get('client');

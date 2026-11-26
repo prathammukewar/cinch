@@ -1,7 +1,7 @@
 // One round of questions, shared by every mode.
 import { Stage, quickerReveals } from './stage.js';
 import { sound } from './sound.js';
-import { scoreRange, toUnit, TIGHT, PERFECT } from './score.js';
+import { scoreRange, toUnit, tierOf, PERFECT } from './score.js';
 import { num, withUnit, parse } from './format.js';
 import { h, $, say, reducedMotion, plus } from './dom.js';
 import { store } from './store.js';
@@ -12,7 +12,7 @@ const SUF = { '%': '%', '°C': '°C', '°F': '°F' };
 export const rulerOf = (q) => ({ min: q.min, max: q.max, scale: q.scale });
 
 /** Hints and what each one costs, as a share of the points you keep. */
-export const HINTS = { scout: 0.85, fence: [1, 0.75, 0.5] };
+export const HINTS = { scout: 0.85, fence: [1, 0.85, 0.7] };
 export const DIFFICULTY = { 1: 'Tenderfoot', 2: 'Wrangler', 3: 'Trail boss' };
 const multiplier = (h) => (h.scout ? HINTS.scout : 1) * HINTS.fence[h.fence];
 
@@ -285,8 +285,12 @@ export class Round {
 
   get mult() { return multiplier(this.hint); }
 
+  /** The stretch of the rail still showing, as shares of the full rail. Loops are measured against it. */
+  get view() { return this.hint.fence ? this.q.trims[this.hint.fence - 1] : [0, 1]; }
+
   worth() {
-    const [l, u2] = this.stage.values.map((v) => toUnit(v, rulerOf(this.q)));
+    const [a, b] = this.view;
+    const [l, u2] = this.stage.values.map((v) => Math.min(1, Math.max(0, (toUnit(v, rulerOf(this.q)) - a) / (b - a))));
     const base = Math.round(PERFECT * (1 - (u2 - l)));
     const m = this.mult;
     const w = Math.round(base * m);
@@ -311,8 +315,10 @@ export class Round {
     u.hint.classList.add('gone');
     const [low, high] = this.stage.values;
     const q = this.q;
-    const r = scoreRange(low, high, q.answer, rulerOf(q));
+    const r = scoreRange(low, high, q.answer, rulerOf(q), this.view);
     r.points = Math.round(r.exact * this.mult);
+    r.fenced = this.hint.fence > 0;
+    r.tier = tierOf(r).key;
     const row = rowOf(q, r, low, high, this.hint);
     this.paintHints();
     this.rows = [...this.rows, row];
@@ -324,9 +330,10 @@ export class Round {
   landed(q, r) {
     const u = this.ui;
     u.panel.classList.add('done');
-    u.pts.classList.toggle('miss', r.points < 0);
-    const label = r.hit ? (r.width <= TIGHT ? 'Ringer' : 'Roped') : r.points >= 10 ? 'Close' : 'Missed';
-    u.why.replaceChildren(h('b', {}, label), explain(q, r, this.rows[this.rows.length - 1].lo, this.rows[this.rows.length - 1].hi));
+    const tier = tierOf(r);
+    const label = tier.name;
+    u.pts.className = `pts num t-${tier.key}`;
+    u.why.replaceChildren(h('b', { class: `tier t-${tier.key}` }, label), explain(q, r, this.rows[this.rows.length - 1].lo, this.rows[this.rows.length - 1].hi));
     u.teach.textContent = q.explainer;
     u.src.replaceChildren('Source: ', h('a', { href: q.source_url, target: '_blank', rel: 'noopener noreferrer' }, q.source_name));
     const last = this.length && this.rows.length >= this.length;
@@ -388,7 +395,7 @@ export class Round {
 /** One short line on where the points came from. */
 export function explain(q, r, low, high) {
   const cover = Math.round(r.width * 100);
-  if (r.hit) return `Your loop covered ${cover}% of the rail`;
+  if (r.hit) return `Your loop covered ${cover}% of the ${r.fenced ? 'fenced ' : ''}rail`;
   const edge = r.side < 0 ? Math.min(low, high) : Math.max(low, high);
   if (q.scale === 'log' && edge > 0) {
     const k = r.side < 0 ? edge / q.answer : q.answer / edge;

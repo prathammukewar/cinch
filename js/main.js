@@ -4,7 +4,7 @@ import { forDay, practicePool, open } from './bank.js';
 import { total as sum } from './score.js';
 import { store, askPersist } from './store.js';
 import { sound } from './sound.js';
-import { total, kindOf } from './score.js';
+import { total, kindOf, tierOf } from './score.js';
 import { h, $, toast, reducedMotion, signed, moreStyles } from './dom.js';
 
 const main = $('main');
@@ -39,7 +39,7 @@ function paintPips(rows, length) {
   el.hidden = !length || length > 10;
   if (el.hidden) return;
   el.setAttribute('aria-label', `${rows.length} of ${length} answered`);
-  el.replaceChildren(...Array.from({ length }, (_, i) => h('li', { class: i < rows.length ? kindOf(rows[i]) : i === rows.length ? 'now' : '' })));
+  el.replaceChildren(...Array.from({ length }, (_, i) => h('li', { class: i < rows.length ? `${kindOf(rows[i])} t-${tierOf(rows[i]).key}` : i === rows.length ? 'now' : '' })));
 }
 
 function drawer(open) {

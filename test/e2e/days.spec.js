@@ -83,3 +83,21 @@ test('a clock set before the launch still gives questions', async ({ page }) => 
   await page.goto('/#today');
   await expect(page.locator('.ask h1')).not.toBeEmpty();
 });
+
+test('a live Roundup result says how you did against other riders', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('cinch-api', `${location.origin}/standings`));
+  let sent = null;
+  await page.route('**/standings/v1/score', async (route) => {
+    sent = JSON.parse(route.request().postData());
+    await route.fulfill({ json: { day: sent.day, riders: 120, better: 63, roped: [80, 70, 60, 50, 40, 30, 20] } });
+  });
+  await at(page, '2026-11-26T09:00:00');
+  await page.goto('/#today');
+  await playAll(page);
+  await expect(page.locator('#standing')).toHaveText('Better than 63% of today’s 120 riders.');
+  await expect(page.locator('.recap .crowd').first()).toHaveText('80% of riders roped this one');
+  expect(sent.day).toBe(2);
+  expect(sent.hits).toMatch(/^[01]{7}$/);
+  expect(sent.client).toMatch(/^[a-z0-9]{12,24}$/);
+  expect(Object.keys(sent).sort()).toEqual(['client', 'day', 'hits', 'score']);
+});

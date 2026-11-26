@@ -103,5 +103,22 @@ export const synth = {
     const n = score > 500 ? 6 : score > 300 ? 5 : 4;
     [5, 7, 9, 12, 14, 16].slice(0, n).forEach((s, i) => chime(note(s), 0.045, i * 0.11, 2.2));
   },
+  /** A short extra sting for the named throws at the top and bottom of the ladder. */
+  tier(key) {
+    if (!ready()) return;
+    if (key === 'dead') {
+      buzz([12, 40, 12, 40, 24]);
+      [7, 9, 12, 14, 16, 19, 21].forEach((s, i) => chime(note(s), 0.05 - i * 0.003, i * 0.07, 2.6));
+      chime(note(24), 0.03, 0.55, 3);
+    } else if (key === 'ringer') {
+      chime(note(14), 0.05, 0, 2); chime(note(19), 0.04, 0.14, 2.2);
+    } else if (key === 'hogtied') {
+      mallet(note(9), 0.04, 0.2); mallet(note(12), 0.04, 0.25, 0.09);
+    } else if (key === 'leaner') {
+      mallet(note(7), 0.04, 0.18); mallet(note(6), 0.035, 0.3, 0.16);
+    } else if (key === 'tumble') {
+      partial(note(4), { gain: 0.035, decay: 1.2, glide: note(0), wet: 0.8, type: 'triangle' });
+    }
+  },
   hello() { if (ready()) [7, 9, 12].forEach((s, i) => chime(note(s), 0.035, i * 0.12, 1.8)); },
 };

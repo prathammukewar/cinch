@@ -5,4 +5,4 @@ compatibility_date = "2026-11-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "cinch-standings"
-database_id = "local-only-until-deployed"
+database_id = "8837103f-77a5-4854-aefe-462332772813"

@@ -3,7 +3,18 @@ import { NAME, QUANT_LENGTH, QUANT_SECONDS, CURVE_MIN } from './config.js';
 import { dayKey, keyOf, longDate, streaks } from './day.js';
 import { practicePool, index } from './bank.js';
 import { store, askPersist, exportSave, importSave, allRows } from './store.js';
-import { total, kindOf, wilson } from './score.js';
+import { total, kindOf, wilson, tierOf, TIERS, LEANER } from './score.js';
+
+const LADDER = {
+  dead: '96 to 100 points. A hair-thin loop right on the answer, no hints.',
+  ringer: '81 to 95 points, roped.',
+  hogtied: '61 to 80 points, roped.',
+  roped: '41 to 60 points, roped.',
+  leaner: '41 points or more on a near miss. The shoe is leaning on the stake.',
+  snagged: '21 to 40 points.',
+  dust: '1 to 20 points.',
+  tumble: 'No points this time.',
+};
 import { Round } from './play.js';
 import { verdict, verdictText, byCategory, rateChart, curveChart, bandAt } from './dash.js';
 import { h, $, toast, signed, plus } from './dom.js';
@@ -66,7 +77,7 @@ export async function showArchive() {
     const rec = d.days[n];
     items.push(h('li', {}, h('a', { href: n === today ? '#today' : `#day/${n}` },
       h('span', { class: 'n num' }, String(n)),
-      h('span', {}, n === today ? 'Today' : longDate(keyOf(n)), ' ', rec ? h('span', { class: 'dots', 'aria-label': `${rec.rows.filter((r) => r.hit).length} of ${rec.rows.length} caught` }, rec.rows.map((r) => h('i', { class: kindOf(r) }))) : null),
+      h('span', {}, n === today ? 'Today' : longDate(keyOf(n)), ' ', rec ? h('span', { class: 'dots', 'aria-label': `${rec.rows.filter((r) => r.hit).length} of ${rec.rows.length} caught` }, rec.rows.map((r) => h('i', { class: `${kindOf(r)} t-${tierOf(r).key}` }))) : null),
       rec ? h('span', { class: 's num' }, signed(total(rec.rows))) : h('span', { class: 's none' }, d.open?.[n] ? 'resume' : 'play'))));
   }
   main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Old Trails'),
@@ -137,7 +148,9 @@ export function showScoring() {
     h('p', {}, 'If the horseshoe lands inside your loop, you score 100 minus the share of the rail the loop covers. A loop over a tenth of the rail is worth 90. A loop over the whole rail is worth 0.'),
     h('p', {}, 'Just outside the loop the points fade away, reaching nothing once the shoe is half a loop\u2019s width beyond the edge. A tight loop is worth more, and its points fade faster. You can never score below zero. The glow on the rail shows all of this while you set your loop.'),
     h('h2', {}, 'Hints'),
-    h('p', {}, 'Fence in shortens the rail to the stretch that holds the answer. Once keeps 75% of the points, twice keeps 50%. Scout marks known numbers of the same kind on the rail and keeps 85%. Hints never change your Brand Book record of how often your loops hold the answer.'),
+    h('p', {}, 'Fence in shortens the rail to a stretch that holds the answer, and from then on your loop is measured against that shorter rail. A loop around the whole fenced stretch scores 0, so the fence never pays for a blind guess. Fencing once keeps 85% of the points, twice keeps 70%. Scout marks two known numbers of the same kind on the rail and keeps 85%. The answer can sit between them or outside them. Hints never change your Brand Book record of how often your loops hold the answer.'),
+    h('h2', {}, 'Names for a throw'),
+    h('ul', { class: 'ladder' }, [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)].map((t) => h('li', {}, h('span', { class: `tier-pill t-${t.key}` }, t.name), ' ', LADDER[t.key]))),
     h('h2', {}, 'Honest loops'),
     h('p', {}, 'The goal is a loop that ropes the answer nine times in ten. On questions you know something about, that is also close to the best-scoring loop. On questions you are very unsure of, a slightly tighter loop pays a little more on average, because points cannot go below zero. The Brand Book keeps you honest: it tracks how often your 90% loops really hold the answer.'),
     h('div', { id: 'proof' }),
@@ -182,7 +195,7 @@ export function showSettings() {
     h('div', { class: 'set' }, h('div', {}, 'Sound'), seg('sound', [[false, 'Off'], [true, 'On']])),
     h('div', { class: 'set' }, h('div', {}, 'Vibration', h('p', {}, 'On phones that support it')), seg('haptics', [[false, 'Off'], [true, 'On']])),
     h('h2', {}, 'Your data'),
-    h('p', {}, 'Scores and streaks live in this browser and nowhere else. ', keep),
+    h('p', {}, 'Your scores, streaks and loops live in this browser. When you finish a Roundup on its own day, three things go to the standings so you can see how you did against other riders: the day, your score, and which of the seven you roped, under a random id made in this browser. No name, no account, no tracking. ', keep),
     h('div', { class: 'set', style: 'margin-top:12px' }, h('div', {}, 'Back up', h('p', {}, 'Saves everything to one file')), h('button', { class: 'btn', type: 'button', id: 'backup', onclick: backup }, 'Save file')),
     h('div', { class: 'set' }, h('div', {}, 'Restore', h('p', {}, 'Adds a backup to what is here and removes nothing')), h('button', { class: 'btn', type: 'button', id: 'restore', onclick: () => file.click() }, 'Choose file'), file),
     h('div', { class: 'set' }, h('div', {}, 'Ask the browser to keep it'), h('button', { class: 'btn', type: 'button', onclick: async () => { const ok = await askPersist(); toast(ok ? 'It will be kept' : 'The browser did not agree'); } }, 'Ask')),

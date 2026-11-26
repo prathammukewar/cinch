@@ -40,21 +40,47 @@ export function pointsAt(l, u, x) {
   return plateau * f * f;
 }
 
-/** Score one range given in real values. */
-export function scoreRange(low, high, answer, ruler) {
+/**
+ * Score one range given in real values. view is the stretch of the ruler still showing
+ * after Fence in, as shares of it. The loop is measured against what is showing, so a
+ * loop around the whole fenced rail scores 0, the same as one around the whole rail.
+ */
+export function scoreRange(low, high, answer, ruler, view = [0, 1]) {
   const a = Math.min(low, high);
   const b = Math.max(low, high);
   const l = toUnit(a, ruler);
   const u = toUnit(b, ruler);
   const x = toUnit(answer, ruler);
+  const [va, vb] = view;
+  const span = Math.max(1e-9, vb - va);
+  const rel = (t) => Math.min(1, Math.max(0, (t - va) / span));
   const hit = answer >= a && answer <= b;
-  const gap = hit ? 0 : Math.max(l - x, x - u, 0);
-  const exact = pointsAt(l, u, x);
-  return { l, u, x, hit, width: u - l, gap, exact, points: Math.round(exact), side: hit ? 0 : answer < a ? -1 : 1 };
+  const [rl, ru, rx] = [rel(l), rel(u), rel(x)];
+  const gap = hit ? 0 : Math.max(rl - rx, rx - ru, 0);
+  const exact = pointsAt(rl, ru, rx);
+  return { l, u, x, hit, width: ru - rl, gap, exact, points: Math.round(exact), side: hit ? 0 : answer < a ? -1 : 1 };
 }
 
 /** A catch is tight when it covers at most this share of the ruler. */
 export const TIGHT = 0.25;
+
+/** What each throw is called, by the points it scored. A miss that still scores well is a Leaner. */
+export const TIERS = [
+  { key: 'dead', name: 'Dead ringer', min: 96 },
+  { key: 'ringer', name: 'Ringer', min: 81 },
+  { key: 'hogtied', name: 'Hog-tied', min: 61 },
+  { key: 'roped', name: 'Roped', min: 41 },
+  { key: 'snagged', name: 'Snagged', min: 21 },
+  { key: 'dust', name: 'Dust devil', min: 1 },
+  { key: 'tumble', name: 'Tumbleweed', min: -Infinity },
+];
+export const LEANER = { key: 'leaner', name: 'Leaner', min: 41 };
+
+export function tierOf(row) {
+  const p = row.points ?? 0;
+  if (!row.hit && p >= LEANER.min) return LEANER;
+  return TIERS.find((t) => p >= t.min);
+}
 
 export function kindOf(result) {
   if (!result.hit) return 'miss';

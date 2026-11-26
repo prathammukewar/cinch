@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intervalScore, scoreRange, pointsAt, toUnit, fromUnit, kindOf, wilson, binomCdf, total } from '../../js/score.js';
+import { intervalScore, scoreRange, pointsAt, toUnit, fromUnit, kindOf, wilson, binomCdf, total, tierOf } from '../../js/score.js';
 import { probit, calibratedTotals, coverageCurve } from '../../js/stats.js';
 
 const log = { min: 1000, max: 1e7, scale: 'log' };
@@ -121,4 +121,44 @@ test('the coverage curve finds a calibrated player on the line', () => {
     return { l: mid - half, u: mid + half, x: mid + (probit(rand()) / probit(0.95)) * half };
   });
   for (const p of coverageCurve(rows)) near(p.p, p.claim, 0.02);
+});
+
+test('a loop around the whole fenced stretch scores nothing', () => {
+  const ruler = { min: 0, max: 100, scale: 'linear' };
+  for (const view of [[0.2, 0.7], [0.4, 0.65]]) {
+    const r = scoreRange(view[0] * 100, view[1] * 100, (view[0] + 0.1) * 100, ruler, view);
+    assert.ok(r.hit);
+    assert.equal(r.points, 0);
+  }
+  // A typed loop that runs past the fence is clamped to it, never below zero.
+  assert.equal(scoreRange(0, 100, 50, ruler, [0.4, 0.65]).points, 0);
+});
+
+test('fenced loops are measured against the shorter rail', () => {
+  const ruler = { min: 0, max: 100, scale: 'linear' };
+  const open = scoreRange(45, 55, 50, ruler);
+  const fenced = scoreRange(45, 55, 50, ruler, [0.25, 0.75]);
+  assert.equal(open.points, 90);
+  assert.equal(fenced.points, 80);
+  assert.ok(Math.abs(fenced.width - 0.2) < 1e-9);
+});
+
+test('throws are named by points, and a good miss is a Leaner', () => {
+  const name = (points, hit = true) => tierOf({ points, hit }).name;
+  assert.equal(name(0, false), 'Tumbleweed');
+  assert.equal(name(0), 'Tumbleweed');
+  assert.equal(name(1, false), 'Dust devil');
+  assert.equal(name(20), 'Dust devil');
+  assert.equal(name(21, false), 'Snagged');
+  assert.equal(name(40), 'Snagged');
+  assert.equal(name(41), 'Roped');
+  assert.equal(name(41, false), 'Leaner');
+  assert.equal(name(60), 'Roped');
+  assert.equal(name(61), 'Hog-tied');
+  assert.equal(name(80), 'Hog-tied');
+  assert.equal(name(81), 'Ringer');
+  assert.equal(name(95), 'Ringer');
+  assert.equal(name(96), 'Dead ringer');
+  assert.equal(name(100), 'Dead ringer');
+  assert.equal(name(97, false), 'Leaner');
 });

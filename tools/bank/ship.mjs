@@ -99,15 +99,31 @@ function trims(q) {
   return out;
 }
 
-/** Known numbers of the same kind from the practice pool, for the landmark hint. Never from a daily question. */
+/**
+ * Known numbers of the same kind from the practice pool, for the landmark hint. Never from a daily question.
+ * Drawn at random from the closest few on each side, so the answer sits between the two marks only about
+ * half the time. The rest of the time both marks are on one side of it.
+ */
 function marks(q) {
+  const r = rng(hash(`marks:${q.id}`));
   const x = unit(q.answer, q);
   const near = bank.filter((s) => s.id !== q.id && practiceSet.has(s.id) && s.label && s.topic === q.topic && s.unit === q.unit && s.answer > q.min && s.answer < q.max && s.label !== q.label)
     .map((s) => ({ s, t: unit(s.answer, q) }))
     .filter(({ t }) => Math.abs(t - x) > 0.12 && t > 0.03 && t < 0.97);
-  const below = near.filter(({ t }) => t < x).sort((a, b) => b.t - a.t)[0];
-  const above = near.filter(({ t }) => t > x).sort((a, b) => a.t - b.t)[0];
-  return [below, above].filter(Boolean).slice(0, 2).map(({ s }) => ({ label: s.label, value: s.answer }));
+  const below = near.filter(({ t }) => t < x).sort((a, b) => b.t - a.t).slice(0, 3);
+  const above = near.filter(({ t }) => t > x).sort((a, b) => a.t - b.t).slice(0, 3);
+  const pairs = (a, b) => a.flatMap((m, i) => b.filter((n, j) => (a !== b || j > i) && Math.abs(n.t - m.t) > 0.06).map((n) => [m, n]));
+  const kinds = [[0.5, pairs(below, above)], [0.25, pairs(below, below)], [0.25, pairs(above, above)]].filter(([, p]) => p.length);
+  let chosen;
+  if (kinds.length) {
+    const total = kinds.reduce((t, [w]) => t + w, 0);
+    let roll = r() * total;
+    const [, list] = kinds.find(([w]) => (roll -= w) < 0) || kinds[kinds.length - 1];
+    chosen = list[Math.floor(r() * list.length)];
+  } else {
+    chosen = [...below, ...above].slice(0, 1);
+  }
+  return chosen.sort((a, b) => a.t - b.t).map(({ s }) => ({ label: s.label, value: s.answer }));
 }
 
 const row = (id) => {

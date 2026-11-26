@@ -87,7 +87,7 @@ export class Stage {
     this.worthNow = null;
     this.phase = 'set';
     this.flyer = null; this.close = null; this.result = null; this.pin = null; this.pinSettled = false;
-    this.dots = []; this.rings = [];
+    this.dots = []; this.rings = []; this.tumble = null;
     this.gapAlpha = 0;
     this.marks = ticks(ruler, q, this.w - this.pad * 2);
     this.setUnits(start[0], start[1], true);
@@ -288,7 +288,11 @@ export class Stage {
 
   /** Resolves at each beat: 'land' when the pin lands, then when the show is over. */
   reveal(result, { onLand } = {}) {
-    this.result = result;
+    // The result comes in shares of the full rail. After Fence in the rail on screen is shorter.
+    const [a, b] = this.view;
+    const inView = (t) => (t - a) / (b - a);
+    this.result = { ...result, l: inView(result.l), u: inView(result.u), x: inView(result.x) };
+    result = this.result;
     this.phase = 'reveal';
     this.drags.clear();
     this.active = -1;
@@ -330,6 +334,7 @@ export class Stage {
       this.rings.push({ x, y: this.top, age: 0, color: this.pal.mute, size: 46 });
     }
     this.sound?.thunk();
+    this.tierExtras(r, x);
     if (r.hit) {
       const tight = clamp(1 - r.width / 0.6, 0.1, 1);
       this.close = this.reduced ? new Spring(1) : new Spring(0, { k: 620, d: 22 });
@@ -350,8 +355,35 @@ export class Stage {
     this.onLand?.(r);
   }
 
-  burst(x, y, n, power) {
-    const colors = [this.pal.pin, this.pal.band, this.pal.ink, this.pal.paper];
+  /** The top and bottom of the ladder get their own show on the rail. */
+  tierExtras(r, x) {
+    const t = r.tier;
+    if (!t || this.reduced) { if (t) setTimeout(() => this.sound?.tier?.(t), 260); return; }
+    if (t === 'dead') {
+      const gold = ['#f7d35c', '#e2a52b', '#fff3c4', '#c98a12'];
+      setTimeout(() => {
+        if (this.dead) return;
+        this.burst(x, this.top - 20, 110, 1, gold);
+        [0, 0.12, 0.26].forEach((d, i) => this.rings.push({ x, y: this.top - 16, age: -d, color: gold[i], size: 120 + 90 * i }));
+        this.wake();
+      }, 180);
+    } else if (t === 'ringer') {
+      setTimeout(() => {
+        if (this.dead) return;
+        [0, 0.14].forEach((d) => this.rings.push({ x, y: this.top - 16, age: -d, color: '#2fb3a3', size: 110 }));
+        this.wake();
+      }, 160);
+    } else if (t === 'leaner') {
+      this.pinWobble.kick(14);
+    } else if (t === 'tumble') {
+      const ltr = r.x > 0.5;
+      this.tumble = { age: 0, life: 2.3, from: ltr ? -30 : this.w + 30, to: ltr ? this.w + 30 : -30, spin: ltr ? 7 : -7 };
+    }
+    setTimeout(() => this.sound?.tier?.(t), 260);
+  }
+
+  burst(x, y, n, power, palette) {
+    const colors = palette || [this.pal.pin, this.pal.band, this.pal.ink, this.pal.paper];
     for (let i = 0; i < n; i++) {
       const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.5;
       const v = 180 + Math.random() * 520 * (0.5 + power * 0.6);
@@ -408,7 +440,8 @@ export class Stage {
     this.dots = this.dots.filter((d) => d.age < d.life && d.y < this.h + 20);
     for (const r of this.rings) r.age += dt;
     this.rings = this.rings.filter((r) => r.age < 0.7);
-    if (this.dots.length || this.rings.length) busy = true;
+    if (this.tumble) { this.tumble.age += dt; if (this.tumble.age >= this.tumble.life) this.tumble = null; }
+    if (this.dots.length || this.rings.length || this.tumble) busy = true;
 
     if (this.zoom) {
       busy = true;
@@ -481,7 +514,7 @@ export class Stage {
     // What each spot on the rule would score: solid inside the range, fading outside it.
     const worth = this.worthNow ?? 1 - (this.t[1] - this.t[0]);
     pointsBand(ctx, pal, xs[0], xs[1], this.top + 1, this.rulerH - 1, (after ? 0.1 : 0.12) + 0.3 * Math.max(0, worth), FADE);
-    this.drawLandmarks();
+    this.drawLandmarks(after);
     for (const r of this.rings) this.drawRing(r);
     if (this.phase === 'reveal' && !this.landed) this.drawPinShadow();
 
@@ -496,29 +529,84 @@ export class Stage {
     if (this.pin && !this.pinSettled) this.drawHuntingPin();
     if (this.flyer) this.drawFlyer();
     for (const d of this.dots) this.drawDot(d);
+    if (this.tumble) this.drawTumble();
+    if (!after) this.drawLandmarkTags();
     if (after && !this.result.hit && this.gapAlpha > 0) this.drawGap(xs);
     if (this.phase === 'set') this.drawTags(xs);
     if (after) this.drawAnswerTag();
     ctx.restore();
   }
 
-  drawLandmarks() {
-    const { ctx, pal, w } = this;
-    for (const m of this.landmarks) {
-      const { min, max } = this.ruler;
-      if (m.value <= min || m.value >= max) continue;
-      const x = this.x(toUnit(m.value, this.ruler));
-      const e = this.reduced ? 1 : 1 - Math.pow(1 - m.age, 3);
+  /** Dashed stems sit under the rope. Their name tags go on top while you set the loop. */
+  drawLandmarks(after) {
+    const { ctx, pal } = this;
+    for (const m of this.landmarkSpots()) {
       ctx.save();
-      ctx.globalAlpha = e;
+      ctx.globalAlpha = m.e;
       ctx.strokeStyle = pal.mute;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([3, 3]);
-      ctx.beginPath(); ctx.moveTo(x, this.top + 2); ctx.lineTo(x, this.top - 22 - 8 * e); ctx.stroke();
-      ctx.setLineDash([]);
-      tag(ctx, `${m.label} ${short2(m.value, this.q)}`, x, this.top - 22 - 8 * e, { fill: pal.card || pal.paper, ink: pal.ink, font: `600 12px ${TEXT}`, w, h: 20, padX: 6, border: pal.line });
+      ctx.beginPath(); ctx.moveTo(m.x, this.top + 2); ctx.lineTo(m.x, m.y); ctx.stroke();
       ctx.restore();
     }
+    if (after) this.drawLandmarkTags();
+  }
+
+  drawLandmarkTags() {
+    const { ctx, pal, w } = this;
+    for (const m of this.landmarkSpots()) {
+      ctx.save();
+      ctx.globalAlpha = m.e;
+      tag(ctx, m.text, m.x, m.y, { fill: pal.card || pal.paper, ink: pal.ink, font: m.font, w, h: 20, padX: 6, border: pal.line });
+      ctx.restore();
+    }
+  }
+
+  /** Where each landmark sits. A tag that would overlap the one before it steps up a row. */
+  landmarkSpots() {
+    const { ctx, w } = this;
+    const { min, max } = this.ruler;
+    const font = `600 12px ${TEXT}`;
+    ctx.font = font;
+    const spots = this.landmarks
+      .filter((m) => m.value > min && m.value < max)
+      .map((m) => {
+        const text = `${m.label} ${short2(m.value, this.q)}`;
+        const x = this.x(toUnit(m.value, this.ruler));
+        const tw = ctx.measureText(text).width + 12;
+        const left = clamp(x - tw / 2, 4, w - tw - 4);
+        return { text, x, left, right: left + tw, e: this.reduced ? 1 : 1 - Math.pow(1 - m.age, 3), font };
+      })
+      .sort((a, b) => a.x - b.x);
+    let prev = null;
+    for (const m of spots) {
+      m.row = prev && m.left < prev.right + 4 && prev.row === 0 ? 1 : 0;
+      m.y = this.top - 22 - 8 * m.e - m.row * 24;
+      prev = m;
+    }
+    return spots;
+  }
+
+  drawTumble() {
+    const { ctx, pal } = this;
+    const t = this.tumble;
+    const p = t.age / t.life;
+    const x = lerp(t.from, t.to, p);
+    const y = this.top - 13 - Math.abs(Math.sin(t.age * 5.2)) * 22 * (1 - p * 0.6);
+    ctx.save();
+    ctx.globalAlpha = clamp(Math.min(p * 8, (1 - p) * 6), 0, 1);
+    ctx.translate(x, y);
+    ctx.rotate(t.age * t.spin);
+    ctx.strokeStyle = pal.tumble || '#9b7b52';
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 9; i++) {
+      const a = i * 0.7;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 13 - (i % 3) * 2, 8 + (i % 4) * 1.5, a, 0.3 * i, 0.3 * i + 4.6);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   drawPegs(xs, after) {

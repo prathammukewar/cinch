@@ -19,7 +19,9 @@ Inside your loop you score 100 minus the share of the rail it covers. Just outsi
 - **Old Trails**: every earlier Roundup
 - **Brand Book**: how often your loops hold the answer, over time and by subject
 
-Two hints cost a share of the points: **Fence in** shortens the rail around the answer, and **Scout** marks known numbers of the same kind on it.
+Two hints cost a share of the points. **Fence in** shortens the rail to a stretch that holds the answer, and your loop is then measured against that shorter rail, so roping the whole fenced stretch scores nothing. **Scout** marks two known numbers of the same kind on the rail, and the answer is not always between them.
+
+Each throw gets a name by its points: Tumbleweed (0), Dust devil (1 to 20), Snagged (21 to 40), Roped (41 to 60), Hog-tied (61 to 80), Ringer (81 to 95) and Dead ringer (96 to 100). A near miss worth 41 or more is a Leaner.
 
 ## Questions
 
@@ -44,7 +46,7 @@ npx playwright test
 
 ## Privacy
 
-No accounts, no tracking, no server. Scores live in your browser, and Showdown results travel inside the link you send. The Saddlebag has a backup button that saves everything to one file, and a restore button that merges a backup back in.
+No accounts and no tracking. Scores live in your browser, and Showdown results travel inside the link you send. When you finish a Roundup on its own day, the day, your score and which questions you roped go to a small standings server (in `server/`, a Cloudflare Worker) under a random id, so the result can say how you did against everyone else that day. The Saddlebag has a backup button that saves everything to one file, and a restore button that merges a backup back in.
 
 ## Licence
 
