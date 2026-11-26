@@ -66,7 +66,7 @@ function build(left, recent, lastCats, r) {
     const mags = new Map();
     let ok = true;
     for (const slot of slots) {
-      const list = pool.filter((q) => !day.includes(q) && !cats.has(q.category) && !fams.has(family(q)) && (mags.get(magnitude(q)) || 0) < (magnitude(q) === 'linear' ? 3 : 2) && (loose && slot !== slots[0] && slot !== slots[6] ? true : slot(hard(q))));
+      const list = pool.filter((q) => !day.includes(q) && !cats.has(q.category) && !fams.has(family(q)) && !(q.label && day.some((d) => d.label === q.label)) && (mags.get(magnitude(q)) || 0) < (magnitude(q) === 'linear' ? 3 : 2) && (loose && slot !== slots[0] && slot !== slots[6] ? true : slot(hard(q))));
       if (!list.length) { ok = false; break; }
       list.sort((a, b) => w.get(b) - w.get(a));
       const q = list[0];
@@ -80,15 +80,46 @@ function build(left, recent, lastCats, r) {
 const { days, practice } = plan();
 const total = Object.keys(days).length;
 
+const practiceSet = new Set();
+const unit = (v, q) => (q.scale === 'log' ? Math.log(v / q.min) / Math.log(q.max / q.min) : (v - q.min) / (q.max - q.min));
+const r3 = (v) => Math.round(v * 1000) / 1000;
+
+/** Two nested windows of the ruler that still hold the answer, for the trim hint. */
+function trims(q) {
+  const r = rng(hash(`trim:${q.id}`));
+  const x = unit(q.answer, q);
+  const out = [];
+  let [a, b] = [0, 1];
+  for (const len of [0.5, 0.25]) {
+    let lo = x - len * (0.12 + 0.76 * r());
+    lo = Math.min(Math.max(lo, a), b - len);
+    out.push([r3(lo), r3(lo + len)]);
+    [a, b] = [lo, lo + len];
+  }
+  return out;
+}
+
+/** Known numbers of the same kind from the practice pool, for the landmark hint. Never from a daily question. */
+function marks(q) {
+  const x = unit(q.answer, q);
+  const near = bank.filter((s) => s.id !== q.id && practiceSet.has(s.id) && s.label && s.topic === q.topic && s.unit === q.unit && s.answer > q.min && s.answer < q.max && s.label !== q.label)
+    .map((s) => ({ s, t: unit(s.answer, q) }))
+    .filter(({ t }) => Math.abs(t - x) > 0.12 && t > 0.03 && t < 0.97);
+  const below = near.filter(({ t }) => t < x).sort((a, b) => b.t - a.t)[0];
+  const above = near.filter(({ t }) => t > x).sort((a, b) => a.t - b.t)[0];
+  return [below, above].filter(Boolean).slice(0, 2).map(({ s }) => ({ label: s.label, value: s.answer }));
+}
+
 const row = (id) => {
   const q = byId.get(id);
-  const secret = { answer: q.answer, explainer: q.explainer, source_name: q.source_name, source_url: q.source_url };
+  const secret = { answer: q.answer, explainer: q.explainer, source_name: q.source_name, source_url: q.source_url, trims: trims(q), marks: marks(q) };
   const out = { id: q.id, question: q.question, unit: q.unit, category: q.category, difficulty: q.difficulty, scale: q.scale, min: q.min, max: q.max, licence: q.licence, x: scramble(q.id, JSON.stringify(secret)) };
   if (q.as_of) out.as_of = q.as_of;
   if (q.whole) out.whole = true;
   return out;
 };
 
+practice.forEach((id) => practiceSet.add(id));
 mkdirSync(new URL('data/', root), { recursive: true });
 for (const f of readdirSync(new URL('data/', root))) if (/^(\d{4}-\d\d|practice-\d+|index)\.json$/.test(f)) unlinkSync(new URL(`data/${f}`, root));
 const months = new Map();

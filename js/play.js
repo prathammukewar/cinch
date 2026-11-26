@@ -1,7 +1,7 @@
 // One round of questions, shared by every mode.
-import { Stage } from './stage.js';
+import { Stage, quickerReveals } from './stage.js';
 import { sound } from './sound.js';
-import { scoreRange, toUnit, TIGHT } from './score.js';
+import { scoreRange, toUnit, TIGHT, PERFECT } from './score.js';
 import { num, withUnit, parse } from './format.js';
 import { h, $, say, reducedMotion, plus } from './dom.js';
 import { store } from './store.js';
@@ -11,9 +11,16 @@ const SUF = { '%': '%', '°C': '°C', '°F': '°F' };
 
 export const rulerOf = (q) => ({ min: q.min, max: q.max, scale: q.scale });
 
+/** Hints and what each one costs, as a share of the points you keep. */
+export const HINTS = { scout: 0.85, fence: [1, 0.75, 0.5] };
+export const DIFFICULTY = { 1: 'Tenderfoot', 2: 'Wrangler', 3: 'Trail boss' };
+const multiplier = (h) => (h.scout ? HINTS.scout : 1) * HINTS.fence[h.fence];
+
 /** What gets saved for one answered question. */
-export function rowOf(q, r, low, high) {
-  return { id: q.id, cat: q.category, lo: low, hi: high, l: r5(r.l), u: r5(r.u), x: r5(r.x), hit: r.hit, width: r5(r.width), points: r.points, at: Date.now() };
+export function rowOf(q, r, low, high, hints) {
+  const row = { id: q.id, cat: q.category, lo: low, hi: high, l: r5(r.l), u: r5(r.u), x: r5(r.x), hit: r.hit, width: r5(r.width), points: r.points, at: Date.now() };
+  if (hints && (hints.scout || hints.fence)) row.hints = { ...hints };
+  return row;
 }
 const r5 = (v) => Math.round(v * 1e5) / 1e5;
 
@@ -22,8 +29,9 @@ export class Round {
    * next(i) -> question or null, rows: already answered rows,
    * label(i) -> text at the top, onRow(row, q), onEnd(rows), seconds: time limit per question
    */
-  constructor(root, { next, rows = [], length = 0, label, onRow, onEnd, lastText = 'See how you did', seconds = 0, quickNext = false }) {
+  constructor(root, { next, rows = [], length = 0, label, onRow, onEnd, lastText = 'See your roundup', seconds = 0, quickNext = false }) {
     Object.assign(this, { root, next, rows, length, label, onRow, onEnd, lastText, seconds, quickNext });
+    this.isRound = true;
     this.build();
     this.ask();
   }
@@ -51,20 +59,23 @@ export class Round {
     u.note = h('p', { class: 'note' });
     u.canvas = h('canvas', { 'aria-hidden': 'true' });
     u.hint = h('p', { class: 'hint gone' });
-    u.thumbs = ['Low end', 'High end'].map((name, i) => h('div', { class: 'thumb', role: 'slider', tabindex: '0', 'aria-label': name, 'data-i': String(i) }));
+    u.thumbs = ['Low post', 'High post'].map((name, i) => h('div', { class: 'thumb', role: 'slider', tabindex: '0', 'aria-label': name, 'data-i': String(i) }));
     u.worth = h('p', { class: 'worth', 'aria-live': 'off' });
-    u.go = h('button', { class: 'go', type: 'button', id: 'drop', onclick: () => this.lock() }, 'Drop the pin');
+    u.scout = h('button', { class: 'chip help', type: 'button', id: 'hint-scout', onclick: () => this.useScout() });
+    u.fence = h('button', { class: 'chip help', type: 'button', id: 'hint-fence', onclick: () => this.useFence() });
+    u.hints = h('div', { class: 'helps', role: 'group', 'aria-label': 'Hints' }, u.fence, u.scout);
+    u.go = h('button', { class: 'go', type: 'button', id: 'drop', onclick: () => this.lock() }, 'Pitch the shoe');
     u.pts = h('div', { class: 'pts num' });
     u.why = h('div', { class: 'why' });
     u.teach = h('p', { class: 'teach' });
     u.src = h('p', { class: 'src' });
-    u.on = h('button', { class: 'go', type: 'button', id: 'next', onclick: () => this.advance() }, 'Next');
+    u.on = h('button', { class: 'go', type: 'button', id: 'next', onclick: () => this.advance() }, 'Next one');
     u.panel = h('section', { class: 'panel', 'aria-label': 'Your range' },
       h('div', { class: 'before' }, h('div', { class: 'ends' }, end('low', 'Low'), end('high', 'High')), u.worth, u.go),
       h('div', { class: 'after' }, h('div', { class: 'verdict' }, u.pts, u.why), h('div', { class: 'teach-wrap' }, u.teach, u.src), u.on));
-    u.timer = this.seconds ? h('div', { class: 'timer', 'aria-hidden': 'true' }, h('i')) : null;
+    u.timer = this.seconds ? h('div', { class: 'fuse', role: 'progressbar', 'aria-label': 'Seconds left', 'aria-valuemin': '0', 'aria-valuemax': String(this.seconds) }, h('i'), h('b')) : null;
     u.ask = h('section', { class: 'ask', 'aria-label': 'Question' }, h('div', { class: 'meta' }, u.meta, u.tag), u.q, u.note);
-    const desk = h('div', { class: 'desk' }, u.canvas, u.hint, u.thumbs);
+    const desk = h('div', { class: 'desk' }, u.canvas, u.hint, u.hints, u.thumbs);
     this.root.replaceChildren(h('div', { class: 'play' }, u.timer, u.ask, desk, u.panel));
 
     this.stage = new Stage(u.canvas, {
@@ -101,10 +112,11 @@ export class Round {
     this.q = q;
     this.locked = false;
     this.touched = false;
+    this.hint = { scout: false, fence: 0 };
     this.typedHigh = false;
     u.panel.classList.remove('done');
     u.meta.textContent = this.label(this.rows.length);
-    u.tag.textContent = q.category;
+    u.tag.textContent = `${q.category} \u00b7 ${DIFFICULTY[q.difficulty] || ''}`;
     u.q.textContent = q.question;
     u.ask.classList.toggle('long', q.question.length > 78);
     const said = q.unit && q.question.toLowerCase().includes(q.unit.toLowerCase().split(' ')[0].replace(/s$/, ''));
@@ -114,27 +126,39 @@ export class Round {
       u[side].suf.textContent = SUF[q.unit] || '';
       u[side].input.setAttribute('aria-label', `${side === 'low' ? 'Low' : 'High'} end${q.unit ? `, in ${q.unit}` : ''}`);
     }
-    u.ask.classList.remove('rise'); void u.ask.offsetWidth; u.ask.classList.add('rise');
     const teach = !store.data().seenIntro && this.rows.length === 0;
     const second = store.data().newcomer && this.rows.length === 1;
-    u.hint.textContent = teach ? 'Slide both pegs in until you are 90% sure the answer is between them.' : second ? 'Tighter is worth more. A miss costs 20 points for every 1% of the ruler.' : '';
+    u.hint.textContent = teach ? 'Pull the two posts in until you are 90% sure the answer is between them.' : second ? 'A tighter loop is worth more, but its points fade faster outside it.' : '';
     u.hint.classList.toggle('gone', !teach && !second);
+    quickerReveals(this.rows.length >= 2);
     this.stage.setQuestion(q, rulerOf(q));
+    this.paintHints();
     u.go.disabled = true;
     this.show();
     this.worth();
     if (this.seconds) this.startTimer();
+    this.nudged = false;
     if (this.rows.length) u.q.focus({ preventScroll: true });
     say(`${u.meta.textContent}. ${q.question} ${u.note.textContent}`);
   }
 
   startTimer() {
     clearInterval(this.timer);
-    const bar = this.ui.timer.firstChild;
-    const end = performance.now() + this.seconds * 1000;
+    const fuse = this.ui.timer;
+    const total = this.seconds * 1000;
+    let left = total;
+    let last = performance.now();
+    let lastTick = null;
     const tick = () => {
-      const left = Math.max(0, end - performance.now()) / (this.seconds * 1000);
-      bar.style.transform = `scaleX(${left})`;
+      const now = performance.now();
+      if (!document.hidden) left -= now - last;
+      last = now;
+      const f = Math.max(0, left) / total;
+      fuse.style.setProperty('--left', f.toFixed(4));
+      fuse.classList.toggle('short', left < 5000);
+      const s = Math.ceil(left / 1000);
+      fuse.setAttribute('aria-valuenow', String(Math.max(0, s)));
+      if (left < 5000 && s !== lastTick && s > 0) { lastTick = s; sound.tick(1 - s / 5); if (s === 5) say('Five seconds left'); }
       if (left <= 0) { clearInterval(this.timer); this.lock(true); }
     };
     tick();
@@ -170,11 +194,19 @@ export class Round {
   }
 
   changed(values, t) {
-    this.show();
+    if (!this.frameQueued) {
+      this.frameQueued = true;
+      requestAnimationFrame(() => { this.frameQueued = false; if (!this.dead) this.show(); });
+    }
     const u = this.ui;
     this.placeThumbs();
     if (this.touched) u.go.disabled = false;
     this.worth();
+    if (!this.nudged && !store.data().seenIntro && this.rows.length === 0 && t[1] - t[0] < 0.12) {
+      this.nudged = true;
+      u.hint.textContent = 'Most people make their first loop too tight. Ninety percent sure means you would be surprised to miss.';
+      u.hint.classList.remove('gone');
+    }
   }
 
   show() {
@@ -214,12 +246,57 @@ export class Round {
     });
   }
 
+  paintHints() {
+    const u = this.ui;
+    const q = this.q;
+    const pct = (m) => `\u2212${Math.round((1 - m) * 100)}%`;
+    const f = this.hint.fence;
+    u.fence.hidden = !q.trims?.length;
+    u.fence.disabled = f >= 2 || this.locked;
+    u.fence.textContent = f >= 2 ? 'Fenced in' : f === 1 ? `Fence in more ${pct(HINTS.fence[2])}` : `Fence in ${pct(HINTS.fence[1])}`;
+    u.fence.setAttribute('aria-label', f >= 2 ? 'Fenced in twice' : `Fence in: shorten the rail around the answer. You keep ${Math.round(HINTS.fence[f + 1] * 100)}% of the points`);
+    u.scout.hidden = !q.marks?.length;
+    u.scout.disabled = this.hint.scout || this.locked;
+    u.scout.textContent = this.hint.scout ? 'Scouted' : `Scout ${pct(HINTS.scout)}`;
+    u.scout.setAttribute('aria-label', this.hint.scout ? 'Scouted' : 'Scout: mark known numbers of the same kind on the rail. Costs 15% of the points');
+  }
+
+  useScout() {
+    if (this.hint.scout || this.locked || !this.q.marks?.length) return;
+    this.hint.scout = true;
+    sound.tap();
+    this.stage.setLandmarks(this.q.marks);
+    this.paintHints();
+    this.worth();
+    say(`Landmarks: ${this.q.marks.map((m) => `${m.label}, ${withUnit(m.value, this.q)}`).join('; ')}`);
+  }
+
+  useFence() {
+    const f = this.hint.fence;
+    if (f >= 2 || this.locked || !this.q.trims?.[f]) return;
+    this.hint.fence = f + 1;
+    sound.release(0.4);
+    this.stage.trimTo(...this.q.trims[f]);
+    this.touch();
+    this.paintHints();
+    this.worth();
+    say('The rail is shorter now, and the answer is still on it.');
+  }
+
+  get mult() { return multiplier(this.hint); }
+
   worth() {
     const [l, u2] = this.stage.values.map((v) => toUnit(v, rulerOf(this.q)));
-    const w = Math.round(100 - 100 * (u2 - l));
+    const base = Math.round(PERFECT * (1 - (u2 - l)));
+    const m = this.mult;
+    const w = Math.round(base * m);
+    this.stage.worthNow = (1 - (u2 - l)) * m;
     const el = this.ui.worth;
-    if (!this.touched) { el.replaceChildren('Drag the pegs, or tap a number to type it.'); return; }
-    el.replaceChildren(h('b', { class: 'num' }, plus(w)), ' if the answer is inside', h('span', { class: 'cost' }, '\u221220 for every 1% of the ruler it misses by'));
+    const key = `${this.touched}|${w}|${m}`;
+    if (key === this.worthKey) return;
+    this.worthKey = key;
+    if (!this.touched) { el.replaceChildren('Drag the posts, or tap a number to type it.'); return; }
+    el.replaceChildren(h('b', { class: 'num' }, plus(w)), m < 1 ? ` if it lands inside (${Math.round(m * 100)}% with hints)` : ' if it lands inside', h('span', { class: 'cost' }, 'Fades to nothing just outside. The tighter the loop, the faster.'));
   }
 
   lock(timeUp) {
@@ -235,7 +312,9 @@ export class Round {
     const [low, high] = this.stage.values;
     const q = this.q;
     const r = scoreRange(low, high, q.answer, rulerOf(q));
-    const row = rowOf(q, r, low, high);
+    r.points = Math.round(r.exact * this.mult);
+    const row = rowOf(q, r, low, high, this.hint);
+    this.paintHints();
     this.rows = [...this.rows, row];
     this.onRow?.(row, q, this.rows);
     if (!store.data().seenIntro) store.change((d) => { d.seenIntro = true; d.newcomer = true; });
@@ -246,16 +325,16 @@ export class Round {
     const u = this.ui;
     u.panel.classList.add('done');
     u.pts.classList.toggle('miss', r.points < 0);
-    const label = r.hit ? (r.width <= TIGHT ? 'Tight catch' : 'Caught') : r.side < 0 ? 'Below your range' : 'Above your range';
-    u.why.replaceChildren(h('b', {}, label), explain(q, r));
+    const label = r.hit ? (r.width <= TIGHT ? 'Ringer' : 'Roped') : r.points >= 10 ? 'Close' : 'Missed';
+    u.why.replaceChildren(h('b', {}, label), explain(q, r, this.rows[this.rows.length - 1].lo, this.rows[this.rows.length - 1].hi));
     u.teach.textContent = q.explainer;
     u.src.replaceChildren('Source: ', h('a', { href: q.source_url, target: '_blank', rel: 'noopener noreferrer' }, q.source_name));
     const last = this.length && this.rows.length >= this.length;
-    u.on.textContent = last ? this.lastText : 'Next question';
+    u.on.textContent = last ? this.lastText : 'Next one';
     for (const el of [u.why, u.teach.parentElement]) { el.classList.remove('rise'); void el.offsetWidth; el.classList.add('rise'); }
     if (!r.hit && !store.data().sawMiss) {
       store.change((d) => { d.sawMiss = true; });
-      u.hint.textContent = 'A 90% range should miss about one question in ten. Misses cost the most when you were sure.';
+      u.hint.textContent = 'A 90% range should miss about one question in ten. Wider loops are safer.';
       u.hint.classList.remove('gone');
     }
     u.on.style.visibility = 'visible';
@@ -286,17 +365,36 @@ export class Round {
   }
 
   advance() {
-    if (!this.locked) return;
+    if (!this.locked || this.moving) return;
+    sound.tap();
     if (this.length && this.rows.length >= this.length) { this.onEnd?.(this.rows); return; }
-    this.ask();
+    if (reducedMotion()) { this.ask(); return; }
+    // The old question slides away, the new one slides in from the right.
+    const play = this.root.querySelector('.play');
+    this.moving = true;
+    play.classList.add('leaving');
+    setTimeout(() => {
+      this.moving = false;
+      if (this.dead) return;
+      play.classList.remove('leaving');
+      play.classList.add('entering');
+      this.ask();
+      void play.offsetWidth;
+      play.classList.remove('entering');
+    }, 170);
   }
 }
 
 /** One short line on where the points came from. */
-export function explain(q, r) {
+export function explain(q, r, low, high) {
   const cover = Math.round(r.width * 100);
-  if (r.hit) return `You covered ${cover}% of the ruler`;
-  const by = r.gap * 100;
-  const gap = by < 0.1 ? 'under 0.1%' : by < 10 ? `${by.toFixed(1)}%` : `${Math.round(by)}%`;
-  return `Missed by ${gap} of the ruler`;
+  if (r.hit) return `Your loop covered ${cover}% of the rail`;
+  const edge = r.side < 0 ? Math.min(low, high) : Math.max(low, high);
+  if (q.scale === 'log' && edge > 0) {
+    const k = r.side < 0 ? edge / q.answer : q.answer / edge;
+    const times = k >= 10 ? Math.round(k) : k.toFixed(1);
+    return r.side < 0 ? `Your range was ${times}\u00d7 too high` : `Your range was ${times}\u00d7 too low`;
+  }
+  const off = withUnit(Math.abs(q.answer - edge), q.unit === 'year' ? { unit: 'years' } : q);
+  return r.side < 0 ? `It was ${off} below your range` : `It was ${off} above your range`;
 }

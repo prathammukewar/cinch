@@ -46,7 +46,7 @@ def pageviews():
             it = fetch_json(u)["items"]
             if len(it) != 12: raise LookupError(len(it))
             v = sum(i["views"] for i in it)
-            add("te-pv-" + art.lower().replace("_", "").replace("'", ""), q, v, "views", T, span=4.4, difficulty=d, url="https://pageviews.wmcloud.org/?project=en.wikipedia.org&platform=all-access&agent=user&start=2025-01&end=2025-12&pages=" + art.replace("'", "%27"), source="Wikimedia pageviews", licence=CC0, evidence=f"pageviews API {art}, all-access, user, 12 months of 2025 sum to {v}", explainer=ex, check=f"pv|{art}", topic="te-pv")
+            add("te-pv-" + art.lower().replace("_", "").replace("'", ""), q, v, "views", T, span=4.4, difficulty=d, url="https://pageviews.wmcloud.org/?project=en.wikipedia.org&platform=all-access&agent=user&start=2025-01&end=2025-12&pages=" + art.replace("'", "%27"), source="Wikimedia pageviews", licence=CC0, evidence=f"pageviews API {art}, all-access, user, 12 months of 2025 sum to {v}", explainer=ex, check=f"pv|{art}", topic="te-pv", label=art.replace("_", " "))
         attempt("te-pv-" + art, go)
 
 

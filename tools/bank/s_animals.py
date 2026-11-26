@@ -109,5 +109,5 @@ def go():
                 raise LookupError(f"{sp} longevity quality {r['Data quality']}")
             v = float(r[field]) * f
             add("an-" + key, question, v, unit, "Animals", span=span, difficulty=d, url=f"https://genomics.senescence.info/species/entry.php?species={sp.replace(' ', '_')}", source="AnAge, Human Ageing Genomic Resources", licence=CCBY3,
-                evidence=f"AnAge dataset, {sp} ({r['Common name']}): {field} = {r[field]}; data quality {r['Data quality']}, sample size {r['Sample size']}", explainer=expl(clean(v), get), as_of="On the AnAge research record" if field == LONG else None, check=f"anage|{sp}|{field}", topic="an-" + field[:4])
+                evidence=f"AnAge dataset, {sp} ({r['Common name']}): {field} = {r[field]}; data quality {r['Data quality']}, sample size {r['Sample size']}", explainer=expl(clean(v), get), as_of="On the AnAge research record" if field == LONG else None, check=f"anage|{sp}|{field}", topic="an-" + field[:4], label=(r["Common name"] or sp).split(",")[0].replace("Domestic ", "").strip().capitalize())
         attempt("an-" + key, one)

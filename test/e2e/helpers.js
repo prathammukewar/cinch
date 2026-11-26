@@ -38,8 +38,17 @@ export async function playAll(page, n = 7) {
     await page.waitForTimeout(60);
     await page.keyboard.press('Enter');
     await expect(page.locator('.panel.done')).toBeVisible({ timeout: 6000 });
-    await page.click('#next');
+    await next(page);
   }
+}
+
+/** Go to the next question and wait until it is on screen. */
+export async function next(page) {
+  const before = await page.locator('.ask .meta span').first().textContent();
+  await page.click('#next');
+  await expect(page.locator('.panel')).not.toHaveClass(/done/, { timeout: 4000 }).catch(() => {});
+  await expect(page.locator('.play')).not.toHaveClass(/leaving|entering/).catch(() => {});
+  return before;
 }
 
 /** Move both pegs with the keyboard. */

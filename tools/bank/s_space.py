@@ -17,7 +17,7 @@ def planets():
     def q(id, row, body, question, unit, f=1, expl="", **k):
         v, ev = get(row, body)
         ans = clean(abs(v) * f if row == "Length of Day" else v * f)
-        add(id, question, ans, unit, "Space", url=NSSDC, source="NASA Planetary Fact Sheet", licence=PD, evidence=ev, explainer=expl(ans) if callable(expl) else expl, check=f"nssdc|{row}|{body}", **k)
+        add(id, question, ans, unit, "Space", url=NSSDC, source="NASA Planetary Fact Sheet", licence=PD, evidence=ev, explainer=expl(ans) if callable(expl) else expl, check=f"nssdc|{row}|{body}", topic=f"sp-{row[:6]}", label=body if body not in ("Moon",) else "The Moon", **k)
     g = lambda row, body: get(row, body)[0]
     q("sp-jup-diam", "Diameter", "Jupiter", "How many kilometers across is Jupiter at its equator?", "km", expl=lambda a: f"That is about {times(a, g('Diameter','Earth'))} Earths side by side.", span=4, difficulty=2)
     q("sp-mars-diam", "Diameter", "Mars", "How many kilometers across is Mars?", "km", expl=lambda a: f"Mars is roughly half as wide as Earth, which measures {fmt(g('Diameter','Earth'))} km.", span=3, difficulty=2)
@@ -54,7 +54,7 @@ def moons():
         c = rows[name]
         # columns: planet, satellite, code, GM, mean radius (value sigma ref), density
         r = number(c[4].split()[0])
-        add(f"sp-{name.lower()}-diam", q, round(2 * r, 1), "km", "Space", span=3.4, difficulty=d, url=url, source="NASA JPL satellite parameters", licence=PD, evidence=f"{name}: {' | '.join(c)} (mean radius {r} km, doubled)", explainer=ex)
+        add(f"sp-{name.lower()}-diam", q, round(2 * r, 1), "km", "Space", span=3.4, difficulty=d, url=url, source="NASA JPL satellite parameters", licence=PD, evidence=f"{name}: {' | '.join(c)} (mean radius {r} km, doubled)", explainer=ex, topic="sp-Diamet", label=name)
 
 
 MOONS = {
@@ -92,7 +92,7 @@ def small_bodies():
         ("Eros", "eros", "How many kilometers across is Eros, the first asteroid a spacecraft landed on?", "The lander, NEAR Shoemaker, was not designed to land.", 3),
     ]:
         v, full = sbdb(des, "diameter")
-        add(f"sp-{nm}-diam", q, float(v) * (1000 if nm == "bennu" else 1), "meters" if nm == "bennu" else "km", "Space", span=4, difficulty=d, url=f"https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr={des}", source="NASA JPL Small-Body Database", licence=PD, evidence=f"ssd-api.jpl.nasa.gov/sbdb.api?sstr={des}: {full}, diameter {v} km", explainer=ex, check=f"sbdb|{des}|diameter")
+        add(f"sp-{nm}-diam", q, float(v) * (1000 if nm == "bennu" else 1), "meters" if nm == "bennu" else "km", "Space", span=4, difficulty=d, url=f"https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr={des}", source="NASA JPL Small-Body Database", licence=PD, evidence=f"ssd-api.jpl.nasa.gov/sbdb.api?sstr={des}: {full}, diameter {v} km", explainer=ex, check=f"sbdb|{des}|diameter", topic="sp-Diamet" if nm != "bennu" else "sp-small", label=des)
     j = fetch_json("https://ssd-api.jpl.nasa.gov/sbdb.api?des=1P&full-prec=0")
     per = next(e for e in j["orbit"]["elements"] if e["name"] == "per")
     yrs = round(float(per["value"]) / 365.25, 1)

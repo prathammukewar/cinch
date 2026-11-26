@@ -137,12 +137,12 @@ QUESTIONS = []
 FAILED = []
 
 
-def add(id, question, answer, unit, category, *, scale="log", span=None, difficulty=2, as_of=None, url, source, licence, evidence, explainer, check=None, whole=False, lo=None, hi=None, topic=None):
+def add(id, question, answer, unit, category, *, scale="log", span=None, difficulty=2, as_of=None, url, source, licence, evidence, explainer, check=None, whole=False, lo=None, hi=None, topic=None, label=None):
     """Register one question. span: decades for log rulers, width for linear ones."""
     QUESTIONS.append(dict(
         id=id, question=question.strip(), answer=clean(answer), unit=unit, category=category, difficulty=difficulty,
         scale=scale, span=span, as_of=as_of, source_url=url, source_name=source, licence=licence,
-        evidence=re.sub(r"\s+", " ", evidence).strip()[:420], explainer=explainer.strip(), check=check or "", whole=whole, lo=lo, hi=hi, topic=topic or id.split("-")[0],
+        evidence=re.sub(r"\s+", " ", evidence).strip()[:420], explainer=explainer.strip(), check=check or "", whole=whole, lo=lo, hi=hi, topic=topic or id.split("-")[0], label=label,
     ))
 
 

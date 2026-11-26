@@ -38,7 +38,7 @@ def fdc():
         def go():
             v, fd = nut(name, nutrient, u)
             add("fo-" + id, question, v, unit, "Food", difficulty=d, url=f"https://fdc.nal.usda.gov/food-details/{fd['fdcId']}/nutrients", source="USDA FoodData Central", licence=CC0,
-                evidence=f"FoodData Central Foundation Foods (April 2025), {fd['description']}, per 100 g: {nutrient} = {v}", explainer=expl(v) if callable(expl) else expl, check=f"fdc|{name}|{nutrient}", topic="fo-" + nutrient[:4], **k)
+                evidence=f"FoodData Central Foundation Foods (April 2025), {fd['description']}, per 100 g: {nutrient} = {v}", explainer=expl(v) if callable(expl) else expl, check=f"fdc|{name}|{nutrient}", topic="fo-" + nutrient[:4], label=name.split(",")[0].capitalize() if name.split(",")[0] not in ("Cheese","Nuts","Fish","Beef","Pork","Chicken","Oil","Milk","Flour","Eggs","Peppers","Beans","Yogurt","Apples","Bananas","Potatoes","Grapes","Lettuce","Peanut butter") else (name.split(",")[1].strip().capitalize() + " " + name.split(",")[0].lower()).replace("Raw ", ""), **k)
         attempt("fo-" + id, go)
     A = lambda n, x: nut(n, x)[0]
     pct = dict(scale="linear", span=100, lo=0, hi=100)
@@ -80,7 +80,7 @@ def fdc():
             fd = food(name)
             es = {n["nutrient"]["name"]: n["amount"] for n in fd["foodNutrients"] if n["nutrient"]["unitName"] == "kcal" and n.get("amount")}
             v = es.get("Energy (Atwater General Factors)") or es.get("Energy")
-            add("fo-" + id, question, round(v), "calories", "Food", difficulty=d, span=3.4, url=f"https://fdc.nal.usda.gov/food-details/{fd['fdcId']}/nutrients", source="USDA FoodData Central", licence=CC0, evidence=f"FoodData Central Foundation Foods (April 2025), {fd['description']}, per 100 g: {es}", explainer=expl, check=f"fdc-kcal|{name}", topic="fo-kcal")
+            add("fo-" + id, question, round(v), "calories", "Food", difficulty=d, span=3.4, url=f"https://fdc.nal.usda.gov/food-details/{fd['fdcId']}/nutrients", source="USDA FoodData Central", licence=CC0, evidence=f"FoodData Central Foundation Foods (April 2025), {fd['description']}, per 100 g: {es}", explainer=expl, check=f"fdc-kcal|{name}", topic="fo-kcal", label=name.split(",")[0].capitalize())
         attempt("fo-" + id, go)
     kcal("kcal-avocado", "Avocado, Hass, peeled, raw", "How many calories are in 100 grams of Hass avocado?", "Most of it comes from fat.", 1)
     kcal("kcal-broccoli", "Broccoli, raw", "How many calories are in 100 grams of raw broccoli?", "You would need several heads to match a chocolate bar.", 1)
@@ -124,7 +124,7 @@ def owid():
             rows.sort(key=lambda r: int(r.get("Year", r.get("year"))))
             r = rows[-1]; col = [c for c in r if c.lower() not in ("entity", "code", "year", "owid_region", "time")][0]
             y = r.get("Year", r.get("year")); v = float(r[col]) * f
-            add("fo-" + id, question, float(f"{v:.6g}"), unit, "Food", difficulty=d, url=f"https://ourworldindata.org/grapher/{slug}", source="FAO, via Our World in Data", licence=CCBY, evidence=f"{slug}.csv: {country}, {y}, {col} = {r[col]}", explainer=expl, as_of=f"In {y}", check=f"owid|{slug}|{country}|{y}|{f}", topic="fo-crop", **k)
+            add("fo-" + id, question, float(f"{v:.6g}"), unit, "Food", difficulty=d, url=f"https://ourworldindata.org/grapher/{slug}", source="FAO, via Our World in Data", licence=CCBY, evidence=f"{slug}.csv: {country}, {y}, {col} = {r[col]}", explainer=expl, as_of=f"In {y}", check=f"owid|{slug}|{country}|{y}|{f}", topic="fo-crop", label=f"{slug.split('-')[0].capitalize()}s, {country}" if False else None, **k)
         attempt("fo-" + id, go)
     o("coffee-bra", "coffee-bean-production", "Brazil", "How many tonnes of coffee beans did Brazil grow?", "tonnes", 1, "Brazil grows more coffee than any other country.", span=4.5)
     o("banana-world", "banana-production", "World", "How many tonnes of bananas did the world grow?", "tonnes", 1, "India grows more than anyone but exports few of them.", span=5)

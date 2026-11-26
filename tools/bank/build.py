@@ -62,7 +62,7 @@ def main():
         seen.add(q["id"])
         if q["id"] in drop: continue
         lo, hi = ruler(q)
-        out.append({k: q[k] for k in ("id", "question", "answer", "unit", "category", "difficulty", "scale")} | {"min": lo, "max": hi} | {k: q[k] for k in ("as_of", "source_url", "source_name", "licence", "evidence", "explainer", "topic", "whole", "check")} | {"fetched": TODAY})
+        out.append({k: q[k] for k in ("id", "question", "answer", "unit", "category", "difficulty", "scale")} | {"min": lo, "max": hi} | {k: q[k] for k in ("as_of", "source_url", "source_name", "licence", "evidence", "explainer", "topic", "label", "whole", "check")} | {"fetched": TODAY})
     out.sort(key=lambda q: q["id"])
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n")

@@ -2,21 +2,24 @@
 
 Play it at **https://prathammukewar.github.io/cinch/**
 
-A daily game about knowing what you don't know. Seven questions with number answers, the same for everyone each day. For each one you stretch a rubber band along a ruler until you are 90% sure the answer is inside it. Then the pin drops.
+A daily game set on a ranch. Seven questions with number answers, the same for everyone each day. For each one you set a lasso between two fence posts on a notched rail, as tight as you dare while staying 90% sure it will rope the answer. Then the horseshoe is pitched.
 
-Most people are overconfident the first time they play. Trading interviews ask for exactly this kind of range, and the game tracks over weeks whether your 90% ranges catch 90% of the answers.
+Most people throw their loops too tight the first time. The Brand Book tracks, over weeks, whether your 90% loops really rope nine answers in ten.
 
 ## Scoring
 
-Each question starts at 100. You lose 1 point for every 1% of the ruler your range covers, and 20 for every 1% the answer misses it by. That is the interval score for a 90% range, so honest 90% ranges earn the most on average. There is no cap and no floor, because either one would pay players to gamble. The maths and a simulation of nine strategies are in [docs/scoring.md](docs/scoring.md).
+Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop's width, so tight loops pay more and fade faster. Nothing goes below zero. A glow on the rail shows what every spot is worth while you set the loop. The rule, a simulation of nine habits and its one trade-off are in [docs/scoring.md](docs/scoring.md).
 
-## Modes
+## Ways to play
 
-- **Today**: seven questions, one try, a share line with no spoilers and a picture sized for stories
-- **Practice**: as many questions as you like
-- **Quant mode**: ten questions, twenty seconds each
-- **Past days**: every earlier day, playable
-- **Your calibration**: catch rate over time, a calibration curve once you have 50 answers, and your best and worst subjects
+- **Roundup**: today's seven, 30 seconds each, one try, a spoiler-free share line and a picture sized for stories
+- **The Corral**: practice in sets of seven, never using daily questions
+- **Quick Draw**: ten questions, 20 seconds each
+- **Showdown**: rope seven, send a link, and your friend ropes the same seven to see who wins
+- **Old Trails**: every earlier Roundup
+- **Brand Book**: how often your loops hold the answer, over time and by subject
+
+Two hints cost a share of the points: **Fence in** shortens the rail around the answer, and **Scout** marks known numbers of the same kind on it.
 
 ## Questions
 
@@ -41,7 +44,7 @@ npx playwright test
 
 ## Privacy
 
-No accounts, no tracking, no server. Scores live in your browser. Settings has a backup button that saves them to one file, and a restore button that merges a backup back in.
+No accounts, no tracking, no server. Scores live in your browser, and Showdown results travel inside the link you send. The Saddlebag has a backup button that saves everything to one file, and a restore button that merges a backup back in.
 
 ## Licence
 

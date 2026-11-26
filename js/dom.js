@@ -26,3 +26,19 @@ export function toast(text) {
 
 export const plus = (n) => (n > 0 ? `+${n}` : String(n).replace('-', '−'));
 export const signed = (n) => String(n).replace('-', '−');
+
+let more = null;
+/** Styles for every screen after the first question, fetched the first time one is needed. */
+export function moreStyles() {
+  if (!more) {
+    more = new Promise((resolve) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'css/more.css';
+      link.onload = resolve;
+      link.onerror = resolve;
+      document.head.append(link);
+    });
+  }
+  return more;
+}

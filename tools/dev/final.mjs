@@ -11,6 +11,9 @@ for (const [name, opt] of Object.entries(sizes)) for (const theme of ['light', '
   await p.clock.install({ time: new Date('2026-11-27T10:00:00') });
   const snap = (s) => p.screenshot({ path: `${out}/${name}-${theme}-${s}.png` });
   await p.goto('http://127.0.0.1:8691/');
+  await p.clock.runFor(3500);
+  await snap('0-home');
+  await p.goto('http://127.0.0.1:8691/#today');
   await p.waitForSelector('#low-value'); await p.clock.runFor(1500);
   await snap('1-first-look');
   const plan = [[0, 0, 0.09], [0, 0, 0.07], [0, 0, 0.12], [0, 0, 0.08], [0, 0, 0.1], [0, 0, 0.06], [0, 0, 0.11]];
@@ -36,11 +39,13 @@ for (const [name, opt] of Object.entries(sizes)) for (const theme of ['light', '
     await p.clock.runFor(2500);
     if (i < 3) await snap(`5-answer-${i + 1}`);
     await p.click('#next');
+    await p.clock.runFor(400);
   }
   await p.clock.runFor(900); await snap('6-bands-lining-up');
   await p.clock.runFor(4000); await snap('7-result');
   await p.screenshot({ path: `${out}/${name}-${theme}-7-result-full.png`, fullPage: true });
-  for (const s of ['calibration', 'archive', 'quant', 'settings']) { await p.goto(`http://127.0.0.1:8691/#${s}`); await p.clock.runFor(800); await snap(`8-${s}`); }
+  await p.locator('.spot').nth(1).click(); await p.clock.runFor(300); await snap('7b-peek');
+  for (const s of ['calibration', 'archive', 'draw', 'duel', 'settings', 'scoring']) { await p.goto(`http://127.0.0.1:8691/#${s}`); await p.clock.runFor(800); await snap(`8-${s}`); }
   await ctx.close();
 }
 await b.close();

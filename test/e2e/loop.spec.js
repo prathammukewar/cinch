@@ -1,7 +1,16 @@
-import { test, expect, at, answer, playAll, squeeze, ends } from './helpers.js';
+import { test, expect, at, answer, playAll, squeeze, ends, next } from './helpers.js';
 
-test('a stranger sees a question at once, with no wall in front of it', async ({ page }) => {
+test('a stranger gets a welcome screen, the rules once, then the first question', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('.wordmark')).toHaveText('Cinch');
+  await expect(page.locator('#play')).toBeInViewport();
+  await expect(page.locator('.home-date')).toContainText('Roundup No.');
+  await expect(page.locator('#play')).toHaveText('Saddle up');
+  await page.click('#play');
+  await expect(page.locator('#howto')).toBeVisible();
+  await expect(page.locator('#howto .steps li')).toHaveCount(3);
+  await page.click('#howto-go');
+  await expect(page.locator('#howto')).toBeHidden();
   await expect(page.locator('.ask h1')).not.toBeEmpty();
   await expect(page.locator('.ask h1')).toBeInViewport();
   await expect(page.locator('#drop')).toBeInViewport();
@@ -10,9 +19,36 @@ test('a stranger sees a question at once, with no wall in front of it', async ({
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test('the welcome screen changes for a returning player', async ({ page }) => {
+  await at(page, '2026-11-26T10:00:00');
+  await page.goto('/#today');
+  await squeeze(page, 0.3, 0.7);
+  await page.click('#drop');
+  await page.clock.runFor(3000);
+  await page.goto('/');
+  await expect(page.locator('#play')).toHaveText(/Back in the saddle, 1 of 7/);
+  await page.click('#play');
+  await expect(page.locator('#howto')).toBeHidden();
+  await expect(page.locator('.ask .meta')).toContainText('2 of 7');
+  await page.goto('/#today');
+  for (let i = 1; i < 7; i++) {
+    await squeeze(page, 0.3, 0.7);
+    await page.click('#drop');
+    await page.clock.runFor(3000);
+    await next(page);
+  }
+  await page.goto('/');
+  await expect(page.locator('#play')).toHaveText(/roundup/);
+  await expect(page.locator('.home-state')).toContainText('You scored');
+  await page.click('#howto-open');
+  await expect(page.locator('#howto-go')).toHaveText('Got it');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#howto')).toBeHidden();
+});
+
 test('the whole daily loop, the result, and coming back to it', async ({ page }) => {
   await at(page, '2026-11-26T10:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await expect(page.locator('.pips li')).toHaveCount(7);
   await playAll(page);
   await expect(page.locator('.tally .big')).toBeVisible();
@@ -21,13 +57,17 @@ test('the whole daily loop, the result, and coming back to it', async ({ page })
   const score = await page.locator('.tally .big').getAttribute('aria-label');
   await expect(page.locator('.tally .big')).toHaveText(score.replace('Score ', '').replace('-', '−'));
   await expect(page.locator('.recap li')).toHaveCount(7);
+  await page.locator('.spot').nth(2).click();
+  await expect(page.locator('.peek')).toBeVisible();
+  await expect(page.locator('.peek dl')).toContainText('Your loop');
+  await expect(page.locator('.peek dl')).toContainText('Answer');
   await page.reload();
   await expect(page.locator('.tally .big')).toHaveText(score.replace('Score ', '').replace('-', '−'));
   await expect(page.locator('#drop')).toHaveCount(0);
 });
 
 test('dragging a peg with a pointer changes the range', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   await page.waitForTimeout(300);
   const before = await ends(page);
   const box = await page.locator('.desk canvas').boundingBox();
@@ -40,12 +80,12 @@ test('dragging a peg with a pointer changes the range', async ({ page }) => {
   expect(after[0]).not.toBe(before[0]);
   expect(after[1]).toBe(before[1]);
   await expect(page.locator('#drop')).toBeEnabled();
-  await expect(page.locator('.worth')).toContainText('if the answer is inside');
+  await expect(page.locator('.worth')).toContainText('if it lands inside');
 });
 
 test('two fingers move both pegs at once', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'touch only');
-  await page.goto('/');
+  await page.goto('/#today');
   await page.waitForTimeout(300);
   const before = await ends(page);
   const box = await page.locator('.desk canvas').boundingBox();
@@ -62,7 +102,7 @@ test('two fingers move both pegs at once', async ({ page, isMobile }) => {
 });
 
 test('typed numbers work, including words like million', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   await page.waitForTimeout(200);
   const [lo, hi] = await ends(page);
   await page.locator('#low-value').fill('zzz');
@@ -74,7 +114,7 @@ test('typed numbers work, including words like million', async ({ page }) => {
 });
 
 test('the keyboard alone can play a question', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   await page.waitForTimeout(200);
   await squeeze(page, 0.3, 0.6);
   await page.keyboard.press('Shift+ArrowLeft');
@@ -88,7 +128,7 @@ test('the keyboard alone can play a question', async ({ page }) => {
 
 test('leaving in the middle keeps your place', async ({ page }) => {
   await at(page, '2026-11-27T10:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await squeeze(page, 0.2, 0.8);
   await page.click('#drop');
   await page.clock.runFor(3000);
@@ -99,7 +139,7 @@ test('leaving in the middle keeps your place', async ({ page }) => {
 });
 
 test('the reveal shows the answer, the points, a line to learn and a source', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   await squeeze(page, 0.2, 0.8);
   await page.click('#drop');
   await expect(page.locator('.panel.done')).toBeVisible({ timeout: 6000 });
@@ -113,22 +153,22 @@ test('share copies spoiler-free text', async ({ page, context, isMobile }) => {
   test.skip(isMobile, 'phones use the share sheet');
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await at(page, '2026-11-26T10:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await playAll(page);
   await page.clock.runFor(5000);
   await page.click('#share');
   const text = await page.evaluate(() => navigator.clipboard.readText());
   const lines = text.split('\n');
-  expect(lines[0]).toMatch(/^\S.* no\. 2: −?\d+ of 700$/);
+  expect(lines[0]).toMatch(/^Cinch Roundup No\. 2: roped \d of 7, \d+ points$/);
   expect(lines.slice(1, 8).every((l) => [...l].length === 7)).toBe(true);
-  expect(text).toContain('Caught');
+  expect(text).not.toContain('Caught');
   expect(lines[lines.length - 1]).toBe('https://prathammukewar.github.io/cinch/');
 });
 
 test('the story picture is made at 1080 by 1920', async ({ page, isMobile }) => {
   test.skip(isMobile, 'phones use the share sheet');
   await at(page, '2026-11-26T10:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await playAll(page);
   await page.clock.runFor(5000);
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#image')]);
@@ -141,7 +181,7 @@ test('the story picture is made at 1080 by 1920', async ({ page, isMobile }) => 
 test('with reduced motion the answer arrives quickly and still shows everything', async ({ browser }) => {
   const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 375, height: 812 } });
   const page = await ctx.newPage();
-  await page.goto('http://127.0.0.1:8692/');
+  await page.goto('http://127.0.0.1:8692/#today');
   await squeeze(page, 0.2, 0.8);
   const t0 = Date.now();
   await page.click('#drop');
@@ -152,7 +192,7 @@ test('with reduced motion the answer arrives quickly and still shows everything'
 });
 
 test('controls answer within 100 ms', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   await page.waitForTimeout(400);
   const ms = await page.evaluate(async () => {
     const c = document.querySelector('.desk canvas');

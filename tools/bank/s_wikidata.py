@@ -392,7 +392,7 @@ def go():
             if max(ys) - y > (2 if prop == "P577" else 0): raise LookupError(f"{title} {prop}: several years {sorted(set(ys))}")
             s = sentence_with(article(real), y, words)
             if not s: raise LookupError(f"{title}: {y} not confirmed by the article")
-            add(f"yr-{slug(title)}-{prop.lower()}", question, y, "year", cat, scale="linear", span=width, difficulty=d, url=f"https://www.wikidata.org/wiki/{q}#{prop}", source="Wikidata", licence=CC0, evidence=f"Wikidata {q} {prop} = {y}. Wikipedia, {real}: {s[:260]}", explainer=ex, check=f"wd-year|{q}|{prop}|{real}|{words}", hi=2026, topic="yr")
+            add(f"yr-{slug(title)}-{prop.lower()}", question, y, "year", cat, scale="linear", span=width, difficulty=d, url=f"https://www.wikidata.org/wiki/{q}#{prop}", source="Wikidata", licence=CC0, evidence=f"Wikidata {q} {prop} = {y}. Wikipedia, {real}: {s[:260]}", explainer=ex, check=f"wd-year|{q}|{prop}|{real}|{words}", hi=2026, topic="yr", label=re.sub(r" \(.*\)$", "", title))
         attempt(f"yr-{title}", one)
     for title, prop, unit, f, question, ex, cat, d, kw in H:
         def one():
@@ -416,5 +416,5 @@ def go():
             if not snip: raise LookupError(f"{title} {prop}: {base} not confirmed by the article")
             if prop == "P2047" and re.search(r"runtime\s*=\s*\{\{(?:plainlist|ubl|unbulleted)", infobox(real), re.I):
                 raise LookupError(f"{title}: several running times")
-            add(f"wd-{slug(title)}-{prop.lower()}", question, shown, unit, cat, difficulty=d, url=f"https://www.wikidata.org/wiki/{q}#{prop}", source="Wikidata", licence=CC0, evidence=f"Wikidata {q} {prop} = {base:g} (base units). Wikipedia, {real}: {snip.strip()}", explainer=ex, check=f"wd-num|{q}|{prop}|{real}", topic=f"wd-{prop}", **kw2)
+            add(f"wd-{slug(title)}-{prop.lower()}", question, shown, unit, cat, difficulty=d, url=f"https://www.wikidata.org/wiki/{q}#{prop}", source="Wikidata", licence=CC0, evidence=f"Wikidata {q} {prop} = {base:g} (base units). Wikipedia, {real}: {snip.strip()}", explainer=ex, check=f"wd-num|{q}|{prop}|{real}", topic=f"wd-{prop}", label=re.sub(r" \(.*\)$", "", title), **kw2)
         attempt(f"wd-{title}-{prop}", one)

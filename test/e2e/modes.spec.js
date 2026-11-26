@@ -1,50 +1,58 @@
-import { test, expect, at, playAll, squeeze } from './helpers.js';
+import { test, expect, at, playAll, squeeze, next } from './helpers.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-test('practice keeps going and never repeats a category twice running', async ({ page }) => {
+test('the Corral deals sets of seven, no category twice, then shows a result', async ({ page }) => {
   await page.goto('/#practice');
-  let last = null;
-  for (let i = 0; i < 6; i++) {
-    const cat = await page.locator('.ask .meta span').nth(1).textContent();
-    expect(cat).not.toBe(last);
-    last = cat;
+  let last = new Set();
+  for (let i = 0; i < 7; i++) {
+    await expect(page.locator('.ask .meta')).toContainText(`The Corral, set 1, ${i + 1} of 7`);
+    const cat = (await page.locator('.ask .meta span').nth(1).textContent()).split(' \u00b7 ')[0];
+    expect(last.has(cat)).toBe(false);
+    last.add(cat);
     await squeeze(page, 0.3, 0.7);
     await page.click('#drop');
     await page.waitForTimeout(50);
     await page.keyboard.press('Enter');
     await expect(page.locator('.panel.done')).toBeVisible({ timeout: 6000 });
-    await page.click('#next');
+    await next(page);
   }
-  await expect(page.locator('.ask .meta')).toContainText('Practice, 7');
+  await expect(page.locator('.tally .day')).toHaveText('The Corral, set 1');
+  await expect(page.locator('.facts')).toContainText('of 7');
+  await page.click('#again');
+  await expect(page.locator('.ask .meta')).toContainText('The Corral, set 2, 1 of 7');
 });
 
-test('practice never shows a question from today or later', async ({ page }) => {
-  await at(page, '2026-11-27T09:00:00');
+test('practice never uses a daily question, and Showdown links survive a round trip', async ({ page }) => {
   await page.goto('/#practice');
   const bad = await page.evaluate(async () => {
     const { practicePool } = await import('/js/bank.js');
-    const { dayNumber, dayKey } = await import('/js/day.js');
-    const pool = new Set((await practicePool(dayNumber(dayKey()))).map((x) => x.id));
+    const pool = new Set((await practicePool()).map((x) => x.id));
     const s = await (await fetch('/bank/schedule.json')).json();
-    return Object.entries(s.days).filter(([n]) => Number(n) >= 3).flatMap(([, ids]) => ids).filter((id) => pool.has(id));
+    return Object.values(s.days).flat().filter((id) => pool.has(id));
   });
   expect(bad).toEqual([]);
+  const ok = await page.evaluate(async () => {
+    const { encode, decode } = await import('/js/duel.js');
+    const o = { v: 1, d: 'abc', n: 'Sam', q: ['a', 'b'], p: [10, 80], c: '01' };
+    return JSON.stringify(decode(encode(o))) === JSON.stringify(o) && decode('garbage!!') === null && decode(encode({ v: 1, q: ['a'], p: [1, 2] })) === null;
+  });
+  expect(ok).toBe(true);
 });
 
-test('quant mode runs ten on the clock and locks in when time is up', async ({ page }) => {
+test('Quick Draw runs ten on the fuse and pitches when time is up', async ({ page }) => {
   await at(page, '2026-11-27T09:00:00');
-  await page.goto('/#quant');
+  await page.goto('/#draw');
   await page.click('#start-quant');
-  await expect(page.locator('.ask .meta')).toContainText('1 of 10');
+  await expect(page.locator('.ask .meta')).toContainText('Quick Draw, 1 of 10');
   await page.clock.runFor(21000);
   await page.clock.runFor(3000);
   await expect(page.locator('.panel.done')).toBeVisible();
-  await page.click('#next');
+  await next(page);
   for (let i = 1; i < 10; i++) {
     await squeeze(page, 0.2, 0.8);
     await page.click('#drop');
     await page.clock.runFor(3000);
-    await page.click('#next');
+    await next(page);
   }
   await expect(page.locator('.facts')).toContainText('of 10');
   await expect(page.locator('.tally .of')).toContainText('1000');
@@ -52,7 +60,7 @@ test('quant mode runs ten on the clock and locks in when time is up', async ({ p
 
 test('backup and restore through the real buttons', async ({ page, browser }, info) => {
   await at(page, '2026-11-26T09:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await playAll(page);
   await page.goto('/#settings');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#backup')]);
@@ -83,7 +91,7 @@ test('an older or damaged save never breaks the page or loses data', async ({ pa
   await page.goto('/#settings');
   await page.evaluate(() => localStorage.setItem('cinch', JSON.stringify({ days: { 1: { live: true, rows: [] }, 3: { key: '2026-11-27', live: true, rows: [{ id: 'gone', cat: 'Space', hit: true, l: 0.4, u: 0.6, x: 0.5, width: 0.2, points: 80, lo: 1, hi: 2 }] } } })));
   await page.goto('/#calibration'); await page.reload();
-  await expect(page.locator('h1')).toContainText('Your calibration');
+  await expect(page.locator('h1')).toContainText('Brand Book');
   await page.evaluate(() => localStorage.setItem('cinch', '{{{'));
   await page.goto('/#today'); await page.reload();
   await expect(page.locator('.ask h1')).not.toBeEmpty();
@@ -92,14 +100,14 @@ test('an older or damaged save never breaks the page or loses data', async ({ pa
 
 test('the dashboard fills in as questions are answered', async ({ page }) => {
   await page.goto('/#calibration');
-  await expect(page.locator('.page')).toContainText('Nothing to measure yet');
+  await expect(page.locator('.page')).toContainText('Nothing in the book yet');
   await page.evaluate(() => {
     const rows = Array.from({ length: 120 }, (_, i) => ({ id: `q${i}`, cat: ['Space', 'Food', 'Money'][i % 3], hit: i % 5 !== 0, l: 0.4, u: 0.6, x: i % 5 ? 0.45 + (i % 10) / 100 : 0.7, width: 0.2, points: i % 5 ? 80 : -120, lo: 1, hi: 2, at: i }));
     localStorage.setItem('cinch', JSON.stringify({ v: 1, practice: { rows, seen: {} } }));
   });
   await page.reload();
   await expect(page.locator('figure svg')).toHaveCount(2);
-  await expect(page.locator('.page')).toContainText('At 100 questions you had caught 80');
+  await expect(page.locator('.page')).toContainText('At 100 questions you had roped 80');
   await expect(page.locator('.cats li')).toHaveCount(3);
 });
 
@@ -108,15 +116,15 @@ test('settings: theme and sound stick', async ({ page }) => {
   await page.getByRole('button', { name: 'Dark', exact: true }).click();
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('#sound')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#sound')).toHaveAttribute('aria-pressed', 'true');
   await page.click('#sound');
   await page.reload();
-  await expect(page.locator('#sound')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#sound')).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('erase asks twice', async ({ page }) => {
   await at(page, '2026-11-26T09:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await playAll(page);
   await page.goto('/#settings');
   await page.click('#erase');
@@ -129,9 +137,87 @@ test('a failed download offers another try', async ({ page }) => {
   let block = true;
   await page.route('**/data/*.json', (r) => (block ? r.fulfill({ status: 503, body: '' }) : r.continue()));
   page.removeAllListeners('console');
-  await page.goto('/');
+  await page.goto('/#today');
   await expect(page.locator('#main')).toContainText('did not load');
   block = false;
   await page.getByRole('button', { name: 'Try again' }).click();
   await expect(page.locator('.ask h1')).not.toBeEmpty();
+});
+
+test('hints: fencing in shortens the rail and costs points, scouting adds landmarks', async ({ page }) => {
+  await at(page, '2026-11-27T09:00:00');
+  await page.goto('/#practice');
+  let found = false;
+  for (let i = 0; i < 7 && !found; i++) {
+    if (await page.locator('#hint-scout').isVisible()) { found = true; break; }
+    await squeeze(page, 0.3, 0.7);
+    await page.click('#drop');
+    await page.clock.runFor(3000);
+    await next(page);
+  }
+  test.skip(!found, 'no landmark in this set');
+  const before = await page.evaluate(() => [document.getElementById('low-value').value, document.getElementById('high-value').value]);
+  await page.click('#hint-fence');
+  await page.clock.runFor(800);
+  await expect(page.locator('#hint-fence')).toHaveText(/Fence in more/);
+  const after = await page.evaluate(() => [document.getElementById('low-value').value, document.getElementById('high-value').value]);
+  expect(after).not.toEqual(before);
+  await expect(page.locator('.worth')).toContainText('75% with hints');
+  await page.click('#hint-scout');
+  await expect(page.locator('#hint-scout')).toHaveText('Scouted');
+  await expect(page.locator('.worth')).toContainText('64% with hints');
+  await page.click('#drop');
+  await page.clock.runFor(3000);
+  await expect(page.locator('.panel.done')).toBeVisible();
+  const row = await page.evaluate(() => JSON.parse(localStorage.getItem('cinch')).practice.rows.at(-1));
+  expect(row.hints).toEqual({ scout: true, fence: 1 });
+});
+
+test('the daily fuse pitches the loop when it burns out', async ({ page }) => {
+  await at(page, '2026-11-27T09:00:00');
+  await page.goto('/#today');
+  await expect(page.locator('.fuse')).toBeVisible();
+  await page.clock.runFor(25500);
+  await expect(page.locator('.fuse')).toHaveClass(/short/);
+  await page.clock.runFor(5000);
+  await page.clock.runFor(3000);
+  await expect(page.locator('.panel.done')).toBeVisible();
+  await expect(page.locator('.pts')).toHaveText('0');
+});
+
+test('questions show their difficulty', async ({ page }) => {
+  await page.goto('/#today');
+  await expect(page.locator('.ask .meta')).toContainText(/Tenderfoot|Wrangler|Trail boss/);
+});
+
+test('a Showdown: send a link, a friend plays it, both see who won', async ({ page, browser }) => {
+  await at(page, '2026-11-27T09:00:00');
+  await page.goto('/#duel');
+  await page.fill('#duel-name', 'Sam');
+  await page.click('#duel-start');
+  for (let i = 0; i < 7; i++) {
+    await squeeze(page, 0.25, 0.75);
+    await page.click('#drop');
+    await page.clock.runFor(3000);
+    await next(page);
+  }
+  const url = await page.locator('.link-box').inputValue();
+  expect(url).toMatch(/#duel\/[A-Za-z0-9_-]+$/);
+  const ctx = await browser.newContext();
+  const friend = await ctx.newPage();
+  await friend.clock.install({ time: new Date('2026-11-27T10:00:00') });
+  await friend.goto(url.replace('https://prathammukewar.github.io/cinch/', 'http://127.0.0.1:8692/'));
+  await expect(friend.locator('.big-line')).toContainText('Sam scored');
+  await friend.click('#duel-go');
+  for (let i = 0; i < 7; i++) {
+    await squeeze(friend, 0.1, 0.9);
+    await friend.click('#drop');
+    await friend.clock.runFor(3000);
+    await next(friend);
+  }
+  await expect(friend.locator('.vs')).toBeVisible();
+  await expect(friend.locator('.verdict-line')).toHaveText(/wins by|dead heat/);
+  await expect(friend.locator('.duel-rows li')).toHaveCount(7);
+  await expect(friend.locator('#duel-reply')).toBeVisible();
+  await ctx.close();
 });

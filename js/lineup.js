@@ -1,11 +1,11 @@
 // The closing picture: every band slides until all the pins share one plumb line.
 import { Spring, clamp, lerp, easeOut } from './spring.js';
-import { palette, fit, bandPath, strokeRubber, dimension, DISPLAY } from './draw.js';
+import { palette, fit, bandPath, strokeRubber, dimension, drawPin, DISPLAY } from './draw.js';
 
 const flat = [0, 0, 0];
 
 /** Draw rows into any context. mix: 0 as played on the rule, 1 lined up. */
-export function paintRows(ctx, pal, rows, { x0, y0, w, h, mix = () => 1, shake = () => 0, plumb = 1, thick = 1 }) {
+export function paintRows(ctx, pal, rows, { x0, y0, w, h, mix = () => 1, shake = () => 0, plumb = 1, thick = 1, highlight = -1 }) {
   const n = rows.length;
   const step = h / n;
   const cx = x0 + w / 2;
@@ -14,6 +14,12 @@ export function paintRows(ctx, pal, rows, { x0, y0, w, h, mix = () => 1, shake =
   const r = clamp(step * 0.14, 4, 9) * thick;
   const head = clamp(step * 0.17, 5, 9.5) * thick;
 
+  if (highlight >= 0) {
+    ctx.fillStyle = pal.line;
+    ctx.beginPath();
+    ctx.roundRect(x0 + 4, y0 + step * highlight + 2, w - 8, step - 4, 10);
+    ctx.fill();
+  }
   ctx.save();
   ctx.beginPath();
   ctx.rect(x0, y0 - head * 3, w, h + head * 6);
@@ -57,14 +63,7 @@ export function paintRows(ctx, pal, rows, { x0, y0, w, h, mix = () => 1, shake =
     const y = y0 + step * (i + 0.5);
     const m = mix(i);
     const px = lerp(x0 + pad + row.x * (w - pad * 2), cx, m);
-    ctx.fillStyle = row.hit ? pal.pinDark : pal.mute;
-    ctx.beginPath(); ctx.arc(px, y, head, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = row.hit ? pal.pin : pal.paper;
-    ctx.beginPath(); ctx.arc(px, y, head * 0.82, 0, Math.PI * 2); ctx.fill();
-    if (row.hit) {
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.ellipse(px - head * 0.3, y - head * 0.34, head * 0.24, head * 0.16, -0.7, 0, Math.PI * 2); ctx.fill();
-    }
+    drawPin(ctx, { x: px, y: y + head * 1.15, r: head * 0.95, color: row.hit ? pal.pin : pal.paper, dark: row.hit ? pal.pinDark : pal.mute, lite: '#fff' });
   });
   ctx.restore();
 }
@@ -119,11 +118,13 @@ export class Lineup {
 
   theme() { this.pal = palette(); this.draw(); }
 
+  highlight(i) { this.hl = i; this.draw(); }
+
   draw() {
     const { ctx, w, h } = fit(this.canvas);
     if (!w) return;
     ctx.clearRect(0, 0, w, h);
-    paintRows(ctx, this.pal, this.rows, { x0: 0, y0: 22, w, h: h - 44, mix: (i) => this.mix[i].v, shake: (i) => this.hum[i].v, plumb: this.plumb });
+    paintRows(ctx, this.pal, this.rows, { x0: 0, y0: 22, w, h: h - 44, mix: (i) => this.mix[i].v, shake: (i) => this.hum[i].v, plumb: this.plumb, highlight: this.hl ?? -1 });
   }
 
   destroy() { this.dead = true; this.observer.disconnect(); }

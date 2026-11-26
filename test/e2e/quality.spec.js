@@ -13,7 +13,7 @@ for (const scheme of ['light', 'dark']) {
   test(`no accessibility problems on any screen, ${scheme}`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
     await at(page, '2026-11-26T09:00:00');
-    await page.goto('/');
+    await page.goto('/#today');
     await page.clock.runFor(800);
     expect(await audit(page)).toEqual([]);
     await squeeze(page, 0.3, 0.7);
@@ -21,7 +21,10 @@ for (const scheme of ['light', 'dark']) {
     await page.clock.runFor(2000);
     await expect(page.locator('.panel.done')).toBeVisible();
     expect(await audit(page)).toEqual([]);
-    for (const s of ['archive', 'calibration', 'scoring', 'settings', 'quant']) {
+    await page.goto('/#home');
+    await page.clock.runFor(1500);
+    expect(await audit(page), 'home').toEqual([]);
+    for (const s of ['archive', 'calibration', 'scoring', 'settings', 'draw', 'duel', 'sources']) {
       await page.goto(`/#${s}`);
       await page.clock.runFor(500);
       expect(await audit(page), s).toEqual([]);
@@ -39,7 +42,7 @@ for (const scheme of ['light', 'dark']) {
 test('nothing scrolls sideways at any width', async ({ page }) => {
   for (const w of [320, 360, 375, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ width: w, height: 760 });
-    for (const s of ['today', 'archive', 'calibration', 'scoring', 'settings', 'quant', 'practice']) {
+    for (const s of ['home', 'today', 'archive', 'calibration', 'scoring', 'settings', 'draw', 'duel', 'practice']) {
       await page.goto(`/#${s}`);
       await page.waitForTimeout(120);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${s} at ${w}`).toBeLessThanOrEqual(0);
@@ -58,30 +61,36 @@ test('the question, the pegs and the button fit on small phones without scrollin
 });
 
 test('touch targets are at least 44 pixels', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   const small = await page.evaluate(() => [...document.querySelectorAll('button, .go')].filter((e) => e.offsetParent && (e.offsetHeight < 44)).map((e) => e.id || e.className));
   expect(small).toEqual([]);
 });
 
-test('the page weighs under 150 KB before questions', async ({ page }) => {
+test('the page weighs under 150 KB, as sent compressed, before questions', async ({ page }) => {
   const got = new Map();
   page.on('response', async (r) => {
     const u = new URL(r.url());
     if (u.pathname.startsWith('/data/')) return;
-    try { got.set(u.pathname, (await r.body()).length); } catch { /* not a body */ }
+    try { got.set(u.pathname, await r.body()); } catch { /* not a body */ }
   });
   await page.goto('/');
-  await page.waitForTimeout(800);
-  const raw = [...got.values()].reduce((a, b) => a + b, 0);
-  console.log(`raw ${(raw / 1024).toFixed(1)} KB`, JSON.stringify(Object.fromEntries(got)));
-  expect(raw).toBeLessThan(150 * 1024);
+  await page.waitForTimeout(1500);
+  await page.click('#play');
+  await page.click('#howto-go');
+  await page.waitForSelector('#low-value');
+  await page.waitForTimeout(500);
+  const raw = [...got.values()].reduce((a, b) => a + b.length, 0);
+  const zipped = [...got.values()].reduce((a, b) => a + gzipSync(b).length, 0);
+  console.log(`raw ${(raw / 1024).toFixed(1)} KB, compressed ${(zipped / 1024).toFixed(1)} KB`);
+  expect(zipped).toBeLessThan(150 * 1024);
+  expect(raw).toBeLessThan(250 * 1024);
 });
 
 test('a month of questions is loaded, not the whole bank', async ({ page }) => {
   const files = [];
   page.on('request', (r) => { const p = new URL(r.url()).pathname; if (p.startsWith('/data/')) files.push(p); });
   await at(page, '2026-12-10T09:00:00');
-  await page.goto('/');
+  await page.goto('/#today');
   await expect(page.locator('.ask h1')).not.toBeEmpty();
   expect(files.filter((f) => /\d{4}-\d\d/.test(f))).toEqual(['/data/2026-12.json']);
   expect(files.some((f) => f.includes('practice'))).toBe(false);
@@ -95,7 +104,7 @@ test('answers are not readable in the files the page loads', async ({ page }) =>
 });
 
 test('the animation holds its frame rate', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#today');
   await squeeze(page, 0.2, 0.8);
   const client = await page.context().newCDPSession(page);
   await client.send('Emulation.setCPUThrottlingRate', { rate: 4 });

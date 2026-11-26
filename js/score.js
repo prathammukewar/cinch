@@ -1,13 +1,10 @@
-// Scoring. Every question has a fixed ruler [min, max], log or linear.
-// Positions on the ruler run from 0 to 1. The score is the 90% interval score
-// measured on the ruler and flipped so that more is better:
+// Scoring. Every question has a fixed ruler [min, max], log or linear, with positions from 0 to 1.
 //
-//   points = 100 - 100 * [ (u - l) + 20 * max(0, l - x) + 20 * max(0, x - u) ]
-//
-// In words: start at 100, lose 1 point for each 1% of the ruler you cover,
-// and 20 for each 1% you miss by. It is a straight line of a proper score, so
-// the honest 90% range has the best average. There is no cap and no floor.
+// Inside your range you score 100 minus 100 times the share of the ruler it covers.
+// Outside it, those points fade to zero, reaching zero once the answer is half your
+// range's width away. Tighter ranges are worth more but fade faster. Nothing goes below 0.
 
+export const FADE = 0.5;   // how far the fade reaches, as a share of the range's width
 export const ALPHA = 0.1;
 export const MISS = 2 / ALPHA; // 20
 export const PERFECT = 100;
@@ -31,6 +28,18 @@ export function intervalScore(l, u, x) {
   return (u - l) + MISS * Math.max(0, l - x) + MISS * Math.max(0, x - u);
 }
 
+/** Points at position x for a range from l to u, before rounding. */
+export function pointsAt(l, u, x) {
+  const w = u - l;
+  const plateau = PERFECT * (1 - w);
+  if (x >= l && x <= u) return plateau;
+  const gap = x < l ? l - x : x - u;
+  const reach = FADE * w;
+  if (reach <= 0 || gap >= reach) return 0;
+  const f = 1 - gap / reach;
+  return plateau * f * f;
+}
+
 /** Score one range given in real values. */
 export function scoreRange(low, high, answer, ruler) {
   const a = Math.min(low, high);
@@ -40,7 +49,7 @@ export function scoreRange(low, high, answer, ruler) {
   const x = toUnit(answer, ruler);
   const hit = answer >= a && answer <= b;
   const gap = hit ? 0 : Math.max(l - x, x - u, 0);
-  const exact = PERFECT - PERFECT * ((u - l) + MISS * gap);
+  const exact = pointsAt(l, u, x);
   return { l, u, x, hit, width: u - l, gap, exact, points: Math.round(exact), side: hit ? 0 : answer < a ? -1 : 1 };
 }
 

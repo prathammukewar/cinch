@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intervalScore, scoreRange, toUnit, fromUnit, kindOf, wilson, binomCdf, total } from '../../js/score.js';
+import { intervalScore, scoreRange, pointsAt, toUnit, fromUnit, kindOf, wilson, binomCdf, total } from '../../js/score.js';
 import { probit, calibratedTotals, coverageCurve } from '../../js/stats.js';
 
 const log = { min: 1000, max: 1e7, scale: 'log' };
@@ -31,12 +31,21 @@ test('a catch earns 100 minus the share covered', () => {
   assert.equal(kindOf(scoreRange(60, 80, 71, pct)), 'tight');
 });
 
-test('a miss costs 20 for each 1% it misses by', () => {
-  const r = scoreRange(50, 60, 71, pct);
-  assert.equal(r.points, 100 - 10 - 20 * 11);
-  assert.equal(r.side, 1);
+test('outside the range, points fade to zero over half the range width', () => {
+  const near = scoreRange(50, 70, 71, pct);       // 20% wide, 1% outside, fade reaches 10%
+  assert.equal(near.hit, false);
+  assert.equal(near.points, Math.round(80 * 0.9 * 0.9));
+  assert.equal(scoreRange(50, 70, 80, pct).points, 0);   // exactly at the edge of the fade
+  assert.equal(scoreRange(50, 60, 71, pct).points, 0);
+  assert.equal(near.side, 1);
   assert.equal(scoreRange(80, 90, 71, pct).side, -1);
-  assert.equal(kindOf(r), 'miss');
+  assert.equal(kindOf(near), 'miss');
+});
+
+test('a tighter range fades faster', () => {
+  const wide = pointsAt(0.4, 0.6, 0.62) / pointsAt(0.4, 0.6, 0.5);
+  const tight = pointsAt(0.45, 0.55, 0.57) / pointsAt(0.45, 0.55, 0.5);
+  assert.ok(tight < wide, `${tight} should be below ${wide}`);
 });
 
 test('ends in the wrong order are swapped, and edges count as inside', () => {
@@ -50,12 +59,21 @@ test('the whole ruler scores zero and an exact answer scores 100', () => {
   assert.equal(scoreRange(71, 71, 71, pct).points, 100);
 });
 
-test('there is no floor', () => {
-  assert.equal(scoreRange(0, 0, 100, pct).points, 100 - 2000);
+test('points never go below zero', () => {
+  let s = 7;
+  const r = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  for (let i = 0; i < 5000; i++) {
+    const a = r() * 100; const b = r() * 100; const x = r() * 100;
+    const p = scoreRange(a, b, x, pct).points;
+    assert.ok(p >= 0 && p <= 100, `${a} ${b} ${x} gave ${p}`);
+  }
+  assert.equal(scoreRange(0, 0, 100, pct).points, 0);
 });
 
 test('negative numbers and years work on a linear ruler', () => {
   assert.equal(scoreRange(-100, -60, -89.2, cold).points, 75);
+  assert.equal(scoreRange(-100, -60, -50, cold).points, 19);
+  assert.equal(scoreRange(-100, -60, -30, cold).points, 0);
   assert.equal(scoreRange(1880, 1900, 1889, { min: 1700, max: 1950, scale: 'linear' }).points, 92);
 });
 

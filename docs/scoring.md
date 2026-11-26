@@ -1,58 +1,49 @@
-# Scoring proof
+# How Cinch scores a loop
 
 ## The rule
 
-Every question has a fixed ruler. Positions on it run from 0 to 1, on a log scale for numbers that span many sizes and a straight scale for years, percentages and temperatures. For a range from l to u and an answer x:
+Every question has a fixed rail (the ruler). Positions on it run from 0 to 1, on a scale that multiplies for numbers of every size and a straight scale for years, percentages and temperatures. For a loop from l to u and an answer at x:
 
-    points = 100 - 100 * [ (u - l) + 20 * max(0, l - x) + 20 * max(0, x - u) ]
+    width  = u - l
+    inside = 100 * (1 - width)                       if l <= x <= u
+    gap    = how far x lies outside the loop
+    fade   = max(0, 1 - gap / (0.5 * width))
+    points = inside * fade^2                         if x is outside
 
-In words: start at 100, lose 1 point for every 1% of the ruler you cover, and 20 for every 1% the answer misses your range by. The whole ruler scores 0. There is no cap and no floor.
+In words: inside your loop you score 100 minus the share of the rail it covers. Outside it, those points fade to nothing once the answer is half a loop's width beyond the edge. Tight loops are worth more and fade faster. Nothing goes below zero. Hints multiply the result: fence in once keeps 75%, twice 50%, and a scout keeps 85%.
 
-## Why honest 90% ranges are best
+## What it rewards
 
-The bracket is the interval score for a 90% range, with 20 = 2 / 0.10 (Winkler 1972, Gneiting and Raftery 2007). It is proper, and it stays proper when the numbers are first put through any fixed increasing function, which is what the ruler is. Points are a straight line of it, so the order of preference never changes.
+200,000 simulated questions. Each simulated player has a true but uncertain belief (a bell curve on the rail, spread between 3% and 20% of it), and each habit turns the same belief into a loop.
 
-Directly: moving your high end down by a small step d always earns 100d points, and costs 2,000d when the answer is above it. The trade pays only while the chance of the answer being above is under 100 / 2,000 = 5%. The same holds at the low end. The best range leaves 5% on each side, which is the 90% range.
+| Habit | Points a day | Roped | Rail covered |
+|---|---|---|---|
+| Honest 90% | 498 | 90% | 26% |
+| Far too narrow (30%) | 257 | 30% | 6% |
+| Too narrow (50%) | 392 | 50% | 11% |
+| A bit narrow (80%) | 502 | 80% | 21% |
+| A bit wide (97%) | 460 | 97% | 34% |
+| Too wide (99.8%) | 382 | 100% | 45% |
+| Whole ruler every time | 0 | 100% | 100% |
+| Nine huge, one silly | 1 | 90% | 90% |
+| Random ranges | 153 | 34% | 33% |
 
-The ruler is shown before you answer and does not depend on what you enter, and the answer is placed on it uniformly at random when the question is built (between 7% and 93% of the way along), so the middle of the ruler is not a hint. Ends typed past the ruler are moved to its edge. The score itself is never clipped.
+Honest 90% loops come within about 1% of the best habit and far ahead of the gambling ones. "Nine huge, one silly" also ropes 90% of answers and scores almost nothing.
 
-## Simulation
+## The trade-off
 
-200,000 questions. Each simulated player has a true but uncertain belief (a bell curve on the ruler, standard deviation between 3% and 20% of it), and each strategy turns the same belief into a range.
+An earlier version used the interval score, where a miss cost 20 points for every 1% of the rail and totals could go negative. That rule makes an honest 90% loop the single best play at every level of knowledge. A score that cannot go below zero cannot do that exactly. Best-paying loop size, by how unsure the player is:
 
-| Strategy | Points a day | Caught | Ruler covered | Honest scores higher | Honest lead a day |
-|---|---|---|---|---|---|
-| Honest 90% | 475 | 90% | 26% |  |  |
-| Far too narrow (30%) | 132 | 30% | 6% | 97% of days | 343.1 ± 2.6 |
-| Too narrow (50%) | 297 | 50% | 11% | 87% of days | 178.2 ± 2.0 |
-| A bit narrow (80%) | 457 | 80% | 21% | 54% of days | 17.7 ± 0.7 |
-| A bit wide (97%) | 454 | 97% | 34% | 77% of days | 20.9 ± 0.6 |
-| Too wide (99.8%) | 381 | 100% | 45% | 90% of days | 93.4 ± 0.9 |
-| Whole ruler every time | 0 | 100% | 100% | 100% of days | 474.8 ± 1.0 |
-| Nine huge, one silly | −19 | 90% | 90% | 100% of days | 493.6 ± 1.4 |
-| Random ranges | −1835 | 34% | 33% | 100% of days | 2309.8 ± 12.0 |
-
-"Nine huge, one silly" also catches 90% of answers. A score that only counted catches would call it perfect. This one gives it less than nothing.
-
-The peak is flat near the top: claiming 80% or 97% instead of 90% costs only about 4% of the points. That is a property of every proper score for ranges. It means the score is fair, and that one day cannot tell a slightly overconfident player from an honest one.
-
-## What a squeeze would have done
-
-Best claimed coverage under each squeezed score, and the points per question gained over the honest range. Columns are how uncertain the player is, as a share of the ruler.
-
-| Score | sd 3% | sd 10% | sd 20% | sd 40% |
+| How unsure (spread as a share of the rail) | 2% | 5% | 10% | 20% |
 |---|---|---|---|---|
-| Straight line (used in the game) | 90% (+0.0) | 90% (+0.0) | 90% (+0.0) | 90% (+0.0) |
-| Floor at 0 | 90% (+0.0) | 85% (+0.8) | 70% (+5.8) | 60% (+15.6) |
-| Floor at −100 | 90% (+0.0) | 90% (+0.0) | 85% (+0.9) | 85% (+1.6) |
-| Floor at −300 | 90% (+0.0) | 90% (+0.0) | 90% (+0.0) | 90% (+0.0) |
-| Cap at 80 | 99% (+1.4) | 90% (+0.0) | 90% (+0.0) | 90% (+0.0) |
-| Sigmoid squash | 93% (+0.1) | 93% (+0.1) | 85% (+0.1) | 80% (+1.3) |
+| Best loop under this rule | 95% | 90% | 80% | 70% |
+| Points a question it gains over a 90% loop | 0.9 | 0.0 | 1.6 | 9.4 |
+| Best loop under the old interval score | 90% | 90% | 90% | 90% |
 
-A floor at zero does little harm to a player who knows the subject and a lot to one who does not: the worse you know a topic, the more it pays to gamble. Caps push the other way, toward ranges that are too wide. That is why the game shows negative scores instead.
+So when you know a subject, the honest loop is the best one. When you are guessing, a loop a little tighter than 90% pays a few points more on average. The Brand Book does not use points at all: it checks how often your 90% loops really rope the answer, which is the honest measure either way.
 
 ## Small samples
 
-A perfectly calibrated player catches all seven on 47.8% of days, six on 37.2%, five on 12.4%, and four or fewer on 2.6%. The 95% band around a 90% catch rate is about 9 points either side at 50 questions, 6 at 100 and 4 at 220. The dashboard therefore makes a call only at 20, 50, 100, 200 and 350 questions, at 13, 39, 81, 169 and 300 catches or fewer. About 2.5% of perfectly calibrated players would ever be told their ranges look narrow.
+A perfectly judged player ropes all seven on 47.8% of days, six on 37.2%, five on 12.4%, and four or fewer on 2.6%. The 95% band around a 90% rate is about 9 points either side at 50 questions, 6 at 100 and 4 at 220. The Brand Book makes a call only at 20, 50, 100, 200 and 350 questions, at 13, 39, 81, 169 and 300 ropes or fewer. About 2.5% of perfectly judged players would ever be told their loops look tight.
 
 Reproduce with `node tools/simulate.mjs` and `node tools/proof.mjs`. The same checks run in `test/unit/simulation.test.js`.

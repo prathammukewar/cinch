@@ -7,8 +7,11 @@ const load = () => {
   if (!loading) loading = import('./synth.js').then((m) => { synth = m.synth; });
   return loading;
 };
-const buzz = (p) => { try { if (store.get('haptics') !== false) navigator.vibrate?.(p); } catch { /* not supported */ } };
-const VIBRATE = { grab: 6, lock: 12, thunk: 24, twang: [14, 30, 22], slip: 30 };
+const buzz = (p) => {
+  // Vibration only after the player has touched the page, and never from the welcome animation.
+  try { if (store.get('haptics') !== false && navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.(p); } catch { /* not supported */ }
+};
+const VIBRATE = { grab: 5, lock: 10, thunk: 18, twang: [10, 30, 16], slip: 20 };
 
 export const sound = new Proxy({}, {
   get(_, name) {

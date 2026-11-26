@@ -1,5 +1,5 @@
 // Statistics used on the result and dashboard screens.
-import { PERFECT, MISS, rng, wilson } from './score.js';
+import { pointsAt, rng, wilson } from './score.js';
 
 /** Inverse of the normal CDF (Acklam's rational approximation). */
 export function probit(p) {
@@ -33,8 +33,9 @@ export function calibratedTotals(widths, { runs = 4000, seed = 1 } = {}) {
     for (const w of widths) {
       const half = w / 2;
       const z = Math.abs(probit(Math.min(1 - 1e-9, Math.max(1e-9, rand()))));
-      const gap = z > z90 ? Math.min(1, half * (z / z90 - 1)) : 0;
-      sum += Math.round(PERFECT - PERFECT * (w + MISS * gap));
+      // Answer position relative to a range centred on 0.5.
+      const x = 0.5 + Math.sign(probit(rand()) || 1) * half * (z / z90);
+      sum += Math.round(pointsAt(0.5 - half, 0.5 + half, x));
     }
     totals.push(sum);
   }

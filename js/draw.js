@@ -1,4 +1,4 @@
-// Shared drawing: the palette, the rubber band, the pegs, the pin and the ruler.
+// Shared drawing for the ranch: the fence rail, the posts, the lasso and the horseshoe.
 import { clamp, lerp } from './spring.js';
 
 export function palette(el = document.documentElement) {
@@ -8,7 +8,7 @@ export function palette(el = document.documentElement) {
     paper: g('--paper'), ink: g('--ink'), mute: g('--mute'), line: g('--line'),
     band: g('--band'), bandDark: g('--band-dark'), bandLite: g('--band-lite'),
     pin: g('--pin'), pinDark: g('--pin-dark'), steel1: g('--steel-1'), steel2: g('--steel-2'), steelInk: g('--steel-ink'),
-    peg: g('--peg'), pegLite: g('--peg-lite'), shade: g('--shade'),
+    peg: g('--peg'), pegLite: g('--peg-lite'), shade: g('--shade'), card: g('--card'),
   };
 }
 
@@ -55,7 +55,7 @@ export function bandPath(ctx, { xl, xr, yl, yr, sag, modes, back, r, sway = 0 })
   ctx.closePath();
 }
 
-/** Stroke the current path as rubber: dark edge, body, highlight. */
+/** Stroke the current path as twisted rope: dark edge, body, twist marks, sheen. */
 export function strokeRubber(ctx, pal, width) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -66,105 +66,133 @@ export function strokeRubber(ctx, pal, width) {
   ctx.lineWidth = width;
   ctx.stroke();
   ctx.save();
-  ctx.translate(0, -width * 0.2);
+  ctx.setLineDash([width * 0.7, width * 0.9]);
+  ctx.lineCap = 'butt';
+  ctx.strokeStyle = pal.bandDark;
+  ctx.globalAlpha *= 0.45;
+  ctx.lineWidth = width * 0.75;
+  ctx.stroke();
+  ctx.restore();
+  ctx.save();
+  ctx.translate(0, -width * 0.22);
   ctx.strokeStyle = pal.bandLite;
-  ctx.lineWidth = Math.max(1, width * 0.18);
-  ctx.globalAlpha *= 0.75;
+  ctx.lineWidth = Math.max(1, width * 0.16);
+  ctx.globalAlpha *= 0.6;
   ctx.stroke();
   ctx.restore();
 }
 
-/** A ball-headed pin or peg. (x, y) is the tip, the head sits `len` above it. */
-export function drawPin(ctx, { x, y, len, r, color, dark, lite, lean = 0, needle, squash = 0, alpha = 1 }) {
+/**
+ * The horseshoe. (x, y) is where it rests; it stands open end down, about 2.5r tall.
+ * len is kept for callers that measure from the tip and is not needed here.
+ */
+export function drawPin(ctx, { x, y, r, color, dark, lite, lean = 0, alpha = 1 }) {
+  const H = r * 2.5;
+  const W = r * 2.3;
+  const t = r * 0.62;
+  const cy = -H + W / 2;
+  const shoe = () => {
+    ctx.beginPath();
+    ctx.moveTo(-W / 2, 0);
+    ctx.lineTo(-W / 2, cy);
+    ctx.arc(0, cy, W / 2, Math.PI, 0);
+    ctx.lineTo(W / 2, 0);
+    ctx.lineTo(W / 2 - t, 0);
+    ctx.lineTo(W / 2 - t, cy);
+    ctx.arc(0, cy, W / 2 - t, 0, Math.PI, true);
+    ctx.lineTo(-W / 2 + t, 0);
+    ctx.closePath();
+  };
   ctx.save();
   ctx.globalAlpha *= alpha;
   ctx.translate(x, y);
   ctx.rotate(lean);
-  ctx.strokeStyle = needle;
-  ctx.lineWidth = 2.4;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(0, -len + r * 0.4);
-  ctx.stroke();
-  ctx.translate(0, -len);
-  ctx.scale(1 + squash * 0.2, 1 - squash * 0.2);
+  ctx.save(); ctx.translate(1.2, 1.6); shoe(); ctx.fillStyle = dark; ctx.fill(); ctx.restore();
+  shoe(); ctx.fillStyle = color; ctx.fill();
+  ctx.strokeStyle = lite; ctx.globalAlpha *= 0.7; ctx.lineWidth = Math.max(1, r * 0.14);
+  ctx.beginPath(); ctx.arc(0, cy, W / 2 - t * 0.35, Math.PI * 1.15, Math.PI * 1.55); ctx.stroke();
+  ctx.globalAlpha /= 0.7;
   ctx.fillStyle = dark;
-  ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(-r * 0.06, -r * 0.1, r * 0.9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = lite;
-  ctx.beginPath();
-  ctx.ellipse(-r * 0.36, -r * 0.42, r * 0.26, r * 0.17, -0.7, 0, Math.PI * 2);
-  ctx.fill();
+  for (const k of [-0.9, -0.55, 0.55, 0.9]) {
+    const ang = -Math.PI / 2 + k;
+    const rr = W / 2 - t / 2;
+    ctx.beginPath(); ctx.arc(Math.cos(ang) * rr, cy + Math.sin(ang) * rr, Math.max(0.8, r * 0.1), 0, Math.PI * 2); ctx.fill();
+  }
   ctx.restore();
 }
 
-/** A clamp-style peg: needle with a ribbed grip on top. (x, y) is the tip. */
+/** A fence post: a wooden pole with a capped top you grab. (x, y) is its foot. */
 export function drawPeg(ctx, { x, y, len, w, h, pal, lean = 0, squash = 0 }) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(lean);
-  ctx.strokeStyle = pal.peg;
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'butt';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(0, -len + h * 0.3);
-  ctx.stroke();
+  const pole = Math.max(5, w * 0.34);
+  ctx.fillStyle = pal.shade;
+  ctx.fillRect(-pole / 2 + 1.5, -len + h * 0.3, pole, len - h * 0.3);
+  ctx.fillStyle = pal.peg;
+  ctx.fillRect(-pole / 2, -len + h * 0.3, pole, len - h * 0.3);
   ctx.translate(0, -len);
   ctx.scale(1 + squash * 0.12, 1 - squash * 0.1);
+  ctx.fillStyle = pal.shade;
+  ctx.beginPath(); ctx.roundRect(-w / 2 + 1.5, -h / 2 + 2, w, h, [w * 0.5, w * 0.5, 4, 4]); ctx.fill();
   ctx.fillStyle = pal.peg;
+  ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2, w, h, [w * 0.5, w * 0.5, 4, 4]); ctx.fill();
+  ctx.strokeStyle = pal.pegLite;
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.roundRect(-w / 2, -h / 2, w, h, 6);
-  ctx.fill();
-  ctx.strokeStyle = pal.paper;
-  ctx.globalAlpha *= 0.5;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  for (const k of [-1, 0, 1]) { ctx.moveTo(k * w * 0.2, -h * 0.24); ctx.lineTo(k * w * 0.2, h * 0.24); }
+  ctx.moveTo(-w * 0.18, -h * 0.28); ctx.quadraticCurveTo(-w * 0.05, 0, -w * 0.2, h * 0.36);
+  ctx.moveTo(w * 0.16, -h * 0.2); ctx.quadraticCurveTo(w * 0.28, h * 0.05, w * 0.14, h * 0.38);
   ctx.stroke();
   ctx.restore();
 }
 
 export function drawRuler(ctx, pal, { w, top, h, pad, marks }) {
+  // A split-rail fence rail: warm wood, grain, carved notches, burned numbers.
   const g = ctx.createLinearGradient(0, top, 0, top + h);
   g.addColorStop(0, pal.steel1);
   g.addColorStop(1, pal.steel2);
   ctx.fillStyle = pal.shade;
-  ctx.fillRect(0, top + h, w, 3);
+  ctx.fillRect(0, top + h, w, 4);
   ctx.fillStyle = g;
   ctx.fillRect(0, top, w, h);
-  ctx.fillStyle = pal.steelInk;
-  ctx.globalAlpha = 0.55;
-  ctx.fillRect(0, top, w, 1);
-  ctx.globalAlpha = 1;
+  ctx.save();
+  ctx.strokeStyle = pal.steelInk;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const y0 = top + h * (0.58 + i * 0.1);
+    ctx.globalAlpha = 0.08;
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 24) ctx.lineTo(x, y0 + Math.sin(x / (57 + i * 13) + i) * 2.2);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = pal.peg;
+  ctx.fillRect(0, top, w, 2);
+  ctx.restore();
   const inner = w - pad * 2;
-  const lens = [30, 20, 14, 8];
+  const lens = [26, 18, 12, 7];
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   let lastRight = -Infinity;
   ctx.font = `600 ${w > 620 ? 15 : 13}px ${TEXT}`;
   for (const m of marks) {
     const x = Math.round(pad + m.t * inner) + 0.5;
+    const a = m.level === 0 ? 0.95 : m.level === 1 ? 0.8 : m.level === 2 ? 0.6 : 0.4;
+    ctx.globalAlpha = a * 0.6;
+    ctx.strokeStyle = pal.pegLite;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x + 1, top + 2); ctx.lineTo(x + 1, top + 2 + lens[m.level]); ctx.stroke();
+    ctx.globalAlpha = a;
     ctx.strokeStyle = pal.steelInk;
-    ctx.globalAlpha = m.level === 0 ? 1 : m.level === 1 ? 0.85 : m.level === 2 ? 0.6 : 0.4;
-    ctx.lineWidth = m.level === 0 ? 1.6 : 1;
-    ctx.beginPath();
-    ctx.moveTo(x, top + 1);
-    ctx.lineTo(x, top + 1 + lens[m.level]);
-    ctx.stroke();
+    ctx.lineWidth = m.level === 0 ? 2 : 1.2;
+    ctx.beginPath(); ctx.moveTo(x, top + 2); ctx.lineTo(x, top + 2 + lens[m.level]); ctx.stroke();
     if (m.label) {
       const tw = ctx.measureText(m.label).width;
       const cx = clamp(x, tw / 2 + 5, w - tw / 2 - 5);
       if (cx - tw / 2 > lastRight + 9) {
-        ctx.globalAlpha = m.level === 0 ? 1 : 0.7;
+        ctx.globalAlpha = m.level === 0 ? 1 : 0.75;
         ctx.fillStyle = pal.steelInk;
-        ctx.fillText(m.label, cx, top + 50);
+        ctx.fillText(m.label, cx, top + 47);
         lastRight = cx + tw / 2;
       }
     }
@@ -172,7 +200,7 @@ export function drawRuler(ctx, pal, { w, top, h, pad, marks }) {
   }
 }
 
-/** Engineering dimension line with arrowheads. */
+/** A measuring line with arrowheads, for how far a miss was. */
 export function dimension(ctx, x1, x2, y, color, reach = 10) {
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
@@ -194,7 +222,7 @@ export function dimension(ctx, x1, x2, y, color, reach = 10) {
 }
 
 /** Small tag with a pointer, used for peg values and the answer. */
-export function tag(ctx, text, x, y, { fill, ink, font, w, align = 'center', padX = 8, h = 26, pointer = true }) {
+export function tag(ctx, text, x, y, { fill, ink, font, w, align = 'center', padX = 8, h = 26, pointer = true, border }) {
   ctx.font = font;
   const tw = ctx.measureText(text).width + padX * 2;
   let left = align === 'center' ? x - tw / 2 : align === 'right' ? x - tw + 12 : x - 12;
@@ -207,9 +235,39 @@ export function tag(ctx, text, x, y, { fill, ink, font, w, align = 'center', pad
     ctx.moveTo(px - 5, y); ctx.lineTo(px, y + 6); ctx.lineTo(px + 5, y);
   }
   ctx.fill();
+  if (border) { ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.stroke(); }
   ctx.fillStyle = ink;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(text, left + padX, y - h / 2 + 1);
   return { left, right: left + tw };
+}
+
+/** Colour with transparency, from a #rrggbb token. */
+export function tint(hex, a) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+/**
+ * The points you would get, painted on the ruler: solid across your range, fading to
+ * nothing half a range-width outside it (the same curve the score uses).
+ */
+export function pointsBand(ctx, pal, xl, xr, top, h, strength, fade = 0.5) {
+  const reach = Math.max(0.5, fade * (xr - xl));
+  const a = xl - reach;
+  const b = xr + reach;
+  const span = b - a || 1;
+  const g = ctx.createLinearGradient(a, 0, b, 0);
+  for (const f of [0, 0.25, 0.5, 0.75]) {
+    const alpha = strength * f * f;
+    g.addColorStop(((1 - f) * reach) / span * 0 + (f * reach) / span, tint(pal.band, alpha));
+    g.addColorStop(1 - (f * reach) / span, tint(pal.band, alpha));
+  }
+  g.addColorStop(reach / span, tint(pal.band, strength));
+  g.addColorStop(1 - reach / span, tint(pal.band, strength));
+  ctx.fillStyle = g;
+  ctx.fillRect(a, top, b - a, h);
+  ctx.fillStyle = tint(pal.band, Math.min(1, strength * 2.4));
+  ctx.fillRect(xl, top, xr - xl, 3);
 }

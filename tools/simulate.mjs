@@ -1,7 +1,7 @@
 // Strategy simulation. Each simulated player has real but uncertain knowledge:
 // a normal belief on the ruler, cut to the ruler's ends. Every strategy turns
 // the same belief into a range, and all are scored on the same questions.
-import { intervalScore, rng, PERFECT } from '../js/score.js';
+import { pointsAt, rng } from '../js/score.js';
 import { probit } from '../js/stats.js';
 
 const erf = (x) => { // Abramowitz and Stegun 7.1.26
@@ -35,7 +35,7 @@ export const STRATEGIES = {
 export function simulate({ questions = 200000, seed = 7, sdRange = [0.03, 0.2], perDay = 7, strategies = STRATEGIES, scoreFn } = {}) {
   const world = rng(seed);
   const noise = rng(seed + 1);
-  const score = scoreFn || ((l, u, x) => PERFECT - PERFECT * intervalScore(l, u, x));
+  const score = scoreFn || pointsAt;
   const names = Object.keys(strategies);
   const out = Object.fromEntries(names.map((n) => [n, { sum: 0, sq: 0, hits: 0, width: 0, days: [], day: 0 }]));
   for (let i = 0; i < questions; i++) {
@@ -75,10 +75,10 @@ export function simulate({ questions = 200000, seed = 7, sdRange = [0.03, 0.2], 
 }
 
 /** Best claimed coverage under a squeezed score, found on a grid. */
-export function bestCoverage(transform, { sd = 0.1, questions = 60000, seed = 3 } = {}) {
+export function bestCoverage(transform, { sd = 0.1, questions = 60000, seed = 3, scoreFn = pointsAt } = {}) {
   const grid = [0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99];
   const strategies = Object.fromEntries(grid.map((c) => [String(c), middle(c)]));
-  const rows = simulate({ questions, seed, sdRange: [sd, sd * 1.0001], strategies, scoreFn: (l, u, x) => transform(PERFECT - PERFECT * intervalScore(l, u, x)) });
+  const rows = simulate({ questions, seed, sdRange: [sd, sd * 1.0001], strategies, scoreFn: (l, u, x) => transform(scoreFn(l, u, x)) });
   const best = rows.reduce((m, r) => (r.mean > m.mean ? r : m));
   const honest = rows[grid.indexOf(0.9)];
   return { best: Number(best.name), bestMean: best.mean, honestMean: honest.mean, gain: best.mean - honest.mean };

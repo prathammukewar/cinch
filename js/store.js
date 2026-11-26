@@ -2,19 +2,23 @@
 // and old shapes are upgraded on load, never thrown away.
 import { STORE_KEY } from './config.js';
 
-const VERSION = 1;
+const VERSION = 2;
 const fresh = () => ({
   v: VERSION,
-  settings: { sound: false, haptics: true, theme: 'auto' },
+  settings: { sound: true, haptics: true, theme: 'auto' },
   days: {},     // day number -> { key, live, rows: [...], at }
   open: null,   // today's unfinished round
-  practice: { rows: [], seen: {} },
+  practice: { rows: [], seen: {}, sets: [] },
+  duels: {},
   quant: { runs: [] },
   seenIntro: false,
 });
 
 // Upgrades by version number. Each returns the next shape.
-const upgrades = {};
+const upgrades = {
+  // Sound became on by default. Keep it off only for players who turned it off themselves.
+  1: (d) => ({ ...d, v: 2, settings: { ...d.settings, sound: d.settings?.soundChosen ? d.settings.sound : true } }),
+};
 
 let data = null;
 let memoryOnly = false;
@@ -61,7 +65,7 @@ function save() {
 
 export const store = {
   get(name) { return load().settings[name]; },
-  set(name, value) { load().settings[name] = value; save(); },
+  set(name, value) { const s = load().settings; s[name] = value; if (name === 'sound') s.soundChosen = true; save(); },
   data() { return load(); },
   change(fn) { fn(load()); save(); },
   onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
@@ -101,6 +105,9 @@ export function importSave(text) {
   const runs = new Set(cur.quant.runs.map((r) => r.at));
   for (const r of incoming.quant.runs || []) if (r && !runs.has(r.at)) cur.quant.runs.push(r);
   cur.quant.runs.sort((a, b) => a.at - b.at);
+  const sets = new Set((cur.practice.sets || []).map((r) => r.at));
+  cur.practice.sets = (cur.practice.sets || []).concat((incoming.practice.sets || []).filter((r) => r && !sets.has(r.at)));
+  cur.duels = { ...incoming.duels, ...cur.duels };
   if (!cur.open && incoming.open) cur.open = incoming.open;
   save();
   return { days: added };

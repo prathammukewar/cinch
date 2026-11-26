@@ -21,19 +21,17 @@ const getCurrent = () => ctx.getCurrent();
 const getToday = () => ctx.today();
 
 export async function showQuant() {
-  const pool = await practicePool(getToday());
+  const pool = await practicePool();
   const start = () => {
     getCurrent()?.destroy?.();
-    const pick = picker(pool);
-    const qs = Array.from({ length: QUANT_LENGTH }, pick);
-    const used = new Set();
-    const list = qs.filter((q) => !used.has(q.id) && used.add(q.id));
+    const list = ctx.pickSet(pool, QUANT_LENGTH);
     paintPips([], QUANT_LENGTH);
     setCurrent(new Round(main, {
       length: list.length,
       seconds: QUANT_SECONDS,
       next: (i) => list[i] || null,
-      label: (i) => `Quant mode, ${i + 1} of ${list.length}`,
+      label: (i) => `Quick Draw, ${i + 1} of ${list.length}`,
+      lastText: 'See your Quick Draw',
       onRow: (row, q) => store.change((d) => { d.practice.seen[q.id] = (d.practice.seen[q.id] || 0) + 1; }),
       onEnd: async (rows) => {
         await ctx.kit();
@@ -41,8 +39,8 @@ export async function showQuant() {
         getCurrent()?.destroy?.();
         const best = Math.max(...store.data().quant.runs.map((r) => r.points));
         const view = resultView({
-          rows, questions: list, instant: false, heading: 'Quant mode', of: list.length * 100, shareTitle: 'quant mode',
-          third: () => ['Best run', signed(best)], extras: [], restart: start,
+          rows, questions: list, instant: false, heading: 'Quick Draw', of: list.length * 100, shareTitle: 'Quick Draw',
+          third: () => ['Best draw', signed(best)], extras: [h('a', { class: 'go quiet', href: '#home' }, 'Home')], restart: start, restartText: 'Draw again',
         });
         main.replaceChildren(view.el);
         setCurrent(view);
@@ -52,10 +50,10 @@ export async function showQuant() {
   };
   const runs = store.data().quant.runs;
   main.replaceChildren(h('div', { class: 'page' },
-    h('h1', {}, 'Quant mode'),
-    h('p', { class: 'lede' }, `Ten questions, ${QUANT_SECONDS} seconds each. When the clock runs out the band drops where it is. Interviewers at trading firms ask for ranges like this, out loud and against the clock.`),
-    runs.length ? h('dl', { class: 'statline' }, h('div', {}, h('dt', {}, 'Runs'), h('dd', { class: 'num' }, String(runs.length))), h('div', {}, h('dt', {}, 'Best'), h('dd', { class: 'num' }, signed(Math.max(...runs.map((r) => r.points))))), h('div', {}, h('dt', {}, 'Caught'), h('dd', { class: 'num' }, `${Math.round(100 * rate(runs.flatMap((r) => r.rows)))}%`))) : null,
-    h('p', { style: 'margin-top:28px' }, h('button', { class: 'go', type: 'button', id: 'start-quant', onclick: start }, 'Start the clock'))));
+    h('h1', {}, 'Quick Draw'),
+    h('p', { class: 'lede' }, `Ten questions, ${QUANT_SECONDS} seconds each. When the fuse burns out, your loop is pitched wherever it is. Fast hands, honest loops.`),
+    runs.length ? h('dl', { class: 'statline' }, h('div', {}, h('dt', {}, 'Draws'), h('dd', { class: 'num' }, String(runs.length))), h('div', {}, h('dt', {}, 'Best'), h('dd', { class: 'num' }, signed(Math.max(...runs.map((r) => r.points))))), h('div', {}, h('dt', {}, 'Roped'), h('dd', { class: 'num' }, `${Math.round(100 * rate(runs.flatMap((r) => r.rows)))}%`))) : null,
+    h('p', { style: 'margin-top:28px' }, h('button', { class: 'go', type: 'button', id: 'start-quant', onclick: start }, 'Light the fuse'))));
 }
 const rate = (rows) => (rows.length ? rows.filter((r) => r.hit).length / rows.length : 0);
 
@@ -71,8 +69,8 @@ export async function showArchive() {
       h('span', {}, n === today ? 'Today' : longDate(keyOf(n)), ' ', rec ? h('span', { class: 'dots', 'aria-label': `${rec.rows.filter((r) => r.hit).length} of ${rec.rows.length} caught` }, rec.rows.map((r) => h('i', { class: kindOf(r) }))) : null),
       rec ? h('span', { class: 's num' }, signed(total(rec.rows))) : h('span', { class: 's none' }, d.open?.[n] ? 'resume' : 'play'))));
   }
-  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Past days'),
-    h('p', { class: 'lede' }, 'Catching up on a past day counts toward your calibration. Only days played on the day itself count toward the streak.'),
+  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Old Trails'),
+    h('p', { class: 'lede' }, 'Every earlier Roundup. Riding an old trail counts in your Brand Book, but only days played on the day keep you on the trail.'),
     h('ul', { class: 'list' }, items),
     idx.days < getToday() ? h('p', { class: 'fine', style: 'margin-top:20px' }, 'Planned days have run out, so older questions are coming round again in a new order.') : null));
 }
@@ -81,9 +79,9 @@ export function showCalibration() {
   const rows = allRows();
   const live = liveDays();
   const s = streaks(live, getToday());
-  const page = h('div', { class: 'page' }, h('h1', {}, 'Your calibration'));
+  const page = h('div', { class: 'page' }, h('h1', {}, 'Brand Book'), h('p', { class: 'lede' }, 'How true your loops run. A 90% loop should rope the answer nine times in ten.'));
   if (!rows.length) {
-    page.append(h('p', { class: 'lede' }, 'Nothing to measure yet. Play today’s seven and the first numbers appear here.'), h('p', { style: 'margin-top:24px' }, h('a', { class: 'go', href: '#today' }, 'Play today')));
+    page.append(h('p', { class: 'lede' }, 'Nothing in the book yet. Ride today\u2019s Roundup and your first marks appear here.'), h('p', { style: 'margin-top:24px' }, h('a', { class: 'go', href: '#today' }, 'Saddle up')));
     main.replaceChildren(page);
     return;
   }
@@ -92,23 +90,23 @@ export function showCalibration() {
   page.append(
     h('p', {}, verdictText(verdict(rows))),
     h('dl', { class: 'statline' },
-      stat('Caught', `${Math.round(w.p * 100)}%`), stat('95% band', `${Math.round(w.lo * 100)} to ${Math.round(w.hi * 100)}%`), stat('Questions', String(rows.length)),
+      stat('Roped', `${Math.round(w.p * 100)}%`), stat('True rate, likely', `${Math.round(w.lo * 100)} to ${Math.round(w.hi * 100)}%`), stat('Questions', String(rows.length)),
       days.length ? stat('Average day', signed(Math.round(days.reduce((a, b) => a + b, 0) / days.length))) : null,
-      stat('Streak', `${s.current}`), stat('Best streak', `${s.best}`)),
-    h('h2', {}, 'Catch rate over time'));
+      stat('On the trail', `${s.current}`), stat('Longest trail', `${s.best}`)),
+    h('h2', {}, 'Roped over time'));
   const rc = rateChart(rows);
   page.append(rc ? h('figure', { html: rc }) : h('p', { class: 'fine' }, 'This chart starts at 11 questions.'));
-  if (rc) page.lastChild.append(h('figcaption', {}, 'Share caught over your last 50 questions. The shaded part is where luck alone could have put it.'));
-  page.append(h('h2', {}, 'Calibration curve'));
+  if (rc) page.lastChild.append(h('figcaption', {}, 'Share of answers roped over your last 50 questions. The shaded part is where luck alone could have put it.'));
+  page.append(h('h2', {}, 'How true your loops run'));
   const cc = curveChart(rows);
   if (cc) {
     page.append(h('figure', { html: cc }));
-    page.lastChild.append(h('figcaption', {}, `Each range is read as the middle 90% of a bell curve on the ruler, so narrower slices of it can be checked too. On the dashed line, claims match results. With ${rows.length} questions the band at 90% is about ${bandAt(rows.length)} points either side.`));
+    page.lastChild.append(h('figcaption', {}, `Each loop is read as the middle 90% of a bell curve on the rail, so narrower slices of it can be checked too. On the dashed line, your loops are exactly as sure as they should be. With ${rows.length} questions the shading at 90% is about ${bandAt(rows.length)} points either side.`));
   } else {
-    page.append(h('p', { class: 'fine' }, `The curve appears at ${CURVE_MIN} questions. You have ${rows.length}. At ${CURVE_MIN} the band is still about ${bandAt(CURVE_MIN)} points either side, and at 100 about ${bandAt(100)}.`));
+    page.append(h('p', { class: 'fine' }, `This chart appears at ${CURVE_MIN} questions. You have ${rows.length}. At ${CURVE_MIN} it is still about ${bandAt(CURVE_MIN)} points either side, and at 100 about ${bandAt(100)}.`));
   }
   const cats = byCategory(rows);
-  page.append(h('h2', {}, 'By category'));
+  page.append(h('h2', {}, 'By trail'));
   const known = cats.filter((c) => c.enough);
   if (known.length >= 2) page.append(h('p', { class: 'fine' }, `Best so far is ${known[0].cat.toLowerCase()} at ${plus(Math.round(known[0].mean))} a question, and the costliest is ${known[known.length - 1].cat.toLowerCase()} at ${plus(Math.round(known[known.length - 1].mean))}. The mark on each bar is 90%.`));
   else page.append(h('p', { class: 'fine' }, 'Best and worst appear once two categories have six questions each. The mark on each bar is 90%.'));
@@ -121,7 +119,7 @@ export async function showSources() {
   const list = await fetch('data/credits.json').then((r) => r.json()).catch(() => []);
   main.replaceChildren(h('div', { class: 'page' },
     h('h1', {}, 'Sources'),
-    h('p', { class: 'lede' }, 'Every answer comes from a source you can open, linked under the answer. Each number was read from the source by a script, then fetched and read a second time before it went in.'),
+    h('p', { class: 'lede' }, 'Every answer comes from a source you can open, linked under the answer. Each number was read from its source, then fetched and read a second time before it went in.'),
     h('ul', { class: 'credits' }, list.map((c) => h('li', {}, h('span', {}, c.name), h('span', { class: 'fine' }, `${c.licence}, ${c.n} ${c.n === 1 ? 'question' : 'questions'}`)))),
     h('h2', {}, 'Notices'),
     h('p', {}, 'The information used here was obtained free of charge from and is copyrighted by Retrosheet. Interested parties may contact Retrosheet at "', h('a', { href: 'https://www.retrosheet.org' }, 'www.retrosheet.org'), '".'),
@@ -132,28 +130,29 @@ export async function showSources() {
 }
 
 export function showScoring() {
-  const rows = window.PROOF || [];
   main.replaceChildren(h('div', { class: 'page' },
-    h('h1', {}, 'How scoring works'),
-    h('p', {}, 'Every question starts at 100 points. You lose 1 point for each 1% of the ruler your range covers. If the answer falls outside, you lose 20 more for each 1% it misses by.'),
-    h('p', {}, 'So a tight catch is worth close to 100, the whole ruler is worth 0, and a confident miss costs you. There is no cap and no floor, because either one would reward gambling.'),
-    h('h2', {}, 'Why honest ranges win'),
-    h('p', {}, 'Tightening one end by 1% of the ruler always earns 1 point. It costs 20 times the gap when the answer turns out to lie past that end. That trade is worth making only while you are at least 95% sure the answer is not beyond that end. Do it on both sides and you are left with a 90% range.'),
-    h('p', {}, 'Statisticians call this the interval score, written up by Gneiting and Raftery in 2007 and by Winkler before them. Wide-ranging numbers use a ruler where each step multiplies, so being off by a factor of two costs the same at any size.'),
+    h('h1', {}, 'Ranch rules'),
+    h('p', { class: 'lede' }, 'Seven numbers a day. For each one, set a loop on the rail that you are 90% sure will rope the answer. Then the horseshoe is pitched.'),
+    h('h2', {}, 'Points'),
+    h('p', {}, 'If the horseshoe lands inside your loop, you score 100 minus the share of the rail the loop covers. A loop over a tenth of the rail is worth 90. A loop over the whole rail is worth 0.'),
+    h('p', {}, 'Just outside the loop the points fade away, reaching nothing once the shoe is half a loop\u2019s width beyond the edge. A tight loop is worth more, and its points fade faster. You can never score below zero. The glow on the rail shows all of this while you set your loop.'),
+    h('h2', {}, 'Hints'),
+    h('p', {}, 'Fence in shortens the rail to the stretch that holds the answer. Once keeps 75% of the points, twice keeps 50%. Scout marks known numbers of the same kind on the rail and keeps 85%. Hints never change your Brand Book record of how often your loops hold the answer.'),
+    h('h2', {}, 'Honest loops'),
+    h('p', {}, 'The goal is a loop that ropes the answer nine times in ten. On questions you know something about, that is also close to the best-scoring loop. On questions you are very unsure of, a slightly tighter loop pays a little more on average, because points cannot go below zero. The Brand Book keeps you honest: it tracks how often your 90% loops really hold the answer.'),
     h('div', { id: 'proof' }),
     h('h2', {}, 'About luck'),
-    h('p', {}, 'A perfectly calibrated player still misses one question in ten. They catch all seven on 48% of days, six on 37%, five on 12%, and fewer on 3%. One day tells you almost nothing. After 100 questions your catch rate is known to about 6 points either side, and after 220 to about 4.'),
-    h('p', {}, 'That is why the dashboard only makes a call at 20, 50, 100, 200 and 350 questions. Checked that way, about 1 perfectly calibrated player in 40 is ever told their ranges look narrow.'),
-    h('h2', {}, 'The ruler'),
-    h('p', {}, 'Each ruler is long enough to leave real doubt, and the answer is placed on it at random, so the middle is no more likely than anywhere else.'),
+    h('p', {}, 'A perfectly judged 90% loop still misses one time in ten. It ropes all seven on 48% of days, six on 37%, five on 12%, and fewer on 3%. After 100 questions your rate is known to about 6 points either side, and after 220 to about 4. The Brand Book only makes a call at 20, 50, 100, 200 and 350 questions.'),
+    h('h2', {}, 'The rail'),
+    h('p', {}, 'Each rail is long enough to leave real doubt, and the answer sits on it at random, so the middle is no hint. Rails for numbers of every size step up by multiples, so being off by a factor of two looks the same at any size.'),
     h('h2', {}, 'Where the numbers come from'),
-    h('p', {}, 'Every question links to its source. Answers were checked against that source when the question was written, and the date is shown when a number can change. If one looks wrong, please report it.'),
+    h('p', {}, 'Every answer links to its source and was read from it twice. If one looks wrong, ', h('a', { href: 'https://github.com/prathammukewar/cinch/issues/new?title=Wrong%20number', target: '_blank', rel: 'noopener noreferrer' }, 'report it here'), '.'),
     h('p', { class: 'foot' }, 'Made by Pratham Mukewar.')));
   fetch('data/proof.json').then((r) => r.json()).then((p) => {
     $('proof')?.replaceChildren(
-      h('p', { style: 'margin-top:14px' }, `The same simulated player, the same ${p.questions.toLocaleString('en-US')} questions, different habits:`),
+      h('p', { style: 'margin-top:14px' }, `The same simulated player on ${p.questions.toLocaleString('en-US')} questions, with different habits:`),
       h('table', { class: 'maths' },
-        h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, 'Habit'), h('th', { scope: 'col' }, 'Caught'), h('th', { scope: 'col' }, 'Points a day'))),
+        h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, 'Habit'), h('th', { scope: 'col' }, 'Roped'), h('th', { scope: 'col' }, 'Points a day'))),
         h('tbody', {}, p.rows.map((r, i) => h('tr', { class: i === 0 ? 'us' : '' }, h('td', {}, r.name), h('td', {}, `${Math.round(r.hitRate * 100)}%`), h('td', {}, signed(Math.round(r.perDay))))))));
   }).catch(() => {});
 }
@@ -178,7 +177,7 @@ export function showSettings() {
     const ok = await navigator.storage?.persisted?.().catch(() => null);
     keep.textContent = store.memoryOnly ? 'This browser is blocking storage, so nothing will be kept after you close the page.' : ok ? 'This browser has agreed to keep your data.' : 'This browser may clear your data if you stay away for a long time. A backup file is the safe copy.';
   })();
-  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Settings'),
+  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Saddlebag'), h('p', { class: 'lede' }, 'Settings, and a safe copy of your record.'),
     h('div', { class: 'set' }, h('div', {}, 'Theme'), seg('theme', [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']])),
     h('div', { class: 'set' }, h('div', {}, 'Sound'), seg('sound', [[false, 'Off'], [true, 'On']])),
     h('div', { class: 'set' }, h('div', {}, 'Vibration', h('p', {}, 'On phones that support it')), seg('haptics', [[false, 'Off'], [true, 'On']])),

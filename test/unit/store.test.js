@@ -9,9 +9,11 @@ const { store, exportSave, importSave, upgrade, allRows } = await import('../../
 const { STORE_KEY } = await import('../../js/config.js');
 const rec = (n, live = true) => ({ key: `k${n}`, live, at: n, rows: [{ id: `q${n}`, cat: 'Space', hit: true, l: 0, u: 1, x: 0.5, width: 1, points: 0, at: n }] });
 
-test('a fresh save has sound off', () => {
+test('a fresh save has sound on until the player turns it off', () => {
   store.reset();
-  assert.equal(store.get('sound'), false);
+  assert.equal(store.get('sound'), true);
+  assert.equal(upgrade({ v: 1, settings: { sound: false } }).settings.sound, true);
+  assert.equal(upgrade({ v: 1, settings: { sound: false, soundChosen: true } }).settings.sound, false);
   assert.deepEqual(store.data().days, {});
 });
 
@@ -63,7 +65,7 @@ test('other files are refused and change nothing', () => {
 
 test('old and partial saves are upgraded, newer ones keep their fields', () => {
   assert.deepEqual(upgrade({ days: { 4: rec(4) } }).days[4].rows.length, 1);
-  assert.equal(upgrade({ v: 0 }).settings.sound, false);
+  assert.equal(upgrade({ v: 0 }).settings.sound, true);
   const later = upgrade({ v: 99, days: {}, extra: 1 });
   assert.equal(later.v, 99);
   assert.equal(later.extra, 1);

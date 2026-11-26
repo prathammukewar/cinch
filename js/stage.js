@@ -1,10 +1,11 @@
-// The desk: a steel rule, two pegs, a rubber band and the pin that drops on the answer.
+// The corral: a fence rail, two posts, a lasso, and the horseshoe that lands on the answer.
 import { Spring, clamp, lerp, easeOut, easeIn } from './spring.js';
-import { palette, fit, bandPath, strokeRubber, drawPin, drawPeg, drawRuler, dimension, tag, DISPLAY } from './draw.js';
+import { palette, fit, bandPath, strokeRubber, drawPin, drawPeg, drawRuler, dimension, tag, pointsBand, DISPLAY, TEXT } from './draw.js';
 import { ticks, short, withUnit, friendly, sig } from './format.js';
-import { toUnit, fromUnit } from './score.js';
+import { toUnit, fromUnit, FADE } from './score.js';
 
-const SWEEP = 1.3; // seconds the pin hunts along the rule
+let SWEEP = 1.3; // seconds the shoe hunts along the rail; shorter once the player knows the game
+export function quickerReveals(on) { SWEEP = on ? 0.85 : 1.3; }
 const HOLD = 0.14;
 const FALL = 0.13;
 
@@ -62,8 +63,8 @@ export class Stage {
     this.pegW = big ? 28 : 26;
     this.pegH = big ? 40 : 38;
     this.grip = this.post - this.pegH / 2 - 13; // where the band sits on the peg
-    this.pinLen = clamp(room * 0.34, 62, 96);
-    this.hover = Math.max(this.pinLen + 18, this.top - this.post - this.pegH / 2 - 8);
+    this.pinLen = 32; // horseshoe height
+    this.hover = Math.max(this.pinLen + 30, this.top - this.post - this.pegH / 2 - 18);
     this.marks = this.ruler ? ticks(this.ruler, this.q, w - this.pad * 2) : [];
     this.sag.target = this.sagFor();
     this.wake();
@@ -78,7 +79,12 @@ export class Stage {
 
   setQuestion(q, ruler, start = [0, 1]) {
     this.q = q;
+    this.full = ruler;
     this.ruler = ruler;
+    this.view = [0, 1];
+    this.zoom = null;
+    this.landmarks = [];
+    this.worthNow = null;
     this.phase = 'set';
     this.flyer = null; this.close = null; this.result = null; this.pin = null; this.pinSettled = false;
     this.dots = []; this.rings = [];
@@ -89,6 +95,29 @@ export class Stage {
     this.modes[0].kick(this.reduced ? 0 : 260);
     this.wake();
   }
+
+  /** Show only part of the full ruler, a and b as shares of it. Animated as a zoom. */
+  trimTo(a, b) {
+    const from = [...this.view];
+    this.view = [a, b];
+    if (this.reduced) { this.applyView(a, b); return; }
+    this.zoom = { from, to: [a, b], t: 0 };
+    this.wake();
+  }
+
+  applyView(a, b) {
+    const f = this.full;
+    const sub = { min: fromUnit(a, f), max: fromUnit(b, f), scale: f.scale };
+    this.ruler = sub;
+    this.marks = ticks(sub, this.q, this.w - this.pad * 2);
+    this.t = this.values.map((v) => toUnit(Math.min(sub.max, Math.max(sub.min, v)), sub));
+    if (this.t[1] - this.t[0] < 0.004) this.t = [Math.max(0, this.t[0] - 0.01), Math.min(1, this.t[1] + 0.01)];
+    this.values = this.t.map((t, i) => (this.values[i] >= sub.min && this.values[i] <= sub.max ? this.values[i] : this.valueAt(t)));
+    this.settle(true);
+  }
+
+  /** Known values of the same kind, drawn as small signposts on the rail. */
+  setLandmarks(list) { this.landmarks = list.map((m) => ({ ...m, age: 0 })); this.wake(); }
 
   sagFor() {
     const w = this.t[1] - this.t[0];
@@ -169,7 +198,7 @@ export class Stage {
     this.abort = new AbortController();
     const opt = { signal: this.abort.signal };
     const c = this.canvas;
-    c.style.touchAction = 'none';
+    c.style.touchAction = 'pan-y';
     c.addEventListener('pointerdown', (e) => {
       if (this.phase !== 'set') { this.skip(); return; }
       const p = this.local(e);
@@ -293,12 +322,12 @@ export class Stage {
     this.landClock = 0;
     const r = this.result;
     const x = this.x(r.x);
-    this.pin.x = x; this.pin.y = this.top + 8;
+    this.pin.x = x; this.pin.y = this.top + 1;
     this.pinSettled = true;
     if (!this.reduced) {
       this.pinWobble.kick(5);
       this.quake.kick(90);
-      this.rings.push({ x, y: this.top, age: 0, color: this.pal.pin, size: 46 });
+      this.rings.push({ x, y: this.top, age: 0, color: this.pal.mute, size: 46 });
     }
     this.sound?.thunk();
     if (r.hit) {
@@ -308,8 +337,8 @@ export class Stage {
       this.closeFrom = this.t.map((t) => this.x(t));
       if (!this.reduced) {
         this.modes[0].kick(300); this.modes[1].kick(520 * tight);
-        this.burst(x, this.top - this.grip * 0.5, Math.round(10 + 60 * tight), tight);
-        this.rings.push({ x, y: this.top - this.grip * 0.5, age: -0.06, color: this.pal.band, size: 70 + 190 * tight });
+        this.burst(x, this.top - 18, Math.round(10 + 60 * tight), tight);
+        this.rings.push({ x, y: this.top - 16, age: -0.06, color: this.pal.band, size: 70 + 190 * tight });
       }
       setTimeout(() => this.sound?.twang(tight), this.reduced ? 0 : 70);
     } else {
@@ -381,6 +410,15 @@ export class Stage {
     this.rings = this.rings.filter((r) => r.age < 0.7);
     if (this.dots.length || this.rings.length) busy = true;
 
+    if (this.zoom) {
+      busy = true;
+      const z = this.zoom;
+      z.t = Math.min(1, z.t + dt / 0.55);
+      const e = 1 - Math.pow(1 - z.t, 3);
+      this.applyView(lerp(z.from[0], z.to[0], e), lerp(z.from[1], z.to[1], e));
+      if (z.t >= 1) { this.zoom = null; this.onChange?.(this.values, this.t); }
+    }
+    for (const m of this.landmarks) if (m.age < 1) { m.age = Math.min(1, m.age + dt / 0.4); busy = true; }
     if (this.phase === 'reveal') {
       busy = true;
       this.clock += dt;
@@ -427,7 +465,7 @@ export class Stage {
       p.x = s.xa;
       p.y = this.hover - 9 * easeOut((t - SWEEP) / HOLD);
     } else {
-      p.y = lerp(this.hover - 9, this.top + 8, easeIn((t - SWEEP - HOLD) / FALL));
+      p.y = lerp(this.hover - 9, this.top + 1, easeIn((t - SWEEP - HOLD) / FALL));
     }
   }
 
@@ -440,13 +478,10 @@ export class Stage {
     const xs = this.t.map((t) => this.x(t));
     const after = this.landed && this.phase !== 'set';
 
-    // Covered stretch of the rule
-    if (!after || this.result) {
-      ctx.fillStyle = pal.band;
-      ctx.globalAlpha = after ? 0.14 : 0.2;
-      ctx.fillRect(xs[0], this.top + 1, xs[1] - xs[0], this.rulerH - 1);
-      ctx.globalAlpha = 1;
-    }
+    // What each spot on the rule would score: solid inside the range, fading outside it.
+    const worth = this.worthNow ?? 1 - (this.t[1] - this.t[0]);
+    pointsBand(ctx, pal, xs[0], xs[1], this.top + 1, this.rulerH - 1, (after ? 0.1 : 0.12) + 0.3 * Math.max(0, worth), FADE);
+    this.drawLandmarks();
     for (const r of this.rings) this.drawRing(r);
     if (this.phase === 'reveal' && !this.landed) this.drawPinShadow();
 
@@ -465,6 +500,25 @@ export class Stage {
     if (this.phase === 'set') this.drawTags(xs);
     if (after) this.drawAnswerTag();
     ctx.restore();
+  }
+
+  drawLandmarks() {
+    const { ctx, pal, w } = this;
+    for (const m of this.landmarks) {
+      const { min, max } = this.ruler;
+      if (m.value <= min || m.value >= max) continue;
+      const x = this.x(toUnit(m.value, this.ruler));
+      const e = this.reduced ? 1 : 1 - Math.pow(1 - m.age, 3);
+      ctx.save();
+      ctx.globalAlpha = e;
+      ctx.strokeStyle = pal.mute;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(x, this.top + 2); ctx.lineTo(x, this.top - 22 - 8 * e); ctx.stroke();
+      ctx.setLineDash([]);
+      tag(ctx, `${m.label} ${short2(m.value, this.q)}`, x, this.top - 22 - 8 * e, { fill: pal.card || pal.paper, ink: pal.ink, font: `600 12px ${TEXT}`, w, h: 20, padX: 6, border: pal.line });
+      ctx.restore();
+    }
   }
 
   drawPegs(xs, after) {
@@ -495,7 +549,7 @@ export class Stage {
       const px = this.x(this.result.x);
       xl = lerp(this.closeFrom[0], px - 5, closed);
       xr = lerp(this.closeFrom[1], px + 5, closed);
-      y = lerp(y, this.top - this.grip * 0.42, clamp(closed, 0, 1));
+      y = lerp(y, this.top - 16, clamp(closed, 0, 1));
       sag *= clamp(1 - closed, 0, 1);
       r = lerp(r, 5, clamp(closed, 0, 1));
       if (xr < xl) [xl, xr] = [xr, xl];
@@ -523,8 +577,8 @@ export class Stage {
     ctx.translate(x, this.top);
     ctx.rotate(lean);
     for (let i = 0; i < 3; i++) {
-      const y = -this.grip * 0.42 + (i - 1) * 8 + amp * 3 * (i - 1);
-      const rx = 15 * (1 + amp * (i === 1 ? 1 : -0.6));
+      const y = -16 + (i - 1) * 7 + amp * 3 * (i - 1);
+      const rx = 19 * (1 + amp * (i === 1 ? 1 : -0.6));
       const ry = 6 * (1 - amp * 0.6);
       ctx.beginPath();
       ctx.ellipse(0, y, Math.max(6, rx), Math.max(2, ry), (i - 1) * 0.14 + amp * 0.2, behind ? Math.PI : 0, behind ? Math.PI * 2 : Math.PI);
@@ -546,25 +600,19 @@ export class Stage {
 
   drawAnswerPin() {
     const { ctx, pal } = this;
-    drawPin(ctx, {
-      x: this.x(this.result.x), y: this.top + 8, len: this.pinLen, r: 12, color: pal.pin, dark: pal.pinDark, lite: '#fff',
-      lean: this.pinWobble.v * 0.05, needle: pal.ink,
-    });
+    drawPin(ctx, { x: this.x(this.result.x), y: this.top + 1, r: 13, color: pal.pin, dark: pal.pinDark, lite: '#fff', lean: this.pinWobble.v * 0.05 });
   }
 
   drawHuntingPin() {
     const { ctx, pal } = this;
     this.pin.ghost.forEach(([x, y], i) => {
-      ctx.globalAlpha = 0.16 - i * 0.035;
-      ctx.fillStyle = pal.pin;
-      ctx.beginPath();
-      ctx.arc(x, y - this.pinLen, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      drawPin(ctx, { x, y, r: 13, color: pal.pin, dark: pal.pinDark, lite: '#fff', alpha: 0.14 - i * 0.03 });
     });
     const last = this.pin.ghost[0];
     const vx = last ? this.pin.x - last[0] : 0;
-    drawPin(ctx, { x: this.pin.x, y: this.pin.y, len: this.pinLen, r: 12, color: pal.pin, dark: pal.pinDark, lite: '#fff', lean: clamp(-vx * 0.02, -0.5, 0.5), needle: pal.ink });
+    // The shoe swings as it hunts and turns over once as it falls.
+    const falling = this.clock > SWEEP + HOLD ? (this.clock - SWEEP - HOLD) / FALL : 0;
+    drawPin(ctx, { x: this.pin.x, y: this.pin.y, r: 13, color: pal.pin, dark: pal.pinDark, lite: '#fff', lean: clamp(-vx * 0.03, -0.6, 0.6) + falling * Math.PI * 2 });
   }
 
   drawPinShadow() {
@@ -658,7 +706,7 @@ export class Stage {
     const x = this.x(this.result.x);
     const up = this.reduced ? 1 : easeOut(this.landClock / 0.22);
     ctx.globalAlpha = up;
-    const y = this.top - this.pinLen - 12 - 8 * up;
+    const y = this.top - this.pinLen - 16 - 8 * up;
     tag(ctx, withUnit(this.q.answer, this.q), x, y, { fill: pal.pin, ink: pal.pinInk || '#1b1600', font: this.valueFont(17), w, padX: 10, h: 30 });
     ctx.globalAlpha = 1;
   }

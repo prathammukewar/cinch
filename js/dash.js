@@ -30,11 +30,11 @@ export function verdict(rows) {
 
 export function verdictText(v) {
   if (v.kind === 'early') return `The first check comes at ${v.next} questions. You have answered ${v.n}. Before that, luck drowns out everything else.`;
-  const at = `At ${v.n} questions you had caught ${v.k}.`;
+  const at = `At ${v.n} questions you had roped ${v.k}.`;
   const next = v.next ? ` The next check is at ${v.next}.` : '';
-  if (v.kind === 'narrow') return `${at} A player whose ranges really were 90% would almost never be that low, so your ranges are probably too narrow.${next}`;
-  if (v.kind === 'wide') return `${at} That is more than 90% ranges should catch, so you can probably tighten up.${next}`;
-  return `${at} That fits ranges that really are 90%.${next}`;
+  if (v.kind === 'narrow') return `${at} Loops that really were 90% would almost never rope that few, so yours are probably too tight. Throw them wider.${next}`;
+  if (v.kind === 'wide') return `${at} That is more than 90% loops should rope, so you can probably pull them tighter.${next}`;
+  return `${at} That fits loops that really are 90%.${next}`;
 }
 
 export function byCategory(rows, min = 6) {

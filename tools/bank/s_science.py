@@ -11,7 +11,7 @@ def elements():
     c = lambda n, f="MeltingPoint": float(el[n][f]) - 273.15
     def q(id, name, field, question, unit, conv, expl, d, **k):
         v = conv(float(el[name][field]))
-        add(id, question, v, unit, "Math and science", difficulty=d, url="https://pubchem.ncbi.nlm.nih.gov/periodic-table/", source="PubChem, NIH", licence=PD, evidence=f"PubChem periodic table CSV: {name} {field} = {el[name][field]}", explainer=expl(v) if callable(expl) else expl, check=f"pubchem|{name}|{field}", topic="el-" + field[:4], **k)
+        add(id, question, v, unit, "Math and science", difficulty=d, url="https://pubchem.ncbi.nlm.nih.gov/periodic-table/", source="PubChem, NIH", licence=PD, evidence=f"PubChem periodic table CSV: {name} {field} = {el[name][field]}", explainer=expl(v) if callable(expl) else expl, check=f"pubchem|{name}|{field}", topic="el-" + field[:4], label=name, **k)
     cel = lambda k: round(k - 273.15)
     q("el-tungsten", "Tungsten", "MeltingPoint", "At what temperature does tungsten melt, in degrees Celsius?", "°C", cel, lambda a: f"No other metal holds out longer. Iron gives up at {fmt(c('Iron'),0)}°C.", 2, scale="linear", span=8000, lo=-273)
     q("el-gallium", "Gallium", "MeltingPoint", "At what temperature does the metal gallium melt, in degrees Celsius?", "°C", lambda k: round(k - 273.15, 1), "A spoon made of it would sag in your hand.", 2, scale="linear", span=400, lo=-273)

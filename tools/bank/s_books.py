@@ -46,7 +46,7 @@ def run():
         def one():
             w = words(body(n))
             url = f"https://www.gutenberg.org/ebooks/{n}"
-            add(f"bk-{key}-words", f"How many words long is {title}?", len(w), "words", "Books and art", span=3.6, difficulty=d, url=url, source="Project Gutenberg text, counted here", licence="Public domain in the US", evidence=f"Project Gutenberg {n}, words between the START and END markers, chapter headings included: {len(w)}", explainer=ex, check=f"pg|{n}|words", topic="bk-words", as_of="Counted from the Project Gutenberg edition" + (" in English" if n in (2600, 5200, 135, 996) else ""))
+            add(f"bk-{key}-words", f"How many words long is {title}?", len(w), "words", "Books and art", span=3.6, difficulty=d, url=url, source="Project Gutenberg text, counted here", licence="Public domain in the US", evidence=f"Project Gutenberg {n}, words between the START and END markers, chapter headings included: {len(w)}", explainer=ex, check=f"pg|{n}|words", topic="bk-words", label=title, as_of="Counted from the Project Gutenberg edition" + (" in English" if n in (2600, 5200, 135, 996) else ""))
         attempt(f"bk-{key}", one)
     def count(id, n, title, pat, q, ex, d, unit="times"):
         def one():

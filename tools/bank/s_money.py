@@ -11,13 +11,13 @@ def fed():
     for d, ans_d, ex, df in [("1", "one", "Small bills change hands far more often than big ones.", 1), ("5", "five", "The five and the ten wear out fastest.", 2), ("10", "ten", "It wears out sooner than the one.", 2), ("20", "twenty", "It is the bill most cash machines hand out.", 1), ("50", "fifty", "Many people go months without touching one.", 2), ("100", "hundred", "It is mostly held, not spent, and much of it sits abroad.", 2)]:
         def go():
             v, snip = find(t, rf"\${d}\s+(\d+\.\d+)\s+years")
-            add(f"mo-life-{d}", f"How many years does a US ${d} bill last before it wears out?", v, "years", "Money", span=3, difficulty=df, url=FED, source="Federal Reserve Board", licence=PD, evidence=snip, explainer=ex, as_of="Federal Reserve estimate", check=f"page|\\${d}\\s+(\\d+\\.\\d+)\\s+years", topic="mo-life")
+            add(f"mo-life-{d}", f"How many years does a US ${d} bill last before it wears out?", v, "years", "Money", span=3, difficulty=df, url=FED, source="Federal Reserve Board", licence=PD, evidence=snip, explainer=ex, as_of="Federal Reserve estimate", check=f"page|\\${d}\\s+(\\d+\\.\\d+)\\s+years", topic="mo-life", label=f"The ${d} bill")
         attempt(f"mo-life-{d}", go)
     t2 = text(COST)
     for d, ex, df in [("1", "It is made of cotton and linen, with no wood pulp.", 1), ("100", "Its color-shifting ink and woven security ribbon add to the bill.", 2), ("20", "Printing is cheap. Keeping it hard to copy is the expensive part.", 2)]:
         def go():
             v, snip = find(t2, rf"\${d}(?: and \$\d+)?\s+(\d+\.\d+) cents")
-            add(f"mo-cost-{d}", f"How many cents does it cost to print a US ${d} bill?", v, "cents", "Money", span=3.4, difficulty=df, url=COST, source="Federal Reserve Board", licence=PD, evidence=snip, explainer=ex, as_of="Federal Reserve figure", check=f"page2", topic="mo-cost")
+            add(f"mo-cost-{d}", f"How many cents does it cost to print a US ${d} bill?", v, "cents", "Money", span=3.4, difficulty=df, url=COST, source="Federal Reserve Board", licence=PD, evidence=snip, explainer=ex, as_of="Federal Reserve figure", check=f"page2", topic="mo-cost", label=f"The ${d} bill")
         attempt(f"mo-cost-{d}", go)
 
 
@@ -93,7 +93,7 @@ def sec():
                         best = (f, tag, j["entityName"])
             f, tag, ent = best
             if f["end"] < "2025-01-01": raise LookupError(f"old {f['end']}")
-            add(f"mo-rev-{key}", q, f["val"], "US dollars", "Money", span=4, difficulty=d, url=f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik:010d}/us-gaap/{tag}.json", source="Company filing with the SEC", licence=PD, evidence=f"{ent}, {tag}, {f['start']} to {f['end']}, form {f['form']} filed {f['filed']}: {f['val']} USD", explainer=ex, as_of=f"Fiscal year ending {f['end']}", check=f"sec|{cik}|{tag}", topic="mo-rev")
+            add(f"mo-rev-{key}", q, f["val"], "US dollars", "Money", span=4, difficulty=d, url=f"https://data.sec.gov/api/xbrl/companyconcept/CIK{cik:010d}/us-gaap/{tag}.json", source="Company filing with the SEC", licence=PD, evidence=f"{ent}, {tag}, {f['start']} to {f['end']}, form {f['form']} filed {f['filed']}: {f['val']} USD", explainer=ex, as_of=f"Fiscal year ending {f['end']}", check=f"sec|{cik}|{tag}", topic="mo-rev", label=nm)
         attempt(f"mo-rev-{key}", go)
 
 

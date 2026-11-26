@@ -88,7 +88,7 @@ def worldbank():
             v = float(f"{v:.6g}") if abs(v) > 1000 else round(v, 1)
             cat = {"mo": "Technology"}.get(key[:2], "Geography")
             if key.startswith(("phones", "net", "elec", "renew")): cat = "Technology"
-            add("ge-" + key, q, v, unit, cat, difficulty=d, url=f"https://data.worldbank.org/indicator/{ind}?locations={iso}", source="World Bank Open Data", licence=CCBY, evidence=f"World Bank API {iso} {ind}, {year} ({name}): {v}", explainer=ex, as_of=f"In {year}", check=f"wb|{ind}|{iso}", topic="wb-" + ind[:6], **kw)
+            add("ge-" + key, q, v, unit, cat, difficulty=d, url=f"https://data.worldbank.org/indicator/{ind}?locations={iso}", source="World Bank Open Data", licence=CCBY, evidence=f"World Bank API {iso} {ind}, {year} ({name}): {v}", explainer=ex, as_of=f"In {year}", check=f"wb|{ind}|{iso}", topic="wb-" + ind[:6], label={"World": "The world", "United States": "The US", "United Kingdom": "The UK"}.get(name, name), **kw)
         attempt("ge-" + key, go)
 
 
@@ -98,7 +98,7 @@ def census():
     for nm, ex, d in [("Wyoming", "It has fewer people than any other state.", 1), ("Alaska", "Spread evenly, each person would have more than a square mile.", 2), ("California", "It has more people than Canada.", 1), ("Massachusetts", "Most of them live within an hour of Boston.", 2), ("Hawaii", "About two in three live on Oahu.", 2), ("Montana", "It is the fourth largest state by area.", 2), ("Florida", "It passed New York around 2014 to become the third largest." if False else "It is the third most populous state.", 2), ("Vermont", "Its largest city has fewer people than any other state's largest city.", 2), ("Texas", "It has more people than any state but California.", 1), ("New York", "Well under half of them live outside the city and its suburbs." if False else "Its biggest city holds more than two fifths of them.", 1), ("Rhode Island", "It is the smallest state by area.", 2), ("North Dakota", "It has more cows than people.", 3), ("Utah", "It has the youngest population of any state.", 2), ("Colorado", "Most live in a strip along the foot of the mountains.", 2), ("Maine", "It has the oldest population of any state.", 3), ("Delaware", "More companies are registered there than people live there.", 3), ("Ohio", "Eight presidents had their home there." if False else "It is the seventh largest state by people.", 2), ("Nevada", "About three in four live around Las Vegas.", 2), ("Puerto Rico", "More people of Puerto Rican descent live in the fifty states than on the island.", 2)]:
         def go():
             v = int(rows[nm]["POPESTIMATE2024"])
-            add(f"ge-st-{nm.lower().replace(' ', '')}", f"How many people live in {nm}?", v, "people", "Geography", span=4, difficulty=d, url="https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html", source="US Census Bureau", licence=PD, evidence=f"NST-EST2024-ALLDATA.csv: {nm} POPESTIMATE2024 = {v}", explainer=ex, as_of="July 2024 estimate", check=f"census|{nm}", topic="ge-state")
+            add(f"ge-st-{nm.lower().replace(' ', '')}", f"How many people live in the state of {nm}?" if nm == "New York" else f"How many people live in {nm}?", v, "people", "Geography", span=4, difficulty=d, url="https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html", source="US Census Bureau", licence=PD, evidence=f"NST-EST2024-ALLDATA.csv: {nm} POPESTIMATE2024 = {v}", explainer=ex, as_of="July 2024 estimate", check=f"census|{nm}", topic="ge-state", label=nm)
         attempt(f"ge-st-{nm}", go)
 
 
@@ -130,7 +130,7 @@ def parks():
             except json.JSONDecodeError:
                 vals = [int(x) for x in re.findall(r"<RecreationVisitors>(\d+)<", raw)]; tot, n = sum(vals), len(vals)
             if n != 12: raise LookupError(f"{n} months")
-            add(f"ge-park-{code.lower()}", f"How many visits did {nm} National Park get in {y}?", tot, "visits", "Geography", span=4, difficulty=d, url="https://irma.nps.gov/Stats/", source="National Park Service", licence=PD, evidence=f"irmaservices.nps.gov visitation {code} {y}: 12 months of RecreationVisitors sum to {tot}", explainer=ex, check=f"nps|{code}|{y}", topic="ge-park")
+            add(f"ge-park-{code.lower()}", f"How many visits did {nm} National Park get in {y}?", tot, "visits", "Geography", span=4, difficulty=d, url="https://irma.nps.gov/Stats/", source="National Park Service", licence=PD, evidence=f"irmaservices.nps.gov visitation {code} {y}: 12 months of RecreationVisitors sum to {tot}", explainer=ex, check=f"nps|{code}|{y}", topic="ge-park", label=nm)
         attempt(f"ge-park-{code}", go)
 
 
@@ -151,7 +151,7 @@ def weather():
             name = r.get("NAME", "")
             if nm.split()[0].lower() not in name.lower(): raise LookupError(f"{st} is {name!r}")
             v = float(r[dt])
-            add(f"ge-wx-{nm.lower().replace(' ', '')}-{dt[4:8].lower()}", q, v, unit, "Geography", span=span, difficulty=d, url=f"https://www.ncei.noaa.gov/access/us-climate-normals/", source="NOAA climate normals", licence=PD, evidence=f"{st} {name}: {dt} = {v} (1991-2020)", explainer=ex, as_of="Average for 1991 to 2020", check=f"noaa|{st}|{dt}", topic="ge-wx")
+            add(f"ge-wx-{nm.lower().replace(' ', '')}-{dt[4:8].lower()}", q, v, unit, "Geography", span=span, difficulty=d, url=f"https://www.ncei.noaa.gov/access/us-climate-normals/", source="NOAA climate normals", licence=PD, evidence=f"{st} {name}: {dt} = {v} (1991-2020)", explainer=ex, as_of="Average for 1991 to 2020", check=f"noaa|{st}|{dt}", topic="ge-wx-" + dt[4:8], label=nm)
         attempt(f"ge-wx-{nm}", go)
 
 
@@ -163,7 +163,7 @@ def volcano():
             if len(r) != 1: raise LookupError([x["volcano_name"] for x in j if nm in x["volcano_name"]])
             v = float(r[0]["elevation_meters"])
             lab = f"Mount {nm}" if nm in ("Rainier", "Hood", "Shasta") else nm
-            add(f"ge-vol-{nm.lower().replace(' ', '')}", f"How many meters high is the volcano {lab}?", v, "meters", "Geography", span=3, difficulty=d, url="https://www.usgs.gov/programs/VHP", source="USGS Volcano Hazards Program", licence=PD, evidence=f"getUSVolcanoes: {r[0]['volcano_name']} elevation_meters = {r[0]['elevation_meters']}", explainer=ex, check=f"volc|{nm}", topic="ge-elev")
+            add(f"ge-vol-{nm.lower().replace(' ', '')}", f"How many meters high is the volcano {lab}?", v, "meters", "Geography", span=3, difficulty=d, url="https://www.usgs.gov/programs/VHP", source="USGS Volcano Hazards Program", licence=PD, evidence=f"getUSVolcanoes: {r[0]['volcano_name']} elevation_meters = {r[0]['elevation_meters']}", explainer=ex, check=f"volc|{nm}", topic="ge-elev", label=lab)
         attempt(f"ge-vol-{nm}", go)
 
 

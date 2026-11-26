@@ -65,17 +65,18 @@ export async function forDay(number) {
   return rows.map(open);
 }
 
-/** Practice pool plus every daily question from days before today. */
-export async function practicePool(today) {
+/** Practice questions. Daily questions never appear here. */
+export async function practicePool() {
   const idx = await index();
   const files = await Promise.all(idx.practice.map((f) => get(`data/${f}`)));
-  const rows = files.flatMap((f) => f.rows);
-  const months = new Set();
-  const last = Math.min(today - 1, idx.days);
-  for (let n = Math.max(1, last - 59); n <= last; n++) months.add(keyOf(n).slice(0, 7));
-  const past = await Promise.all([...months].map((m) => get(`data/${m}.json`)));
-  for (const f of past) for (const [n, list] of Object.entries(f.days)) if (Number(n) < today) rows.push(...list);
-  return rows;
+  return files.flatMap((f) => f.rows);
+}
+
+/** Specific practice questions by id, for a Showdown link. */
+export async function practiceById(ids) {
+  const rows = await practicePool();
+  const by = new Map(rows.map((r) => [r.id, r]));
+  return ids.map((id) => by.get(id)).map((r) => (r ? open(r) : null));
 }
 
 export const firstDay = () => dayNumber(EPOCH);
