@@ -65,7 +65,7 @@ test('past days can be played, count for calibration, and do not touch the strea
   await playAll(page);
   await expect(page.locator('.facts')).toContainText('0 days');
   await page.goto('/#calibration');
-  await expect(page.locator('.statline')).toContainText('7');
+  await expect(page.locator('.num-grid .num-tile').first()).toContainText('7');
 });
 
 test('days beyond the plan and before the start still work', async ({ page }) => {

@@ -8,7 +8,7 @@ Most people throw their loops too tight the first time. The Brand Book tracks, o
 
 ## Scoring
 
-Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop's width, so tight loops pay more and fade faster. Nothing goes below zero. A glow on the rail shows what every spot is worth while you set the loop. The rule, a simulation of nine habits and its one trade-off are in [docs/scoring.md](docs/scoring.md).
+Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop's width, so tight loops pay more and fade faster. Nothing goes below zero. A glow on the rail shows what every spot is worth while you set the loop. Every rail of the same kind is the same length (a factor of 100 for numbers that grow by multiples, 150 years for years, 1,000 degrees for temperatures, 0 to 100 for percentages), so the same loop always scores the same. The rule, a simulation of nine habits and its one trade-off are in [docs/scoring.md](docs/scoring.md).
 
 ## Ways to play
 

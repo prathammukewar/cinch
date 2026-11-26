@@ -117,8 +117,8 @@ export function importSave(text) {
 export function allRows() {
   const d = load();
   const rows = [];
-  for (const rec of Object.values(d.days)) for (const r of rec.rows) rows.push({ ...r, mode: 'daily', at: r.at || rec.at || 0 });
-  for (const r of d.practice.rows) rows.push({ ...r, mode: 'practice' });
+  for (const [n, rec] of Object.entries(d.days)) for (const r of rec.rows) rows.push({ ...r, mode: 'daily', day: Number(n), at: r.at || rec.at || 0 });
+  for (const r of d.practice.rows) rows.push({ mode: 'practice', ...r });
   for (const run of d.quant.runs) for (const r of run.rows) rows.push({ ...r, mode: 'quant', at: r.at || run.at });
   return rows.sort((a, b) => (a.at || 0) - (b.at || 0));
 }

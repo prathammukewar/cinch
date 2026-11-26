@@ -14,6 +14,53 @@ const bank = read('bank/questions.json');
 const byId = new Map(bank.map((q) => [q.id, q]));
 const frozen = existsSync(new URL('bank/schedule.json', root)) ? read('bank/schedule.json') : { days: {}, practice: [] };
 
+// ------------------------------------------------------------ standard rails
+// Every rail of the same kind has the same length, so the same loop always scores the same:
+// numbers that grow by multiples span a factor of 100, years 150 years, temperatures 1,000 degrees,
+// percentages 0 to 100. The answer sits at a random spot on its rail. Days already played keep
+// the rails they were played on, so nobody's score changes after the fact.
+const RAILS_FROM = 3;
+const NICE = [1, 2, 5];
+const niceDown = (x) => { const p = 10 ** Math.floor(Math.log10(x)); return NICE.map((s) => s * p).filter((v) => v <= x * (1 + 1e-9)).pop() || p; };
+const niceStep = (v, dir) => {
+  const p = 10 ** Math.floor(Math.log10(v) + 1e-9);
+  const i = NICE.indexOf(Math.round(v / p));
+  if (dir > 0) return i === NICE.length - 1 ? 10 * p : NICE[i + 1] * p;
+  return i === 0 ? 5 * (p / 10) : NICE[i - 1] * p;
+};
+const tidy = (v) => Number(v.toPrecision(12));
+function standardRail(q) {
+  const r = rng(hash(`rail:${q.id}`));
+  const pos = 0.1 + 0.8 * r();
+  const a = q.answer;
+  if (q.scale === 'log') {
+    let lo = niceDown(a / 10 ** (2 * pos));
+    if (q.whole && lo < 1) lo = 1;
+    // Keep the answer well inside: never in the outer tenth of the rail.
+    while (a / lo > 10 ** 1.8) lo = niceStep(lo, 1);
+    while (a / lo < 10 ** 0.2 && !(q.whole && lo <= 1)) lo = niceStep(lo, -1);
+    return [tidy(lo), tidy(lo * 100)];
+  }
+  if (q.unit === '%') return [0, 100];
+  if (q.unit === 'year') {
+    let lo = Math.floor((a - pos * 150) / 10) * 10;
+    if (lo + 150 > 2030) lo = 2030 - 150;
+    return [lo, lo + 150];
+  }
+  if (q.unit === '\u00b0C') {
+    let lo = Math.floor((a - pos * 1000) / 50) * 50;
+    if (lo < -273) lo = -273;
+    return [lo, lo + 1000];
+  }
+  return [q.min, q.max];
+}
+const playedRails = new Set(Object.entries(frozen.days).filter(([n]) => Number(n) < RAILS_FROM).flatMap(([, ids]) => ids));
+for (const q of bank) {
+  if (playedRails.has(q.id)) continue;
+  [q.min, q.max] = standardRail(q);
+}
+
+
 const arg = process.argv.indexOf('--days');
 const wanted = arg > 0 ? Number(process.argv[arg + 1]) : 60;
 

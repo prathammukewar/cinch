@@ -23,3 +23,5 @@ Each `s_*.py` file reads one kind of source and registers questions with `add()`
 ## Adding questions
 
 Add an entry to the list in the right `s_*.py` file, run the four commands above, and read the new evidence lines. Days that have already been shipped are frozen in `bank/schedule.json` and never change.
+
+Rails are standardized when shipping (`ship.mjs`): every rail of the same kind gets the same length, with the answer placed at random between 10% and 90% along it. Rails for days already played (before `RAILS_FROM`) are left as they were played.

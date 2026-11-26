@@ -2,7 +2,7 @@ import { NAME, PER_DAY, QUANT_SECONDS, DAILY_SECONDS } from './config.js';
 import { dayKey, dayNumber, keyOf, longDate, untilMidnight, streaks } from './day.js';
 import { forDay, practicePool, open } from './bank.js';
 import { total as sum } from './score.js';
-import { store, askPersist } from './store.js';
+import { store, askPersist, allRows } from './store.js';
 import { sound } from './sound.js';
 import { total, kindOf, tierOf } from './score.js';
 import { h, $, toast, reducedMotion, signed, moreStyles } from './dom.js';
@@ -57,7 +57,7 @@ function drawer(open) {
     item('#duel', 'Showdown', 'one on one'),
     item('#archive', 'Old Trails', 'past days'),
     h('hr'),
-    item('#calibration', 'Brand Book', s.current > 1 ? `${s.current} days on the trail` : 'your record'),
+    item('#calibration', 'Brand Book', 'your stats'),
     item('#scoring', 'Ranch rules', 'scoring'),
     item('#settings', 'Saddlebag', 'settings, backup'),
     item('#sources', 'Sources', ''),
@@ -155,6 +155,15 @@ async function showHome() {
     ? h('p', { class: 'home-state' }, `You scored ${signed(total(done.rows))} today and roped ${done.rows.filter((r) => r.hit).length} of ${done.rows.length}. `, nextIn())
     : s.current > 1 ? h('p', { class: 'home-state' }, `${s.current} days on the trail. Keep it going.`) : fresh ? h('p', { class: 'home-state' }, 'About three minutes. No sign-up.') : null;
   const mode = (href, name, plain) => h('a', { class: 'mode', href }, h('b', {}, name), h('small', {}, plain));
+  const book = allRows();
+  const roped = book.filter((r) => r.hit).length;
+  const dayScores = Object.values(store.data().days).map((r) => total(r.rows));
+  const stat = (value, label) => h('span', {}, h('b', {}, value), h('small', {}, label));
+  const statsTile = h('a', { class: 'mode stats', href: '#calibration', id: 'home-stats' },
+    h('span', { class: 'names' }, h('b', {}, 'Brand Book'), h('small', {}, 'Your stats')),
+    book.length
+      ? h('span', { class: 'nums' }, stat(`${Math.round((100 * roped) / book.length)}%`, 'roped'), stat(`${s.current}`, 'day trail'), dayScores.length ? stat(String(Math.round(dayScores.reduce((a, b) => a + b, 0) / dayScores.length)), 'avg day') : stat(String(book.length), 'answered'))
+      : h('span', { class: 'nums empty' }, h('small', {}, 'Starts with your first round')));
   const view = h('section', { class: 'home', 'aria-label': 'Welcome' },
     h('div', { class: 'hero-box' }, canvas),
     word,
@@ -162,6 +171,7 @@ async function showHome() {
     h('div', { class: 'home-actions' }, play, h('button', { class: 'go quiet', type: 'button', id: 'howto-open', onclick: () => howTo(false) }, 'How to rope')),
     state,
     h('nav', { class: 'modes', 'aria-label': 'More ways to play' },
+      statsTile,
       mode('#practice', 'The Corral', 'Practice'),
       mode('#draw', 'Quick Draw', 'Speed round'),
       mode('#duel', 'Showdown', 'Play a friend'),
@@ -262,6 +272,7 @@ async function showResult(n, { instant }) {
     extras: [
       h('a', { class: 'go quiet', href: '#duel' }, 'Showdown'),
       h('a', { class: 'go quiet', href: '#practice' }, 'The Corral'),
+      h('a', { class: 'go quiet', href: '#calibration', id: 'result-stats' }, 'Your stats'),
     ],
     foot: isToday ? K.countdown() : null,
     standings: rec.live ? { day: n, post: isToday } : null,

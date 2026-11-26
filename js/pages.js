@@ -87,43 +87,9 @@ export async function showArchive() {
     idx.days < getToday() ? h('p', { class: 'fine', style: 'margin-top:20px' }, 'Planned days have run out, so older questions are coming round again in a new order.') : null));
 }
 
-export function showCalibration() {
-  const rows = allRows();
-  const live = liveDays();
-  const s = streaks(live, getToday());
-  const page = h('div', { class: 'page' }, h('h1', {}, 'Brand Book'), h('p', { class: 'lede' }, 'How true your loops run. A 90% loop should rope the answer nine times in ten.'));
-  if (!rows.length) {
-    page.append(h('p', { class: 'lede' }, 'Nothing in the book yet. Ride today\u2019s Roundup and your first marks appear here.'), h('p', { style: 'margin-top:24px' }, h('a', { class: 'go', href: '#today' }, 'Saddle up')));
-    main.replaceChildren(page);
-    return;
-  }
-  const w = wilson(rows.filter((r) => r.hit).length, rows.length);
-  const days = Object.values(store.data().days).map((r) => total(r.rows));
-  page.append(
-    h('p', {}, verdictText(verdict(rows))),
-    h('dl', { class: 'statline' },
-      stat('Roped', `${Math.round(w.p * 100)}%`), stat('True rate, likely', `${Math.round(w.lo * 100)} to ${Math.round(w.hi * 100)}%`), stat('Questions', String(rows.length)),
-      days.length ? stat('Average day', signed(Math.round(days.reduce((a, b) => a + b, 0) / days.length))) : null,
-      stat('On the trail', `${s.current}`), stat('Longest trail', `${s.best}`)),
-    h('h2', {}, 'Roped over time'));
-  const rc = rateChart(rows);
-  page.append(rc ? h('figure', { html: rc }) : h('p', { class: 'fine' }, 'This chart starts at 11 questions.'));
-  if (rc) page.lastChild.append(h('figcaption', {}, 'Share of answers roped over your last 50 questions. The shaded part is where luck alone could have put it.'));
-  page.append(h('h2', {}, 'How true your loops run'));
-  const cc = curveChart(rows);
-  if (cc) {
-    page.append(h('figure', { html: cc }));
-    page.lastChild.append(h('figcaption', {}, `Each loop is read as the middle 90% of a bell curve on the rail, so narrower slices of it can be checked too. On the dashed line, your loops are exactly as sure as they should be. With ${rows.length} questions the shading at 90% is about ${bandAt(rows.length)} points either side.`));
-  } else {
-    page.append(h('p', { class: 'fine' }, `This chart appears at ${CURVE_MIN} questions. You have ${rows.length}. At ${CURVE_MIN} it is still about ${bandAt(CURVE_MIN)} points either side, and at 100 about ${bandAt(100)}.`));
-  }
-  const cats = byCategory(rows);
-  page.append(h('h2', {}, 'By trail'));
-  const known = cats.filter((c) => c.enough);
-  if (known.length >= 2) page.append(h('p', { class: 'fine' }, `Best so far is ${known[0].cat.toLowerCase()} at ${plus(Math.round(known[0].mean))} a question, and the costliest is ${known[known.length - 1].cat.toLowerCase()} at ${plus(Math.round(known[known.length - 1].mean))}. The mark on each bar is 90%.`));
-  else page.append(h('p', { class: 'fine' }, 'Best and worst appear once two categories have six questions each. The mark on each bar is 90%.'));
-  page.append(h('ul', { class: 'cats' }, cats.map((c) => h('li', {}, h('span', {}, c.cat), h('span', { class: 'track', 'aria-hidden': 'true' }, h('i', { style: `width:${Math.round(c.p * 100)}%` })), h('span', { class: 'v num' }, `${c.k} of ${c.n}, ${plus(Math.round(c.mean))}`)))));
-  main.replaceChildren(page);
+export async function showCalibration() {
+  const { showBook } = await import('./book.js');
+  showBook(main, { liveDays: liveDays(), today: getToday() });
 }
 const stat = (k, v) => h('div', {}, h('dt', {}, k), h('dd', { class: 'num' }, v));
 
@@ -159,7 +125,7 @@ export function showScoring() {
     h('h2', {}, 'About luck'),
     h('p', {}, 'A perfectly judged 90% loop still misses one time in ten. It ropes all seven on 48% of days, six on 37%, five on 12%, and fewer on 3%. After 100 questions your rate is known to about 6 points either side, and after 220 to about 4. The Brand Book only makes a call at 20, 50, 100, 200 and 350 questions.'),
     h('h2', {}, 'The rail'),
-    h('p', {}, 'Each rail is long enough to leave real doubt, and the answer sits on it at random, so the middle is no hint. Rails for numbers of every size step up by multiples, so being off by a factor of two looks the same at any size.'),
+    h('p', {}, 'Every rail of the same kind is the same length, so the same loop always scores the same. Numbers that grow by multiples, like populations and prices, get a rail that spans a factor of 100, so being off by a factor of two looks the same at any size. Years get 150 years, temperatures 1,000 degrees, and percentages run from 0 to 100. The answer sits on its rail at random, so the middle is no hint.'),
     h('h2', {}, 'Where the numbers come from'),
     h('p', {}, 'Every answer links to its source and was read from it twice. If one looks wrong, ', h('a', { href: 'https://github.com/prathammukewar/cinch/issues/new?title=Wrong%20number', target: '_blank', rel: 'noopener noreferrer' }, 'report it here'), '.'),
     h('p', { class: 'foot' }, 'Made by Pratham Mukewar.')));

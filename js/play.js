@@ -52,7 +52,8 @@ export class Round {
       const pre = h('span', { class: 'pre', 'aria-hidden': 'true' });
       const suf = h('span', { class: 'suf', 'aria-hidden': 'true' });
       u[side] = { input, pre, suf };
-      return h('div', { class: `end ${side}` }, h('label', { for: `${side}-value` }, text), h('div', { class: 'field' }, pre, input, suf));
+      const field = h('div', { class: 'field', onclick: (e) => { if (e.target !== input) input.focus(); } }, pre, input, suf);
+      return h('div', { class: `end ${side}` }, h('label', { for: `${side}-value` }, text), field);
     };
     u.meta = h('span');
     u.tag = h('span');
@@ -89,7 +90,7 @@ export class Round {
     for (const [i, side] of ['low', 'high'].entries()) {
       const { input } = u[side];
       input.addEventListener('focus', () => { input.select(); });
-      input.addEventListener('input', () => this.typed(i));
+      input.addEventListener('input', () => { fitWidth(input); this.typed(i); });
       input.addEventListener('blur', () => { input.classList.remove('bad'); this.show(); });
       input.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); this.touch(); this.stage.nudge(i, e.key === 'ArrowUp' ? 1 : -1); this.show(); }
@@ -227,6 +228,7 @@ export class Round {
       const wide = Math.max(50, Math.min(128, 62 + spread * 66, fits));
       input.style.setProperty('--w', `${wide.toFixed(1)}%`);
       input.style.fontSize = `${Math.max(18, Math.min(full, full * (fits / 50))).toFixed(1)}px`;
+      fitWidth(input);
       const el = u.thumbs[i];
       el.setAttribute('aria-valuemin', '0');
       el.setAttribute('aria-valuemax', '100');
@@ -393,6 +395,9 @@ export class Round {
     }, 170);
   }
 }
+
+/** A number box as wide as its number, so a $ or % sits right against the digits. */
+function fitWidth(input) { input.style.width = `${Math.max(1, input.value.length) + 0.35}ch`; }
 
 /** One short line on where the points came from. */
 export function explain(q, r, low, high) {

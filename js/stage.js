@@ -56,12 +56,13 @@ export class Stage {
     this.ctx = ctx; this.w = w; this.h = h;
     const big = w > 620;
     this.pad = big ? 44 : 30;
-    this.rulerH = big ? 84 : 72;
+    this.rulerH = big ? 84 : h < 300 ? 62 : 72;
     this.top = h - this.rulerH - 4;
     const room = this.top;
-    this.post = clamp(room * 0.52, 92, 190); // peg height above the rule
     this.pegW = big ? 28 : 26;
     this.pegH = big ? 40 : 38;
+    // Peg height above the rule. The hint chips sit in the top corner, so the posts stop below them.
+    this.post = clamp(Math.min(room * 0.52 < 92 ? 92 : room * 0.52, room - this.pegH / 2 - 46), 44, 190);
     this.grip = this.post - this.pegH / 2 - 13; // where the band sits on the peg
     this.pinLen = 32; // horseshoe height
     this.hover = Math.max(this.pinLen + 30, this.top - this.post - this.pegH / 2 - 18);
@@ -127,7 +128,8 @@ export class Stage {
 
   sagFor() {
     const w = this.t[1] - this.t[0];
-    const maxSag = Math.max(24, this.grip - 16);
+    // The rope can sag, but never through the rail it hangs over.
+    const maxSag = Math.max(4, this.grip - 16);
     return 1 + maxSag * Math.pow(w, 1.55);
   }
 
@@ -529,8 +531,20 @@ export class Stage {
     const wrapped = this.close && closed > 0.97 && this.landClock > 0.05;
     if (wrapped && this.pinSettled) this.drawWrap(true);
     if (this.pinSettled && this.result) this.drawAnswerPin();
+    const banded = !this.flyer && !wrapped && !(this.result && !this.result.hit && this.slip >= 1 && after);
+    // The rope wraps each post: its upper strand passes behind the post, the rest in front.
+    if (banded) this.drawBand(xs, closed, after);
     this.drawPegs(xs, after);
-    if (!this.flyer && !wrapped && !(this.result && !this.result.hit && this.slip >= 1 && after)) this.drawBand(xs, closed, after);
+    if (banded) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, this.w, this.h);
+      const y = this.top - this.grip;
+      for (const x of xs) ctx.rect(x - this.pegW * 0.7, 0, this.pegW * 1.4, y);
+      ctx.clip('evenodd');
+      this.drawBand(xs, closed, after);
+      ctx.restore();
+    }
     if (after && !this.result.hit && this.slip >= 1 && this.reduced) this.drawLooseBand(xs);
     if (wrapped && this.pinSettled) this.drawWrap(false);
     if (this.pin && !this.pinSettled) this.drawHuntingPin();
@@ -540,7 +554,8 @@ export class Stage {
     if (this.ghost) this.drawGhostTag();
     if (!after) this.drawLandmarkTags();
     if (after && !this.result.hit && this.gapAlpha > 0) this.drawGap(xs);
-    if (this.phase === 'set') this.drawTags(xs);
+    // On a short rail the hint buttons sit where the value tags go; the numbers are right below in the panel anyway.
+    if (this.phase === 'set' && this.h >= 260) this.drawTags(xs);
     if (after) this.drawAnswerTag();
     ctx.restore();
   }
