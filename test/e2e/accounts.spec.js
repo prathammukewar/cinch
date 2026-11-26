@@ -40,7 +40,7 @@ test('make an account, keep the key out of backups, and land on the leaderboard 
 
   await page.goto('/#today');
   await playAll(page);
-  await expect(page.locator('.board-line')).toContainText('You are #1 of 1 on today’s leaderboard');
+  await expect(page.locator('.board-line')).toContainText('#1 of 1 on today’s leaderboard');
   await page.click('#result-board');
   await expect(page.locator('.rider-row.you')).toContainText('Ana Lee');
   await page.click('#lb-week');
@@ -124,7 +124,7 @@ test('hide from the board, download your data, and delete everything', async ({ 
   await expect(page.locator('#acct-listed-toggle')).toBeEnabled();
   await page.goto('/#leaderboard');
   await expect(page.locator('.rider-row')).toHaveCount(0);
-  await expect(page.locator('.you-card')).toContainText('but you are not listed');
+  await expect(page.locator('.you-card')).toContainText('but you are hidden');
 
   await page.goto('/#account');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#acct-export')]);
@@ -157,7 +157,7 @@ test('the privacy page and every new screen pass with no errors under the securi
     await expect(page.locator('h1')).not.toBeEmpty();
   }
   await page.goto('/#privacy');
-  await expect(page.locator('main')).toContainText('no email, no password');
+  await expect(page.locator('main')).toContainText('No email, no password');
   const csp = (await page.request.get('/')).headers()['content-security-policy'];
   expect(csp).toContain("frame-ancestors 'none'");
   expect(csp).toContain("script-src 'self'");

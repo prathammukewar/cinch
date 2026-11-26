@@ -201,15 +201,15 @@ export function howTo(thenPlay, { sound, h, store, reducedMotion }) {
       return { el: h('li', {}, c, h('div', {}, h('h3', {}, title), h('p', {}, text))), draw: () => drawPose(c, pose) };
     };
     const steps = [
-      step('set', 'Set your loop', 'Drag the two posts, or type the numbers, until you are 90% sure the answer is between them.'),
-      step('catch', 'Rope it', 'If the horseshoe lands inside, you score 100 minus the share of the rail your loop covers. Tighter loops score more.'),
-      step('miss', 'Or nearly', 'Just outside the loop the points fade away, faster for a tighter loop. You can never go below zero.'),
+      step('set', 'Set your loop', 'Drag the posts until you are 90% sure the answer is between them.'),
+      step('catch', 'Rope it', 'Land inside and you score. Tighter loops score more.'),
+      step('miss', 'Or nearly', 'A near miss still scores a little.'),
     ];
     const go = h('button', { class: 'go', type: 'button', id: 'howto-go' }, 'Got it');
     sheet = h('dialog', { class: 'sheet', id: 'howto', 'aria-labelledby': 'howto-title' },
       h('h2', { id: 'howto-title' }, 'How to rope'),
       h('ol', { class: 'steps' }, steps.map((x) => x.el)),
-      h('p', { class: 'fine' }, 'Seven new questions every midnight, the same for everyone. Stuck? Fence in the rail or send a scout, for a share of the points. A well-judged 90% loop misses about one time in ten.'),
+      h('p', { class: 'fine' }, 'Seven new questions every midnight.'),
       go);
     sheet.draws = steps;
     sheet.addEventListener('click', (e) => { if (e.target === sheet) closer(); });

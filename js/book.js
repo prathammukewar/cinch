@@ -1,7 +1,7 @@
 // Brand Book: your own record in one place. Nothing here compares you with other people.
 import { allRows, store } from './store.js';
 import { tierOf, TIERS, LEANER, wilson, total } from './score.js';
-import { verdict, verdictText, rateChart, curveChart, bandAt } from './dash.js';
+import { rateChart, curveChart } from './dash.js';
 import { streaks, keyOf, longDate } from './day.js';
 import { forDay, practiceById } from './bank.js';
 import { withUnit } from './format.js';
@@ -28,10 +28,10 @@ export function headline(rows = allRows(), liveDays = [], today = 0) {
 /** Where the player stands against the 90% mark, in plain words. */
 function standing(rows) {
   const w = wilson(rows.filter((r) => r.hit).length, rows.length);
-  if (rows.length < 20) return { w, key: 'early', name: 'Early days', line: `Luck still swamps everything before about 20 questions. You have ${rows.length}.` };
-  if (w.hi < 0.9) return { w, key: 'tight', name: 'Too tight', line: 'Your loops rope the answer less often than 90% loops should. Throw them wider.' };
-  if (w.lo > 0.9) return { w, key: 'loose', name: 'Too loose', line: 'Your loops rope the answer more often than 90% loops should. You can pull them tighter for more points.' };
-  return { w, key: 'mark', name: 'On the mark', line: 'Your loops rope the answer about as often as 90% loops should.' };
+  if (rows.length < 20) return { w, key: 'early', name: 'Early days', line: 'Too few questions to tell yet.' };
+  if (w.hi < 0.9) return { w, key: 'tight', name: 'Too tight', line: 'Throw your loops wider.' };
+  if (w.lo > 0.9) return { w, key: 'loose', name: 'Too loose', line: 'Pull your loops tighter.' };
+  return { w, key: 'mark', name: 'On the mark', line: 'Right where it should be.' };
 }
 
 function gauge(w) {
@@ -54,16 +54,16 @@ function numbers(rows, live, today) {
   const lastRate = last.filter((r) => r.hit).length / Math.max(1, last.length);
   const rate = rows.filter((r) => r.hit).length / rows.length;
   const dead = rows.filter((r) => tierOf(r).key === 'dead').length;
-  const trend = rows.length >= 30 ? (lastRate > rate + 0.02 ? `up from ${pct(rate)} overall` : lastRate < rate - 0.02 ? `down from ${pct(rate)} overall` : `about the same as overall`) : null;
+  const trend = rows.length >= 30 ? (lastRate > rate + 0.02 ? `up from ${pct(rate)}` : lastRate < rate - 0.02 ? `down from ${pct(rate)}` : null) : null;
   return h('dl', { class: 'num-grid' },
-    tile('Questions', rows.length.toLocaleString('en-US'), 'answered in every mode'),
-    tile('Roundups', String(days.length), `${days.filter((d) => d.live).length} on their own day`),
+    tile('Questions', rows.length.toLocaleString('en-US')),
+    tile('Roundups', String(days.length)),
     tile('On the trail', plural(s.current, 'day'), `Longest ${plural(s.best, 'day')}`),
     tile('Average day', days.length ? signed(Math.round(mean(days.map((d) => d.score)))) : '–', 'of 700'),
     tile('Best day', best ? signed(best.score) : '–', best ? `No. ${best.n}, ${longDate(keyOf(best.n)).replace(/^\w+, /, '')}` : 'Play a Roundup'),
-    tile('Per question', plus(Math.round(mean(rows.map((r) => r.points)))), 'points on average'),
-    tile('Dead ringers', String(dead), dead ? 'loops of 96 points or more' : 'none yet', dead ? 'gold' : ''),
-    tile('Last 20', pct(lastRate), trend || `roped of the last ${last.length}`));
+    tile('Per question', plus(Math.round(mean(rows.map((r) => r.points))))),
+    tile('Dead ringers', String(dead), null, dead ? 'gold' : ''),
+    tile('Last 20', pct(lastRate), trend));
 }
 
 /** Every throw by its name, as one bar, with a legend that counts them. */
@@ -80,7 +80,7 @@ function throws(rows) {
 /** One bar per Roundup played, newest on the right, with your average marked. Each bar opens its day. */
 function roundups() {
   const days = Object.entries(store.data().days).map(([n, r]) => ({ n: Number(n), score: total(r.rows), hits: r.rows.filter((x) => x.hit).length, len: r.rows.length, live: r.live })).sort((a, b) => a.n - b.n).slice(-30);
-  if (days.length < 2) return h('p', { class: 'fine' }, days.length ? 'One Roundup so far. Your days line up here from the second one.' : 'Play a Roundup and your days line up here.');
+  if (days.length < 2) return h('p', { class: 'fine' }, 'Shows up after two Roundups.');
   const W = 720; const H = 220; const L = 40; const R = 12; const T = 14; const B = 28;
   const slot = (W - L - R) / days.length;
   const bw = Math.min(28, slot * 0.7);
@@ -104,24 +104,24 @@ function habits(rows) {
   const misses = rows.filter((r) => !r.hit);
   if (misses.length >= 5) {
     const low = misses.filter((r) => sideOf(r) > 0).length / misses.length;
-    out.push(low >= 0.62 ? `When you miss, the answer is above your loop ${pct(low)} of the time. Your guesses run low, so lean higher.`
-      : low <= 0.38 ? `When you miss, the answer is below your loop ${pct(1 - low)} of the time. Your guesses run high, so lean lower.`
-        : `Your misses land on both sides about evenly (${pct(low)} above, ${pct(1 - low)} below), so your guesses are not leaning one way.`);
+    out.push(low >= 0.62 ? `${pct(low)} of your misses are too low. Guess higher.`
+      : low <= 0.38 ? `${pct(1 - low)} of your misses are too high. Guess lower.`
+        : 'Your misses land evenly on both sides.');
   }
-  out.push(`Your loops cover ${pct(mean(rows.map((r) => r.width)))} of the rail on average.`);
+  out.push(`Average loop: ${pct(mean(rows.map((r) => r.width)))} of the rail.`);
   if (rows.length >= 30) {
     const sorted = [...rows].sort((a, b) => a.width - b.width);
     const third = Math.floor(sorted.length / 3);
     const rate = (a) => a.filter((r) => r.hit).length / a.length;
-    out.push(`Your tightest third of loops rope ${pct(rate(sorted.slice(0, third)))} of the time, your widest third ${pct(rate(sorted.slice(-third)))}.`);
+    out.push(`Tightest third of loops rope ${pct(rate(sorted.slice(0, third)))}, widest third ${pct(rate(sorted.slice(-third)))}.`);
   }
   let run = 0; let best = 0;
   for (const r of rows) { run = r.hit ? run + 1 : 0; best = Math.max(best, run); }
-  if (best >= 3) out.push(`Your longest run of ropes in a row is ${best}.`);
+  if (best >= 3) out.push(`Longest run of ropes: ${best}.`);
   const hinted = rows.filter((r) => r.hints);
   if (hinted.length) {
     const cost = Math.round(hinted.reduce((s, r) => s + (r.points / multOf(r.hints) - r.points), 0));
-    out.push(`You used hints on ${plural(hinted.length, 'question')} (${pct(hinted.length / rows.length)}) and gave up about ${plural(cost, 'point')} for them.`);
+    out.push(`Hints on ${plural(hinted.length, 'question')} cost you about ${plural(cost, 'point')}.`);
   }
   return h('ul', { class: 'habits' }, out.map((t) => h('li', {}, t)));
 }
@@ -165,7 +165,7 @@ function topicCard(c) {
       h('div', {}, h('dt', {}, 'Likely true rate'), h('dd', {}, `${pct(w.lo)} to ${pct(w.hi)}`)),
       h('div', {}, h('dt', {}, 'Per question'), h('dd', {}, plus(Math.round(c.mean)))),
       h('div', {}, h('dt', {}, 'Loop size'), h('dd', {}, pct(mean(rs.map((r) => r.width)))))),
-    misses.length >= 3 ? h('p', { class: 'lean' }, low / misses.length >= 0.62 ? `Misses here mostly fall above your loop: you guess low on ${c.cat.toLowerCase()}.` : low / misses.length <= 0.38 ? `Misses here mostly fall below your loop: you guess high on ${c.cat.toLowerCase()}.` : 'Misses here fall on both sides.') : null,
+    misses.length >= 3 && Math.abs(low / misses.length - 0.5) >= 0.12 ? h('p', { class: 'lean' }, low / misses.length > 0.5 ? 'You guess low here.' : 'You guess high here.') : null,
     h('div', { class: 'tierbar mini', 'aria-hidden': 'true' }, LADDER.filter((t) => counts.get(t.key)).map((t) => h('span', { class: `tseg t-${t.key}`, style: `flex-grow:${counts.get(t.key)}` }))),
     h('p', { class: 'fine' }, 'Best throw here'),
     bestLine,
@@ -209,19 +209,18 @@ function tips(page) {
 
 export function showBook(main, { liveDays, today }) {
   const rows = allRows();
-  const page = h('div', { class: 'page book' }, h('h1', {}, 'Brand Book'), h('p', { class: 'lede' }, 'Your stats: how true your loops run, and how you throw.'));
+  const page = h('div', { class: 'page book' }, h('h1', {}, 'Brand Book'), h('p', { class: 'lede' }, 'Your stats'));
   if (!rows.length) {
-    page.append(h('p', { class: 'lede' }, 'Nothing in the book yet. Ride today’s Roundup and your first marks appear here.'), h('p', { style: 'margin-top:24px' }, h('a', { class: 'go', href: '#today' }, 'Saddle up')));
+    page.append(h('p', { class: 'lede' }, 'Nothing here yet.'), h('p', { style: 'margin-top:24px' }, h('a', { class: 'go', href: '#today' }, 'Saddle up')));
     main.replaceChildren(page);
     return;
   }
   const st = standing(rows);
   page.append(
     h('section', { class: `book-hero s-${st.key}` },
-      h('div', { class: 'hero-num' }, h('b', { class: 'num' }, pct(st.w.p)), h('span', {}, `of your loops roped the answer. The aim is 90%.`)),
+      h('div', { class: 'hero-num' }, h('b', { class: 'num' }, pct(st.w.p)), h('span', {}, 'roped. Aim for 90%.')),
       h('p', { class: 'state' }, h('span', { class: 'state-pill' }, st.name), ` ${st.line}`),
-      gauge(st.w),
-      h('p', { class: 'fine' }, verdictText(verdict(rows)))),
+      gauge(st.w)),
     numbers(rows, liveDays, today),
     h('div', { class: 'book-row' },
       h('section', {}, h('h2', {}, 'Your throws'), throws(rows), h('h2', {}, 'How you throw'), habits(rows)),
@@ -251,7 +250,7 @@ export function showBook(main, { liveDays, today }) {
   page.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   const m = modes(rows);
   page.append(h('div', { class: 'book-row' },
-    h('section', {}, h('h2', {}, 'By topic'), h('p', { class: 'fine' }, 'Share of loops that roped the answer, and points per question. The mark on each bar is 90%. Hover or tap a topic for more.'), wrap),
+    h('section', {}, h('h2', {}, 'By topic'), wrap),
     m ? h('section', {}, h('h2', {}, 'By way to play'), m) : null));
 
   const rc = rateChart(rows);
@@ -259,10 +258,10 @@ export function showBook(main, { liveDays, today }) {
   page.append(h('div', { class: 'book-row' },
     h('section', {}, h('h2', {}, 'Roped over time'),
       rc ? h('figure', { html: rc }, ) : h('p', { class: 'fine' }, 'This chart starts at 11 questions.'),
-      rc ? h('p', { class: 'fine' }, 'Share of answers roped over your last 50 questions. The shaded part is where luck alone could have put it.') : null),
+      rc ? h('p', { class: 'fine' }, 'Your last 50 questions.') : null),
     h('section', {}, h('h2', {}, 'How sure your loops really are'),
       cc ? h('figure', { class: 'curve', html: cc }) : h('p', { class: 'fine' }, `This chart appears at ${CURVE_MIN} questions. You have ${rows.length}.`),
-      cc ? h('p', { class: 'fine' }, `Each loop is read as the middle 90% of a bell curve on the rail, so narrower slices of it can be checked too. On the dashed line, your loops are exactly as sure as they should be. With ${rows.length} questions the shading at 90% is about ${bandAt(rows.length)} points either side.`) : null)));
+      cc ? h('p', { class: 'fine' }, 'On the dashed line, your loops are exactly as sure as they should be.') : null)));
   tips(page);
   main.replaceChildren(page);
 }

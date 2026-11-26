@@ -68,7 +68,7 @@ export class LiveRound extends PairRound {
     for (const side of ['low', 'high']) u[side].input.disabled = true;
     this.root.querySelector('.play').classList.add('waiting');
     const other = this.names[1 - this.seat];
-    this.waitLine(`Locked in. Waiting for ${other} to rope it`);
+    this.waitLine(`Waiting for ${other}`);
     say(`Locked in. Waiting for ${other}.`);
     this.exchange(i, mine);
   }

@@ -318,3 +318,5 @@ table.maths tr.us td { font-weight: 700; }
 .tally .board-line { margin: 8px auto 0; max-width: 40ch; color: var(--mute); }
 .riders section h2 { margin-top: 28px; }
 .riders section ul { padding-left: 20px; display: grid; gap: 6px; }
+.maths-link { margin: 16px 20px 0; }
+@media (min-width: 760px) { .maths-link { margin-inline: 0; } }

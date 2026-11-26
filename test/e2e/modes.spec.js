@@ -100,14 +100,14 @@ test('an older or damaged save never breaks the page or loses data', async ({ pa
 
 test('the dashboard fills in as questions are answered', async ({ page }) => {
   await page.goto('/#calibration');
-  await expect(page.locator('.page')).toContainText('Nothing in the book yet');
+  await expect(page.locator('.page')).toContainText('Nothing here yet');
   await page.evaluate(() => {
     const rows = Array.from({ length: 120 }, (_, i) => ({ id: `q${i}`, cat: ['Space', 'Food', 'Money'][i % 3], hit: i % 5 !== 0, l: 0.4, u: 0.6, x: i % 5 ? 0.45 + (i % 10) / 100 : 0.7, width: 0.2, points: i % 5 ? 80 : -120, lo: 1, hi: 2, at: i }));
     localStorage.setItem('cinch', JSON.stringify({ v: 1, practice: { rows, seen: {} } }));
   });
   await page.reload();
   await expect(page.locator('figure svg')).toHaveCount(2);
-  await expect(page.locator('.page')).toContainText('At 100 questions you had roped 80');
+  await expect(page.locator('.page')).toContainText('80%');
   await expect(page.locator('.cats li')).toHaveCount(3);
   await expect(page.locator('.book-hero .state-pill')).toHaveText(/Too tight|On the mark|Too loose/);
   await expect(page.locator('.num-grid .num-tile')).toHaveCount(8);

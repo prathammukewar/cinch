@@ -95,9 +95,9 @@ test('a live Roundup result says how you did against other riders', async ({ pag
   await page.goto('/#today');
   await playAll(page);
   await expect(page.locator('#standing')).toHaveText('You did better than 63% of the 120 players today.');
-  await expect(page.locator('.recap .crowd').first()).toHaveText('Better than 91% of players on this one \u00b7 80% roped it');
+  await expect(page.locator('.recap .crowd').first()).toHaveText('Better than 91% of players \u00b7 80% roped it');
   await page.locator('.spot').nth(1).focus();
-  await expect(page.locator('.peek-crowd')).toHaveText('Better than 12% of players on this one');
+  await expect(page.locator('.peek-crowd')).toHaveText('Better than 12% of players');
   expect(sent.day).toBe(2);
   expect(sent.client).toMatch(/^[a-z0-9]{12,24}$/);
   // The loops go up, never a score: the server works the score out itself.
@@ -120,6 +120,6 @@ test('a past day played live shows how it compared, without posting again', asyn
   await page.goto('/#day/2');
   await page.reload();
   await expect(page.locator('#standing')).toHaveText('You did better than 52% of the 41 players that day.');
-  await expect(page.locator('.recap .crowd').first()).toContainText('Better than 11% of players on this one');
+  await expect(page.locator('.recap .crowd').first()).toContainText('Better than 11% of players');
   expect(posts).toBe(1);
 });

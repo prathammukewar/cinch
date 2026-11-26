@@ -1,5 +1,4 @@
 // Accounts, the leaderboard and the privacy page. Loaded only when one of them is opened.
-import { NAME } from './config.js';
 import { dayKey, dayNumber, keyOf, longDate } from './day.js';
 import { nameProblem, tidyName } from './names.js';
 import * as acct from './account.js';
@@ -27,7 +26,7 @@ const busy = (btn, on, text) => { btn.disabled = on; if (text) btn.textContent =
 
 export function showAccount(arg) {
   if (!acct.apiBase()) {
-    main.replaceChildren(page('Your account', h('p', { class: 'lede' }, 'Accounts need the Cinch server, and this browser has no connection to it.')));
+    main.replaceChildren(page('Your account', h('p', { class: 'lede' }, 'Can\u2019t reach the server right now.')));
     return;
   }
   if (arg === 'key' && acct.signedIn()) return keyScreen(acct.getKey(), true);
@@ -37,10 +36,10 @@ export function showAccount(arg) {
 
 function welcome() {
   const msg = h('p', { class: 'form-msg', role: 'alert' });
-  const hint = h('p', { class: 'field-hint', id: 'acct-name-hint' }, '3 to 20 letters or numbers. This is the only thing others can see.');
+  const hint = h('p', { class: 'field-hint', id: 'acct-name-hint' }, '3 to 20 letters or numbers. Not your full real name.');
   const name = h('input', { type: 'text', id: 'acct-name', maxlength: 20, autocomplete: 'off', spellcheck: 'false', 'aria-describedby': 'acct-name-hint', oninput: () => {
     const p = name.value.trim() ? nameProblem(name.value) : null;
-    hint.textContent = p || '3 to 20 letters or numbers. This is the only thing others can see.';
+    hint.textContent = p || '3 to 20 letters or numbers. Not your full real name.';
     hint.classList.toggle('bad', !!p);
   } });
   const listed = h('input', { type: 'checkbox', id: 'acct-listed' });
@@ -60,23 +59,15 @@ function welcome() {
     try { await acct.signIn(keyIn.value); toast('Signed in'); manage(); } catch (e) { msg2.textContent = e.status === 401 ? 'That key does not match an account. Check it, or it may have been deleted.' : e.message; busy(signIn, false, 'Sign in'); }
   } }, 'Sign in');
   main.replaceChildren(page('Your account',
-    h('p', { class: 'lede' }, 'An account keeps your record when you change devices, and can put your name on the leaderboard. It needs no email and no password.'),
+    h('p', { class: 'lede' }, 'Keep your record on any device and join the leaderboard. No email, no password.'),
     h('section', { class: 'card' },
       h('h2', {}, 'Make an account'),
       h('label', { class: 'name-field', for: 'acct-name' }, h('span', {}, 'Your leaderboard name')), name, hint,
-      h('p', { class: 'fine' }, 'Do not use your full real name, an email or a phone number.'),
-      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'List me on the public leaderboard. '), 'Your name and Roundup scores will be shown to everyone. You can hide them again at any time.')),
-      h('details', { class: 'keep' }, h('summary', {}, 'What your account keeps'),
-        h('ul', {},
-          h('li', {}, 'The name above, and whether it is listed.'),
-          h('li', {}, 'A one-way fingerprint of your sign-in key. The key itself is shown to you once and not kept.'),
-          h('li', {}, 'Your Roundups, so the leaderboard can count them, and a copy of your record so it can follow you to another device.'),
-          h('li', {}, 'Nothing else: no email, no password, no location, no tracking.')),
-        h('p', {}, h('a', { href: '#privacy' }, 'The full privacy page'))),
+      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'Show me on the leaderboard. '), 'Your name and scores will be public.')),
+      h('p', { class: 'fine' }, h('a', { href: '#privacy' }, 'What we keep')),
       go, msg),
     h('section', { class: 'card' },
       h('h2', {}, 'Already have an account?'),
-      h('p', { class: 'fine' }, 'Enter the sign-in key you saved when you made it.'),
       keyIn, signIn, msg2)));
 }
 
@@ -84,22 +75,22 @@ function welcome() {
 function keyScreen(key, again, joined) {
   const shown = acct.formatKey(key);
   main.replaceChildren(page(again ? 'Your sign-in key' : 'Save your sign-in key',
-    h('p', { class: 'lede' }, again ? 'Use it to sign in on another device.' : 'This key is the only way back into your account. Save it somewhere safe, like a password manager.'),
+    h('p', { class: 'lede' }, again ? 'Use it to sign in on another device.' : 'It is the only way back into your account.'),
     h('p', { class: 'key-box num', id: 'acct-key-show', 'aria-label': `Sign-in key ${shown.split('').join(' ')}` }, shown),
     h('div', { class: 'actions' },
       h('button', { class: 'go quiet wide', type: 'button', id: 'acct-copy', onclick: () => copyText(shown) }, 'Copy the key'),
       h('button', { class: 'go quiet wide', type: 'button', id: 'acct-download', onclick: () => saveFile('cinch-sign-in-key.txt', `Cinch sign-in key\n${shown}\n\nAnyone with this key can sign in as you. Keep it private.\n${location.origin}${location.pathname}#account\n`) }, 'Download it')),
     h('ul', { class: 'warn' },
-      h('li', {}, 'Anyone who has this key can sign in as you, so keep it private.'),
-      h('li', {}, 'It cannot be sent to you again: Cinch does not know your email, on purpose.')),
-    joined ? h('p', { class: 'fine' }, `${joined} Roundup${joined === 1 ? '' : 's'} you played in this browser joined your account.`) : null,
+      h('li', {}, 'Anyone with it can sign in as you.'),
+      h('li', {}, 'It can\u2019t be sent again.')),
+    joined ? h('p', { class: 'fine' }, `${joined} earlier Roundup${joined === 1 ? '' : 's'} added.`) : null,
     h('p', { style: 'margin-top:20px' }, h('button', { class: 'go', type: 'button', id: 'acct-saved', onclick: () => manage() }, again ? 'Done' : 'I saved it'))));
   say(again ? 'Your sign-in key' : 'Save your sign-in key. It is shown here.');
 }
 
 async function manage() {
   const m = acct.me() || {};
-  const status = h('p', { class: 'fine', id: 'acct-sync' }, `Your record last synced ${ago(acct.lastSynced())}.`);
+  const status = h('p', { class: 'fine', id: 'acct-sync' }, `Synced ${ago(acct.lastSynced())}`);
   const view = page(m.name || 'Your account');
   main.replaceChildren(view);
   // Make sure the account still exists before offering anything.
@@ -122,40 +113,37 @@ async function manage() {
   } });
   const syncBtn = h('button', { class: 'chip', type: 'button', id: 'acct-sync-go', onclick: async () => {
     busy(syncBtn, true);
-    try { await acct.sync(); status.textContent = `Your record last synced ${ago(acct.lastSynced())}.`; } catch (e) { status.textContent = e.message; }
+    try { await acct.sync(); status.textContent = `Synced ${ago(acct.lastSynced())}`; } catch (e) { status.textContent = e.message; }
     busy(syncBtn, false);
   } }, 'Sync now');
   const delWrap = h('div', { class: 'danger', hidden: true });
   const confirmIn = h('input', { type: 'text', id: 'acct-delete-name', autocomplete: 'off', 'aria-label': 'Type your name to confirm' });
   const delMsg = h('p', { class: 'form-msg', role: 'alert' });
   delWrap.append(
-    h('p', {}, `This deletes your account, its saved copy and every Roundup tied to it, from the server, at once and for good. Your record stays on this device. Type ${me.name} to confirm.`),
+    h('p', {}, `Deletes your account and its Roundups for good. Type ${me.name} to confirm.`),
     confirmIn,
     h('button', { class: 'go danger-go', type: 'button', id: 'acct-delete-go', onclick: async (e) => {
       const btn = e.currentTarget;
       if (tidyName(confirmIn.value).toLowerCase() !== me.name.toLowerCase()) { delMsg.textContent = `Type ${me.name} exactly to confirm.`; return; }
       busy(btn, true, 'Deleting');
-      try { await acct.remove(); main.replaceChildren(page('Account deleted', h('p', { class: 'lede' }, 'Your account and everything tied to it are gone from the server. Your record is still on this device.'), h('p', { style: 'margin-top:20px' }, h('a', { class: 'go', href: '#home' }, 'Home')))); say('Account deleted'); } catch (err) { delMsg.textContent = err.message; busy(btn, false, 'Delete forever'); }
+      try { await acct.remove(); main.replaceChildren(page('Account deleted', h('p', { class: 'lede' }, 'Your record is still on this device.'), h('p', { style: 'margin-top:20px' }, h('a', { class: 'go', href: '#home' }, 'Home')))); say('Account deleted'); } catch (err) { delMsg.textContent = err.message; busy(btn, false, 'Delete forever'); }
     } }, 'Delete forever'),
     delMsg);
   view.replaceChildren(
     h('h1', {}, me.name),
-    h('p', { class: 'lede' }, me.listed ? 'You are listed on the leaderboard.' : 'You are not listed on the leaderboard.', ' ', h('a', { href: '#leaderboard' }, 'See the leaderboard')),
+    h('p', { class: 'lede' }, h('a', { href: '#leaderboard' }, me.listed ? 'On the leaderboard' : 'Hidden from the leaderboard')),
     h('section', { class: 'card' },
       h('h2', {}, 'Name and leaderboard'),
       h('div', { class: 'row-field' }, name, rename), msg,
-      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'List me on the public leaderboard. '), 'Your name and Roundup scores are shown to everyone while this is on.'))),
+      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'Show me on the leaderboard')))),
     h('section', { class: 'card' },
       h('h2', {}, 'Your record'),
-      h('p', {}, 'Your Brand Book, days and practice follow this account to any device you sign in on.'),
       h('div', { class: 'row-field' }, status, syncBtn)),
     h('section', { class: 'card' },
       h('h2', {}, 'Other devices'),
-      h('p', {}, 'To sign in somewhere else, open Account there and enter your sign-in key.'),
       h('p', {}, h('a', { class: 'go quiet', href: '#account/key', id: 'acct-show-key' }, 'Show my sign-in key'))),
     h('section', { class: 'card' },
       h('h2', {}, 'Your data'),
-      h('p', {}, 'Download everything the server holds for this account, as a file you can read.'),
       h('div', { class: 'actions' },
         h('button', { class: 'go quiet wide', type: 'button', id: 'acct-export', onclick: async (e) => {
           const btn = e.currentTarget;
@@ -163,8 +151,7 @@ async function manage() {
           try { saveFile('cinch-account-data.json', JSON.stringify(await acct.exportAll(), null, 1)); } catch (err) { toast(err.message); }
           busy(btn, false);
         } }, 'Download my data'),
-        h('button', { class: 'go quiet wide', type: 'button', id: 'acct-signout', onclick: () => { acct.signOut(); toast('Signed out on this device'); welcome(); } }, 'Sign out on this device')),
-      h('p', { class: 'fine' }, 'Signing out keeps your record on this device. Delete it there from your browser’s site settings if you want it gone.')),
+        h('button', { class: 'go quiet wide', type: 'button', id: 'acct-signout', onclick: () => { acct.signOut(); toast('Signed out on this device'); welcome(); } }, 'Sign out on this device')),),
     h('section', { class: 'card' },
       h('h2', {}, 'Delete your account'),
       h('button', { class: 'go quiet', type: 'button', id: 'acct-delete', onclick: (e) => { delWrap.hidden = false; e.currentTarget.hidden = true; confirmIn.focus(); } }, 'Delete my account'),
@@ -183,20 +170,19 @@ export async function showLeaderboard(arg) {
   const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Leaderboard period' }, VIEWS.map(([k, label]) => h('a', { class: 'tab', role: 'tab', href: `#leaderboard/${k}`, 'aria-selected': String(k === view), id: `lb-${k}` }, label)));
   const body = h('div', { class: 'board-wrap', 'aria-live': 'polite' }, h('p', { class: 'fine' }, 'Loading'));
   main.replaceChildren(page('Leaderboard',
-    h('p', { class: 'lede' }, `Riders who chose to be listed. Every score is worked out by the server from the loops thrown, so none can be made up.`),
     tabs, body));
-  if (!acct.apiBase()) { body.replaceChildren(h('p', {}, 'The leaderboard needs the Cinch server, and this browser has no connection to it.')); return; }
+  if (!acct.apiBase()) { body.replaceChildren(h('p', {}, 'Can\u2019t reach the leaderboard right now.')); return; }
   let d;
   try { d = await acct.call(`/v1/leaderboard?view=${view}&day=${n}`); } catch (e) { body.replaceChildren(h('p', {}, e.message)); return; }
   const unit = view === 'today' ? `Roundup No. ${n}, ${longDate(keyOf(n))}` : view === 'week' ? `Roundups No. ${d.from} to ${d.to}` : `Every Roundup up to No. ${d.to}`;
   const you = d.you;
   const yours = !acct.signedIn()
-    ? h('div', { class: 'you-card' }, h('p', {}, 'Want your name here? Make an account, list yourself, then finish a Roundup on its day.'), h('a', { class: 'go', href: '#account', id: 'lb-join' }, 'Make an account'))
+    ? h('div', { class: 'you-card' }, h('p', {}, 'Want your name here?'), h('a', { class: 'go', href: '#account', id: 'lb-join' }, 'Make an account'))
     : you
-      ? h('div', { class: 'you-card' }, h('p', {}, you.listed ? `You are #${you.rank} with ${you.score} points.` : `You would be #${you.rank} with ${you.score} points, but you are not listed.`), you.listed ? null : h('a', { class: 'go quiet', href: '#account' }, 'List me'))
-      : h('div', { class: 'you-card' }, h('p', {}, view === 'today' ? 'No Roundup from you today yet.' : 'No Roundups from you in this stretch yet.'), h('a', { class: 'go quiet', href: '#today' }, 'Play today’s Roundup'));
+      ? h('div', { class: 'you-card' }, h('p', {}, you.listed ? `You are #${you.rank} with ${you.score} points.` : `You would be #${you.rank}, but you are hidden.`), you.listed ? null : h('a', { class: 'go quiet', href: '#account' }, 'List me'))
+      : h('div', { class: 'you-card' }, h('p', {}, 'No Roundup from you yet.'), h('a', { class: 'go quiet', href: '#today' }, 'Play today’s Roundup'));
   if (!d.rows.length) {
-    body.replaceChildren(h('p', { class: 'fine' }, unit), h('p', { class: 'empty' }, view === 'today' ? 'Nobody is on the board yet today. Finish today’s Roundup with a listed account to be first.' : 'Nobody is on the board for this stretch yet.'), yours);
+    body.replaceChildren(h('p', { class: 'fine' }, unit), h('p', { class: 'empty' }, 'Nobody yet.'), yours);
     return;
   }
   const card = h('div', { class: 'peek board-peek', role: 'status', hidden: true });
@@ -231,7 +217,7 @@ export async function showLeaderboard(arg) {
   }));
   const wrap = h('div', { class: 'board-list' }, list, card);
   wrap.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { card.hidden = true; open = null; } });
-  body.replaceChildren(h('p', { class: 'fine' }, `${unit}. ${d.players} rider${d.players === 1 ? '' : 's'} listed.`), yours, wrap);
+  body.replaceChildren(h('p', { class: 'fine' }, `${unit} \u00b7 ${d.players} rider${d.players === 1 ? '' : 's'}`), yours, wrap);
 }
 
 // ------------------------------------------------------------ privacy
@@ -240,30 +226,27 @@ export function showPrivacy() {
   const sec = (title, ...kids) => h('section', {}, h('h2', {}, title), ...kids);
   const ul = (...items) => h('ul', {}, items.map((t) => h('li', {}, t)));
   main.replaceChildren(page('Privacy',
-    h('p', { class: 'lede' }, `${NAME} collects as little as it can. There is no email, no password, no advertising and no tracking across sites, and nothing is sold or shared.`),
+    h('p', { class: 'lede' }, `No email, no password, no ads, no tracking. Nothing is sold or shared.`),
     sec('On your device',
-      ul('Your record: days played, the loops you threw, practice, settings, and a random id this browser makes for itself.',
-        'If you have an account, its sign-in key, in its own slot. It is never put in backup files.',
-        'All of it stays in this browser. Clearing the site’s data in your browser removes it.')),
+      ul('Your record, settings and a random browser id.', 'Your sign-in key, if you have an account. Never in backups.')),
     sec('What reaches the server',
-      ul('When you finish a Roundup on its own day: the day, the loops you threw and any hints, the points, and this browser’s random id. These give the “better than X% of players” lines. Without an account no name is attached.',
-        'With an account: your name, whether it is listed, a one-way fingerprint of your sign-in key, when you made it, the Roundups you finish while signed in, and a copy of your record so it can follow you to other devices. The copy leaves out your settings and your Showdown history, which holds names other people typed.',
-        'Side by side rooms: the names you type and your loops for that game. Rooms are deleted after six hours, checked every hour.',
-        'Showdown challenges travel inside the link you send. Nothing about them is stored.')),
+      ul('Finished Roundups: the day, your loops and hints, and the random browser id. No name unless you have an account.',
+        'Accounts: your name, whether it is listed, a fingerprint of your key (not the key), your Roundups, and a copy of your record for other devices, minus settings and Showdown history.',
+        'Side by side rooms: names and loops, deleted after six hours.',
+        'Showdown links: nothing stored.')),
     sec('Visit counts',
-      h('p', {}, 'Visits to the site are counted by Cloudflare Web Analytics. It sets no cookies and builds no profile of you. It counts visits, pages, countries, devices and the site that sent you.')),
+      h('p', {}, 'Cloudflare Web Analytics counts visits. No cookies, no profile.')),
     sec('Who handles it',
-      h('p', {}, 'The site and server run on Cloudflare, which sees your internet address in order to deliver pages and to limit how fast anyone can make accounts. Cinch does not store internet addresses.')),
+      h('p', {}, 'Cloudflare hosts the site and sees your internet address to serve it. Cinch stores none.')),
     sec('What is public',
-      h('p', {}, 'Only if you list yourself: your name and your Roundup scores on the leaderboard, with the number of Roundups, your best day and how many loops roped. Turn listing off and you are gone from the board at once.')),
+      h('p', {}, 'Only if you list yourself: your name and Roundup scores on the leaderboard.')),
     sec('Your choices',
-      ul('Change your name, hide from the leaderboard, download everything the server holds for your account, or delete the account, from the Account page. Deleting removes the account, its saved copy and its Roundups from the server at once.',
-        'Signing out removes the key from this device and leaves your record here.')),
+      h('p', {}, 'On the Account page: rename, hide, download your data, or delete it all at once.')),
     sec('How long things are kept',
-      ul('Account data: until you delete it.', 'Roundups without an account: kept with no name, to compare later players against.', 'Side by side rooms: six hours.')),
+      ul('Accounts: until you delete them.', 'Roundups without an account: kept, with no name.', 'Side by side rooms: six hours.')),
     sec('Children',
-      h('p', {}, 'Cinch asks no one for an age or for contact details. If you are under 13, do not use your real name as your leaderboard name.')),
+      h('p', {}, 'No age or contact details are asked. Under 13? Don\u2019t use your real name.')),
     sec('Questions',
-      h('p', {}, 'Cinch is made by Pratham Mukewar. Ask anything about your data in a ', h('a', { href: 'https://github.com/prathammukewar/cinch/issues', target: '_blank', rel: 'noopener noreferrer' }, 'GitHub issue'), '. Never post your sign-in key there, or anywhere else.')),
+      h('p', {}, 'Ask in a ', h('a', { href: 'https://github.com/prathammukewar/cinch/issues', target: '_blank', rel: 'noopener noreferrer' }, 'GitHub issue'), '. Never post your sign-in key.')),
     h('p', { class: 'fine' }, 'Last changed November 26, 2026.')));
 }

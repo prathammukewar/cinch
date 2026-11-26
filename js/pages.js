@@ -8,14 +8,14 @@ import { ICONS } from './share.js';
 import * as acct from './account.js';
 
 const LADDER = {
-  dead: '96 to 100 points. A hair-thin loop right on the answer, no hints.',
-  ringer: '81 to 95 points, roped.',
-  hogtied: '61 to 80 points, roped.',
-  roped: '41 to 60 points, roped.',
-  leaner: '41 points or more on a near miss. The shoe is leaning on the stake.',
-  snagged: '21 to 40 points.',
-  dust: '1 to 20 points.',
-  tumble: 'No points this time.',
+  dead: '96 to 100 points',
+  ringer: '81 to 95',
+  hogtied: '61 to 80',
+  roped: '41 to 60',
+  leaner: '41 or more on a near miss',
+  snagged: '21 to 40',
+  dust: '1 to 20',
+  tumble: '0',
 };
 import { Round } from './play.js';
 import { verdict, verdictText, byCategory, rateChart, curveChart, bandAt } from './dash.js';
@@ -64,7 +64,7 @@ export async function showQuant() {
   const runs = store.data().quant.runs;
   main.replaceChildren(h('div', { class: 'page' },
     h('h1', {}, 'Quick Draw'),
-    h('p', { class: 'lede' }, `Ten questions, ${QUANT_SECONDS} seconds each. When the fuse burns out, your loop is pitched wherever it is. Fast hands, honest loops.`),
+    h('p', { class: 'lede' }, `Ten questions, ${QUANT_SECONDS} seconds each.`),
     runs.length ? h('dl', { class: 'statline' }, h('div', {}, h('dt', {}, 'Draws'), h('dd', { class: 'num' }, String(runs.length))), h('div', {}, h('dt', {}, 'Best'), h('dd', { class: 'num' }, signed(Math.max(...runs.map((r) => r.points))))), h('div', {}, h('dt', {}, 'Roped'), h('dd', { class: 'num' }, `${Math.round(100 * rate(runs.flatMap((r) => r.rows)))}%`))) : null,
     h('p', { style: 'margin-top:28px' }, h('button', { class: 'go', type: 'button', id: 'start-quant', onclick: start }, 'Light the fuse'))));
 }
@@ -83,9 +83,9 @@ export async function showArchive() {
       rec ? h('span', { class: 's num' }, signed(total(rec.rows))) : h('span', { class: 's none' }, d.open?.[n] ? 'resume' : 'play'))));
   }
   main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Old Trails'),
-    h('p', { class: 'lede' }, 'Every earlier Roundup. Riding an old trail counts in your Brand Book, but only days played on the day keep you on the trail.'),
+    h('p', { class: 'lede' }, 'Every earlier Roundup.'),
     h('ul', { class: 'list' }, items),
-    idx.days < getToday() ? h('p', { class: 'fine', style: 'margin-top:20px' }, 'Planned days have run out, so older questions are coming round again in a new order.') : null));
+    idx.days < getToday() ? h('p', { class: 'fine', style: 'margin-top:20px' }, 'Older questions are coming round again.') : null));
 }
 
 export async function showCalibration() {
@@ -98,8 +98,7 @@ export async function showSources() {
   const list = await fetch('data/credits.json').then((r) => r.json()).catch(() => []);
   main.replaceChildren(h('div', { class: 'page' },
     h('h1', {}, 'Sources'),
-    h('p', { class: 'fine' }, h('a', { href: '#privacy' }, 'Privacy')),
-    h('p', { class: 'lede' }, 'Every answer comes from a source you can open, linked under the answer. Each number was read from its source, then fetched and read a second time before it went in.'),
+    h('p', { class: 'lede' }, 'Every answer links to its source.'),
     h('ul', { class: 'credits' }, list.map((c) => h('li', {}, h('span', {}, c.name), h('span', { class: 'fine' }, `${c.licence}, ${c.n} ${c.n === 1 ? 'question' : 'questions'}`)))),
     h('h2', {}, 'Notices'),
     h('p', {}, 'The information used here was obtained free of charge from and is copyrighted by Retrosheet. Interested parties may contact Retrosheet at "', h('a', { href: 'https://www.retrosheet.org' }, 'www.retrosheet.org'), '".'),
@@ -110,34 +109,22 @@ export async function showSources() {
 }
 
 export function showScoring() {
+  const ladder = [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)];
   main.replaceChildren(h('div', { class: 'page' },
     h('h1', {}, 'Ranch rules'),
-    h('p', { class: 'lede' }, 'Seven numbers a day. For each one, set a loop on the rail that you are 90% sure will rope the answer. Then the horseshoe is pitched.'),
+    h('p', { class: 'lede' }, 'Set a loop you are 90% sure holds the answer. Tighter loops score more.'),
     h('h2', {}, 'Points'),
-    h('p', {}, 'If the horseshoe lands inside your loop, you score 100 minus the share of the rail the loop covers. A loop over a tenth of the rail is worth 90. A loop over the whole rail is worth 0.'),
-    h('p', {}, 'Just outside the loop the points fade away, reaching nothing once the shoe is half a loop\u2019s width beyond the edge. A tight loop is worth more, and its points fade faster. You can never score below zero. The glow on the rail shows all of this while you set your loop.'),
+    h('p', {}, 'Inside your loop: 100 minus the share of the rail it covers. Just outside, the points fade to zero. Never below zero.'),
     h('h2', {}, 'Hints'),
-    h('p', {}, 'Fence in shortens the rail to a stretch that holds the answer, and from then on your loop is measured against that shorter rail. A loop around the whole fenced stretch scores 0, so the fence never pays for a blind guess. Fencing once keeps 85% of the points, twice keeps 70%. Scout marks two known numbers of the same kind on the rail and keeps 85%. The answer can sit between them or outside them. Hints never change your Brand Book record of how often your loops hold the answer.'),
+    h('p', {}, 'Fence in shortens the rail: 85% of the points, or 70% twice. Scout shows two known numbers of the same kind: 85%.'),
     h('h2', {}, 'Names for a throw'),
-    h('ul', { class: 'ladder' }, [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)].map((t) => h('li', {}, h('span', { class: `tier-pill t-${t.key}` }, t.name), ' ', LADDER[t.key]))),
-    h('p', {}, 'When you share a result, each throw shows as one emoji, in this order from best to nothing: ', [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)].map((t) => `${ICONS[t.key]} ${t.name}`).join(', '), '.'),
-    h('h2', {}, 'Honest loops'),
-    h('p', {}, 'The goal is a loop that ropes the answer nine times in ten. On questions you know something about, that is also close to the best-scoring loop. On questions you are very unsure of, a slightly tighter loop pays a little more on average, because points cannot go below zero. The Brand Book keeps you honest: it tracks how often your 90% loops really hold the answer.'),
-    h('div', { id: 'proof' }),
-    h('h2', {}, 'About luck'),
-    h('p', {}, 'A perfectly judged 90% loop still misses one time in ten. It ropes all seven on 48% of days, six on 37%, five on 12%, and fewer on 3%. After 100 questions your rate is known to about 6 points either side, and after 220 to about 4. The Brand Book only makes a call at 20, 50, 100, 200 and 350 questions.'),
+    h('ul', { class: 'ladder' }, ladder.map((t) => h('li', {}, h('span', { class: `tier-pill t-${t.key}` }, t.name), ' ', LADDER[t.key]))),
+    h('p', {}, 'In a shared result: ', ladder.map((t) => `${ICONS[t.key]} ${t.name}`).join(', '), '.'),
     h('h2', {}, 'The rail'),
-    h('p', {}, 'Every rail of the same kind is the same length, so the same loop always scores the same. Numbers that grow by multiples, like populations and prices, get a rail that spans a factor of 100, so being off by a factor of two looks the same at any size. Years get 150 years, temperatures 1,000 degrees, and percentages run from 0 to 100. The answer sits on its rail at random, so the middle is no hint.'),
-    h('h2', {}, 'Where the numbers come from'),
-    h('p', {}, 'Every answer links to its source and was read from it twice. If one looks wrong, ', h('a', { href: 'https://github.com/prathammukewar/cinch/issues/new?title=Wrong%20number', target: '_blank', rel: 'noopener noreferrer' }, 'report it here'), '.'),
+    h('p', {}, 'Rails of the same kind are the same length: a factor of 100 for big numbers, 150 years, 1,000 degrees, 0 to 100%.'),
+    h('h2', {}, 'Sources'),
+    h('p', {}, 'Every answer links to its source. Spot a wrong one? ', h('a', { href: 'https://github.com/prathammukewar/cinch/issues/new?title=Wrong%20number', target: '_blank', rel: 'noopener noreferrer' }, 'Report it'), '.'),
     h('p', { class: 'foot' }, 'Made by Pratham Mukewar.')));
-  fetch('data/proof.json').then((r) => r.json()).then((p) => {
-    $('proof')?.replaceChildren(
-      h('p', { style: 'margin-top:14px' }, `The same simulated player on ${p.questions.toLocaleString('en-US')} questions, with different habits:`),
-      h('table', { class: 'maths' },
-        h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, 'Habit'), h('th', { scope: 'col' }, 'Roped'), h('th', { scope: 'col' }, 'Points a day'))),
-        h('tbody', {}, p.rows.map((r, i) => h('tr', { class: i === 0 ? 'us' : '' }, h('td', {}, r.name), h('td', {}, `${Math.round(r.hitRate * 100)}%`), h('td', {}, signed(Math.round(r.perDay))))))));
-  }).catch(() => {});
 }
 
 export function showSettings() {
@@ -158,16 +145,16 @@ export function showSettings() {
   const keep = h('p', {}, '');
   (async () => {
     const ok = await navigator.storage?.persisted?.().catch(() => null);
-    keep.textContent = store.memoryOnly ? 'This browser is blocking storage, so nothing will be kept after you close the page.' : ok ? 'This browser has agreed to keep your data.' : 'This browser may clear your data if you stay away for a long time. A backup file is the safe copy.';
+    keep.textContent = store.memoryOnly ? 'This browser is blocking storage, so nothing is kept after you close the page.' : ok ? '' : 'Browsers can clear it after a long time away, so keep a backup.';
   })();
-  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Saddlebag'), h('p', { class: 'lede' }, 'Settings, and a safe copy of your record.'),
+  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Saddlebag'), h('p', { class: 'lede' }, 'Settings and backups.'),
     h('div', { class: 'set' }, h('div', {}, 'Theme'), seg('theme', [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']])),
     h('div', { class: 'set' }, h('div', {}, 'Sound'), seg('sound', [[false, 'Off'], [true, 'On']])),
     h('div', { class: 'set' }, h('div', {}, 'Vibration', h('p', {}, 'On phones that support it')), seg('haptics', [[false, 'Off'], [true, 'On']])),
     h('h2', {}, 'Account'),
-    h('div', { class: 'set' }, h('div', {}, acct.signedIn() ? `Signed in as ${acct.me()?.name || 'your account'}` : 'Not signed in', h('p', {}, acct.signedIn() ? 'Name, leaderboard, your sign-in key, your data' : 'Keep your record on every device, and join the leaderboard')), h('a', { class: 'btn', href: '#account', id: 'settings-account' }, acct.signedIn() ? 'Manage' : 'Set up')),
+    h('div', { class: 'set' }, h('div', {}, acct.signedIn() ? `Signed in as ${acct.me()?.name || 'your account'}` : 'Not signed in', h('p', {}, acct.signedIn() ? 'Name, leaderboard, sign-in key, data' : 'Sync devices and join the leaderboard')), h('a', { class: 'btn', href: '#account', id: 'settings-account' }, acct.signedIn() ? 'Manage' : 'Set up')),
     h('h2', {}, 'Your data'),
-    h('p', {}, 'Your scores, streaks and loops live in this browser. When you finish a Roundup on its own day, the loops you threw go to the server, which works out your score, under a random id made in this browser, so you can see how you did against other riders. With an account, your name and Roundups go with it. ', h('a', { href: '#privacy' }, 'Everything about privacy'), '. ', keep),
+    h('p', {}, 'Your record lives in this browser. ', h('a', { href: '#privacy' }, 'Privacy'), '. ', keep),
     h('div', { class: 'set', style: 'margin-top:12px' }, h('div', {}, 'Back up', h('p', {}, 'Saves everything to one file')), h('button', { class: 'btn', type: 'button', id: 'backup', onclick: backup }, 'Save file')),
     h('div', { class: 'set' }, h('div', {}, 'Restore', h('p', {}, 'Adds a backup to what is here and removes nothing')), h('button', { class: 'btn', type: 'button', id: 'restore', onclick: () => file.click() }, 'Choose file'), file),
     h('div', { class: 'set' }, h('div', {}, 'Ask the browser to keep it'), h('button', { class: 'btn', type: 'button', onclick: async () => { const ok = await askPersist(); toast(ok ? 'It will be kept' : 'The browser did not agree'); } }, 'Ask')),

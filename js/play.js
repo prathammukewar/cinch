@@ -129,9 +129,8 @@ export class Round {
       u[side].input.setAttribute('aria-label', `${side === 'low' ? 'Low' : 'High'} end${q.unit ? `, in ${q.unit}` : ''}`);
     }
     const teach = !store.data().seenIntro && this.rows.length === 0;
-    const second = store.data().newcomer && this.rows.length === 1;
-    u.hint.textContent = teach ? 'Pull the two posts in until you are 90% sure the answer is between them.' : second ? 'A tighter loop is worth more, but its points fade faster outside it.' : '';
-    u.hint.classList.toggle('gone', !teach && !second);
+    u.hint.textContent = teach ? 'Pull the posts in until you are 90% sure the answer is between them.' : '';
+    u.hint.classList.toggle('gone', !teach);
     quickerReveals(this.rows.length >= 2);
     this.stage.setQuestion(q, rulerOf(q));
     this.paintHints();
@@ -303,7 +302,7 @@ export class Round {
     if (key === this.worthKey) return;
     this.worthKey = key;
     if (!this.touched) { el.replaceChildren('Drag the posts, or tap a number to type it.'); return; }
-    el.replaceChildren(h('b', { class: 'num' }, plus(w)), m < 1 ? ` if it lands inside (${Math.round(m * 100)}% with hints)` : ' if it lands inside', h('span', { class: 'cost' }, 'Fades to nothing just outside. The tighter the loop, the faster.'));
+    el.replaceChildren(h('b', { class: 'num' }, plus(w)), m < 1 ? ` if it lands inside (${Math.round(m * 100)}% with hints)` : ' if it lands inside');
   }
 
   lock(timeUp) {
@@ -344,7 +343,7 @@ export class Round {
     for (const el of [u.why, u.teach.parentElement]) { el.classList.remove('rise'); void el.offsetWidth; el.classList.add('rise'); }
     if (!r.hit && !store.data().sawMiss) {
       store.change((d) => { d.sawMiss = true; });
-      u.hint.textContent = 'A 90% range should miss about one question in ten. Wider loops are safer.';
+      u.hint.textContent = 'A 90% loop misses about 1 in 10.';
       u.hint.classList.remove('gone');
     }
     u.on.style.visibility = 'visible';

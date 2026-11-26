@@ -61,8 +61,8 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
 
   const text = () => shareText({ title: shareTitle, score, of, rows });
   const el = h('section', { class: 'result', 'aria-label': 'Result' },
-    h('div', { class: 'tally' }, h('p', { class: 'day' }, heading), big, h('p', { class: 'of' }, `of ${of}. A loop around the whole rail scores 0.`),
-      h('p', { class: 'standing', id: 'standing', role: 'status', hidden: !standings || !api() }, standings && api() ? 'Comparing with everyone else' : '')),
+    h('div', { class: 'tally' }, h('p', { class: 'day' }, heading), big, h('p', { class: 'of' }, `of ${of}`),
+      h('p', { class: 'standing', id: 'standing', role: 'status', hidden: !standings || !api() }, '')),
     box,
     brands,
     h('dl', { class: 'facts' },
@@ -76,9 +76,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
       ...extras),
     h('div', { class: 'says' },
       h('p', { class: 'cheer' }, luckLine(hits, rows.length))),
-    h('details', { class: 'maths' }, h('summary', {}, 'How the points work'),
-      h('div', {}, h('p', {}, 'Inside your loop you score 100 minus the share of the rail it covers. Just outside, the points fade to nothing within half a loop\u2019s width. Fence in measures your loop against the shorter rail it leaves, and each hint keeps only a share of the points.'),
-        h('p', { class: 'fine', style: 'margin-top:8px' }, h('a', { href: '#scoring' }, 'Ranch rules')))),
+    h('p', { class: 'fine maths-link' }, h('a', { href: '#scoring' }, 'How scoring works')),
     foot,
     h('ol', { class: 'recap' }, rows.map((r, i) => {
       const q = questions[i];
@@ -101,7 +99,7 @@ export function resultView({ rows, questions, instant, heading, of, shareTitle, 
       h('p', { class: 'peek-q' }, q.question),
       h('dl', {}, h('div', {}, h('dt', {}, 'Your loop'), h('dd', {}, `${withUnit(r.lo, q)} to ${withUnit(r.hi, q)}`)), h('div', {}, h('dt', {}, 'Answer'), h('dd', {}, withUnit(q.answer, q)))),
       h('p', { class: `peek-v${r.hit ? ' hit' : ''}` }, h('b', { class: `tier-pill t-${tierOf(r).key}` }, verdictOf(r)), ` ${plus(r.points)}${r.hints ? ' with hints' : ''}`),
-      crowd?.qbetter?.[i] != null ? h('p', { class: 'peek-crowd' }, `Better than ${crowd.qbetter[i]}% of players on this one`) : '');
+      crowd?.qbetter?.[i] != null ? h('p', { class: 'peek-crowd' }, `Better than ${crowd.qbetter[i]}% of players`) : '');
     const step = (box.clientHeight - 44) / rows.length;
     const y = 22 + step * (i + 0.5);
     peek.hidden = false;
@@ -172,12 +170,12 @@ async function boardLine(el, day, s) {
   if (!tally) return;
   const line = h('p', { class: 'board-line' });
   tally.append(line);
-  if (!signedIn()) { line.append('Want your name on the leaderboard? ', h('a', { href: '#account', id: 'result-join' }, 'Make an account'), '.'); return; }
-  if (!s.counted) { line.append('Another device already counted a Roundup for your account today. ', h('a', { href: '#leaderboard' }, 'See the leaderboard')); return; }
+  if (!signedIn()) { line.append(h('a', { href: '#account', id: 'result-join' }, 'Join the leaderboard'), '.'); return; }
+  if (!s.counted) { line.append('Your account already has today\u2019s Roundup from another device.'); return; }
   try {
     const d = await accountCall(`/v1/leaderboard?view=today&day=${day}`);
     if (!d.you) return;
-    line.append(d.you.listed ? `You are #${d.you.rank} of ${d.players} on today\u2019s leaderboard. ` : 'You are not listed on the leaderboard. ', h('a', { href: '#leaderboard', id: 'result-board' }, d.you.listed ? 'See it' : 'Change that'));
+    line.append(d.you.listed ? `#${d.you.rank} of ${d.players} on today\u2019s ` : 'You are hidden from the ', h('a', { href: '#leaderboard', id: 'result-board' }, 'leaderboard'), '.');
   } catch { line.remove(); }
 }
 
@@ -206,7 +204,7 @@ async function loadStandings(el, { day, post }, score, rows, done) {
     line.hidden = false;
     el.querySelectorAll('.recap li').forEach((li, i) => {
       const parts = [];
-      if (s.qbetter?.[i] != null) parts.push(`Better than ${s.qbetter[i]}% of players on this one`);
+      if (s.qbetter?.[i] != null) parts.push(`Better than ${s.qbetter[i]}% of players`);
       if (s.riders > 1 && s.roped?.[i] !== undefined) parts.push(`${s.roped[i]}% roped it`);
       if (parts.length) li.append(h('span', { class: 'crowd' }, parts.join(' \u00b7 ')));
     });

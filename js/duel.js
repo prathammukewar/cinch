@@ -50,7 +50,7 @@ export async function show(code) {
   }
   ctx.main.replaceChildren(page('Showdown',
     h('p', { class: 'big-line' }, `${clean(o.n) || 'A friend'} scored `, h('b', { class: 'num' }, signed(total(o.p.map((p) => ({ points: p }))))), ` on these ${o.q.length} questions.`),
-    h('p', {}, 'Rope the same ones and see who comes out ahead.'),
+    
     nameField(),
     h('p', { style: 'margin-top:24px' }, h('button', { class: 'go', type: 'button', id: 'duel-go', onclick: () => play(qs, o) }, 'Take the challenge'))));
 }
@@ -59,7 +59,7 @@ function page(title, ...kids) {
   return h('div', { class: 'page duel-page' }, h('h1', {}, title), ...kids);
 }
 
-function nameField(label = 'Your name, so they know who sent it') {
+function nameField(label = 'Your name') {
   return h('label', { class: 'name-field' }, h('span', {}, label),
     h('input', { type: 'text', id: 'duel-name', maxlength: 20, autocomplete: 'nickname', value: store.get('name') || '', placeholder: 'Optional', oninput: (e) => store.set('name', clean(e.target.value)) }));
 }
@@ -74,14 +74,14 @@ function intro() {
   ctx.main.replaceChildren(page('Showdown',
     h('p', { class: 'lede' }, `Two riders, the same ${PER_DAY} questions, one winner.`),
     h('div', { class: 'ways' },
-      way('way-side', '#duel/side', 'Side by side', 'Each on your own phone or computer, at the same time. Start a room, send the code, and rope every question together.'),
-      way('way-same', '#duel/same', 'Same saddle', 'One phone or computer between you. Take turns roping each question in secret, then one horseshoe lands for both loops.'),
-      way('way-send', '#duel/send', 'Send a challenge', `Rope ${PER_DAY} now and send the link. They play whenever they like, and you both see who came out ahead.`))));
+      way('way-side', '#duel/side', 'Side by side', 'Two devices, live.'),
+      way('way-same', '#duel/same', 'Same saddle', 'One device, take turns.'),
+      way('way-send', '#duel/send', 'Send a challenge', 'Send a link. They play later.'))));
 }
 
 function sendIntro() {
   ctx.main.replaceChildren(page('Send a challenge',
-    h('p', { class: 'lede' }, `Rope ${PER_DAY} questions, then send the link to a friend. They rope the same ${PER_DAY}, and you both see who came out ahead, question by question.`),
+    h('p', { class: 'lede' }, `Rope ${PER_DAY}, then send the link.`),
     nameField(), startButton(), back()));
 }
 
@@ -92,7 +92,7 @@ function sameIntro() {
     h('input', { type: 'text', id, maxlength: 20, autocomplete: 'off', value, placeholder }));
   ctx.paintPips([], 0);
   ctx.main.replaceChildren(page('Same saddle',
-    h('p', { class: 'lede' }, `${PER_DAY} questions on one phone or computer. On each one, the first rider ropes it and passes the phone, the second ropes it, and one horseshoe lands for both. Who goes first swaps every question. 30 seconds each.`),
+    h('p', { class: 'lede' }, 'Take turns on one device.'),
     field('rider-1', 'First rider', clean(store.get('name')), 'Rider 1'),
     field('rider-2', 'Second rider', clean(store.get('name2')), 'Rider 2'),
     h('p', { style: 'margin-top:24px' }, h('button', { class: 'go', type: 'button', id: 'side-start', onclick: () => {
@@ -152,8 +152,8 @@ function liveIntro() {
   const msg = h('p', { class: 'room-msg', role: 'status' });
   const code = h('input', { type: 'text', id: 'room-code', maxlength: 4, autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', placeholder: 'ABCD', 'aria-label': 'Room code', oninput: (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); } });
   ctx.main.replaceChildren(page('Side by side',
-    h('p', { class: 'lede' }, `You each play on your own phone or computer, at the same time. Each question shows both loops once you have both roped it. ${PER_DAY} questions, 30 seconds each.`),
-    nameField('Your name, so they know who they are up against'),
+    h('p', { class: 'lede' }, 'Play live on two devices.'),
+    nameField(),
     h('p', { style: 'margin-top:20px' }, h('button', { class: 'go', type: 'button', id: 'room-start', onclick: () => startRoom(msg) }, 'Start a room')),
     h('p', { class: 'or' }, 'or join a friend’s room'),
     h('div', { class: 'join-row' }, code, h('button', { class: 'go quiet', type: 'button', id: 'room-join', onclick: () => { if (code.value.length === 4) location.hash = `#duel/${code.value}`; else msg.textContent = 'Room codes are four letters.'; } }, 'Join')),
@@ -174,7 +174,7 @@ async function startRoom(msg) {
   const url = roomLink(room.code);
   const status = h('p', { class: 'wait-line', role: 'status' }, 'Waiting for a rider to join', h('span', { class: 'dots', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')));
   ctx.main.replaceChildren(page('Side by side',
-    h('p', { class: 'lede' }, 'Send this code or link to your friend. The game starts as soon as they join.'),
+    h('p', { class: 'lede' }, 'Send this to your friend.'),
     h('p', { class: 'room-code', id: 'room-code-show', 'aria-label': `Room code ${room.code.split('').join(' ')}` }, room.code),
     h('div', { class: 'actions' },
       h('button', { class: 'go wide', type: 'button', id: 'room-send', onclick: async () => {
@@ -214,8 +214,7 @@ function joinPage(code) {
     }
   } }, 'Join the room');
   ctx.main.replaceChildren(page(`Join room ${code}`,
-    h('p', { class: 'lede' }, 'You will both rope the same questions at the same time, each on your own screen.'),
-    nameField('Your name, so they know who they are up against'),
+    nameField(),
     h('p', { style: 'margin-top:20px' }, go), msg, back()));
 }
 
@@ -316,7 +315,7 @@ function sent(me, qs, rows) {
   ctx.paintPips([], 0);
   ctx.main.replaceChildren(page('Showdown',
     h('p', { class: 'big-line' }, 'You scored ', h('b', { class: 'num' }, signed(score)), ` and roped ${rows.filter((r) => r.hit).length} of ${rows.length}.`),
-    h('p', {}, 'Now send the link. When your friend sends theirs back, open it to see who won.'),
+    h('p', {}, 'Send the link to a friend.'),
     shareButtons(me),
     h('ol', { class: 'recap' }, rows.map((r, i) => h('li', {}, h('span', { class: 'qq' }, qs[i].question), h('span', { class: 'pp num' }, plus(r.points)), h('span', { class: 'aa' }, withUnit(qs[i].answer, qs[i])))))));
   say(`You scored ${score}. Send the link to a friend.`);

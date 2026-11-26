@@ -88,7 +88,6 @@ export class PairRound extends Round {
     const cover = h('div', { class: 'handoff', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'handoff-title' },
       h('p', { class: 'done-line' }, `${this.names[this.seat]} has roped it.`),
       h('h2', { id: 'handoff-title' }, `Pass the phone to ${this.names[next]}`),
-      h('p', {}, 'Their loop stays hidden until the horseshoe flies.'),
       go);
     this.root.querySelector('.play').append(cover);
     go.focus({ preventScroll: true });
