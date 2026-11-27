@@ -175,15 +175,14 @@ async function showHome() {
     book.length
       ? h('span', { class: 'nums' }, stat(`${Math.round((100 * roped) / book.length)}%`, 'roped'), dayScores.length ? stat(String(Math.round(dayScores.reduce((a, b) => a + b, 0) / dayScores.length)), 'avg day') : stat(`${s.current}`, 'day trail'))
       : h('span', { class: 'nums empty' }, h('small', {}, 'After your first round')));
-  const boardNum = h('span', { class: 'nums' }, stat('Join', 'the board'));
+  const boardNum = h('span', { class: 'nums' }, stat('\u2013', 'today'));
   const boardTile = h('a', { class: 'mode stats', href: '#leaderboard', id: 'home-board' },
     h('span', { class: 'names' }, h('b', {}, 'Leaderboard'), h('small', {}, 'Top riders')), boardNum);
-  if (acct.signedIn()) {
-    boardNum.replaceChildren(stat('\u2013', 'today'));
-    acct.call(`/v1/leaderboard?view=today&day=${today}`).then((d) => {
-      boardNum.replaceChildren(d.you ? stat(`#${d.you.rank}`, d.you.listed ? 'today' : 'hidden') : stat(String(d.players), d.players === 1 ? 'rider today' : 'riders today'));
+  if (acct.apiBase()) {
+    acct.call(`/v1/leaderboard?view=today&day=${today}${acct.signedIn() ? '' : `&client=${acct.clientId()}`}`).then((d) => {
+      boardNum.replaceChildren(d.you ? stat(`#${d.you.rank}`, 'today') : stat(String(d.players), d.players === 1 ? 'rider today' : 'riders today'));
     }).catch(() => boardNum.replaceChildren(stat('Top', 'riders')));
-  }
+  } else boardNum.replaceChildren(stat('Top', 'riders'));
   const view = h('section', { class: 'home', 'aria-label': 'Welcome' },
     h('div', { class: 'hero-box' }, canvas),
     word,

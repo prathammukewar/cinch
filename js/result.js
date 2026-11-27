@@ -170,12 +170,14 @@ async function boardLine(el, day, s) {
   if (!tally) return;
   const line = h('p', { class: 'board-line' });
   tally.append(line);
-  if (!signedIn()) { line.append(h('a', { href: '#account', id: 'result-join' }, 'Join the leaderboard'), '.'); return; }
-  if (!s.counted) { line.append('Your account already has today\u2019s Roundup from another device.'); return; }
+  const anon = !signedIn();
+  if (!anon && !s.counted) { line.append('Your account already has today\u2019s Roundup from another device.'); return; }
   try {
-    const d = await accountCall(`/v1/leaderboard?view=today&day=${day}`);
-    if (!d.you) return;
-    line.append(d.you.listed ? `#${d.you.rank} of ${d.players} on today\u2019s ` : 'You are hidden from the ', h('a', { href: '#leaderboard', id: 'result-board' }, 'leaderboard'), '.');
+    const d = await accountCall(`/v1/leaderboard?view=today&day=${day}${anon ? `&client=${clientId()}` : ''}`);
+    if (!d.you) { line.remove(); return; }
+    line.append(`#${d.you.rank} of ${d.players} on today\u2019s `, h('a', { href: '#leaderboard', id: 'result-board' }, 'leaderboard'), '.');
+    if (anon) line.append(' ', h('a', { href: '#account', id: 'result-join' }, 'Put your name on it'), '.');
+    else if (!d.you.listed) line.append(' Your name is hidden.');
   } catch { line.remove(); }
 }
 

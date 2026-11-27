@@ -143,29 +143,35 @@ export async function accounts(req, env, url, json, body) {
   return json({ error: 'not found' }, 404);
 }
 
-/** Today, this week or all time. Only listed accounts and scores the server worked out itself. */
+/** Today, this week or all time. Every Roundup the server worked out itself is on it; a name shows only
+ * for an account that chose to be listed. A rider is an account, or a browser id when there is none. */
 async function leaderboard(req, db, url, json) {
   const view = ['today', 'week', 'all'].includes(url.searchParams.get('view')) ? url.searchParams.get('view') : 'today';
   const day = Number(url.searchParams.get('day'));
   if (!Number.isInteger(day) || day < 1 || day > 100000) return json({ error: 'bad day' }, 400);
   const [from, to] = view === 'today' ? [day, day] : view === 'week' ? [day - 6, day] : [1, day];
   const today = view === 'today';
+  const rider = "COALESCE(s.account, 'c:' || s.client)";
+  const named = 'CASE WHEN a.listed = 1 THEN a.name END';
   const sum = today ? 's.score' : 'SUM(s.score)';
-  const base = `FROM scores s JOIN accounts a ON a.id = s.account WHERE s.verified = 1 AND s.day BETWEEN ?1 AND ?2`;
-  const group = today ? '' : 'GROUP BY a.id';
+  const base = 'FROM scores s LEFT JOIN accounts a ON a.id = s.account WHERE s.verified = 1 AND s.day BETWEEN ?1 AND ?2';
+  const group = today ? '' : `GROUP BY ${rider}`;
   // One row per rider. Today is a single Roundup each; a week or all time adds them up.
   const cols = today
-    ? `a.id, a.name, s.score AS score, 1 AS days, s.score AS best, s.hits AS hits, length(replace(s.hits, '0', '')) AS roped`
-    : `a.id, a.name, SUM(s.score) AS score, COUNT(*) AS days, MAX(s.score) AS best, NULL AS hits, SUM(length(replace(s.hits, '0', ''))) AS roped`;
-  const { results } = await db.prepare(`SELECT ${cols} ${base} AND a.listed = 1 ${group} ORDER BY score DESC, ${today ? 's.at' : 'MIN(s.at)'} ASC LIMIT ${TOP}`).bind(from, to).all();
-  const players = await db.prepare(`SELECT COUNT(DISTINCT a.id) AS n ${base} AND a.listed = 1`).bind(from, to).first();
+    ? `${rider} AS rider, ${named} AS name, s.score AS score, 1 AS days, s.score AS best, s.hits AS hits, length(replace(s.hits, '0', '')) AS roped`
+    : `${rider} AS rider, MAX(${named}) AS name, SUM(s.score) AS score, COUNT(*) AS days, MAX(s.score) AS best, NULL AS hits, SUM(length(replace(s.hits, '0', ''))) AS roped`;
+  const { results } = await db.prepare(`SELECT ${cols} ${base} ${group} ORDER BY score DESC, ${today ? 's.at' : 'MIN(s.at)'} ASC LIMIT ${TOP}`).bind(from, to).all();
+  const players = await db.prepare(`SELECT COUNT(DISTINCT ${rider}) AS n ${base}`).bind(from, to).first();
+  // You: your account when signed in, otherwise this browser's id. Neither is ever sent back.
   const me = await who(req, db);
+  const client = url.searchParams.get('client');
+  const mine = me ? me.id : typeof client === 'string' && /^[a-z0-9]{12,24}$/.test(client) ? `c:${client}` : null;
   let you = null;
-  if (me) {
-    const mine = await db.prepare(`SELECT ${sum} AS score, COUNT(*) AS days, MAX(s.score) AS best, SUM(length(replace(s.hits, '0', ''))) AS roped ${base} AND a.id = ?3 ${group}`).bind(from, to, me.id).first();
-    if (mine && mine.days) {
-      const above = await db.prepare(`SELECT COUNT(*) AS n FROM (SELECT ${sum} AS score ${base} AND a.listed = 1 AND a.id != ?3 ${group}) WHERE score > ?4`).bind(from, to, me.id, mine.score).first();
-      you = { name: me.name, listed: !!me.listed, rank: above.n + 1, score: mine.score, days: mine.days, best: mine.best, roped: mine.roped };
+  if (mine) {
+    const row = await db.prepare(`SELECT ${sum} AS score, COUNT(*) AS days, MAX(s.score) AS best, SUM(length(replace(s.hits, '0', ''))) AS roped ${base} AND ${rider} = ?3 ${group}`).bind(from, to, mine).first();
+    if (row && row.days) {
+      const above = await db.prepare(`SELECT COUNT(*) AS n FROM (SELECT ${sum} AS score ${base} AND ${rider} != ?3 ${group}) WHERE score > ?4`).bind(from, to, mine, row.score).first();
+      you = { name: me ? me.name : null, listed: !!me?.listed, rank: above.n + 1, score: row.score, days: row.days, best: row.best, roped: row.roped };
     }
   }
   // Ranks are shared on ties: two riders on 500 are both third.
@@ -173,7 +179,7 @@ async function leaderboard(req, db, url, json) {
   let last = null;
   const rows = results.map((r, i) => {
     if (r.score !== last) { rank = i + 1; last = r.score; }
-    return { rank, name: r.name, score: r.score, days: r.days, best: r.best, roped: r.roped, hits: r.hits, you: !!me && r.id === me.id };
+    return { rank, name: r.name, score: r.score, days: r.days, best: r.best, roped: r.roped, hits: r.hits, you: r.rider === mine };
   });
   return json({ view, day, from, to, players: players.n, rows, you }, 200);
 }

@@ -142,6 +142,8 @@ export default {
     const url = new URL(req.url);
     try {
       if (req.method === 'POST' && url.pathname === '/v1/score') {
+        // Every Roundup goes on the leaderboard, so posting is limited per address. Counted at Cloudflare's edge; nothing is kept here.
+        if (env.SCORES && !(await env.SCORES.limit({ key: `score:${req.headers.get('cf-connecting-ip') || 'local'}` })).success) return json({ error: 'Too many tries. Wait a minute.' }, 429, origin);
         const b = await body(req, 4096);
         const day = Number(b.day);
         const [lo, hi] = liveDays();

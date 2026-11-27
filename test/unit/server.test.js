@@ -43,7 +43,7 @@ test('made-up scores are refused or never reach the leaderboard', async () => {
   assert.equal(legacy.status, 200);
   assert.equal(legacy.data.verified, false);
   const board = await b.call(`/v1/leaderboard?view=today&day=${DAY}`);
-  assert.equal(board.data.rows.length, 0);
+  assert.equal(board.data.rows.length, 0, 'only scores the server worked out itself are on the board');
 });
 
 test('accounts hold no email or password, and the sign-in key is never stored', async () => {
@@ -76,7 +76,7 @@ test('names are checked on the server and must be unique however they are writte
   assert.equal((await b.call('/v1/me', { method: 'PATCH', body: { name: 'Other Two' }, key: other.key })).data.name, 'Other Two');
 });
 
-test('the leaderboard ranks listed riders, shares ranks on ties, and leaves hidden riders out', async () => {
+test('the leaderboard ranks every rider, shares ranks on ties, and names only listed riders', async () => {
   const b = backend();
   const ana = await join(b, 'Ana');
   const ben = await join(b, 'Ben');
@@ -86,21 +86,41 @@ test('the leaderboard ranks listed riders, shares ranks on ties, and leaves hidd
   await finish(b, 2, loopsAt(0.05), ben.key);
   await finish(b, 3, loopsAt(1.5), cy.key);
   await finish(b, 4, loopsAt(0.02), dee.key);
+  await finish(b, 5, loopsAt(0.05));
   const board = (await b.call(`/v1/leaderboard?view=today&day=${DAY}`, { key: cy.key })).data;
-  assert.deepEqual(board.rows.map((r) => [r.rank, r.name]).sort(), [[1, 'Ana'], [1, 'Ben'], [3, 'Cyd']]);
-  assert.equal(board.players, 3);
+  const tag = (rows) => rows.map((r) => `${r.rank} ${r.name ?? '(no name)'}`).sort();
+  assert.deepEqual(tag(board.rows), ['1 (no name)', '2 (no name)', '2 Ana', '2 Ben', '5 Cyd']);
+  assert.equal(board.players, 5);
   assert.equal(board.rows.find((r) => r.name === 'Cyd').you, true);
   assert.equal(board.rows.find((r) => r.name === 'Ana').you, false);
-  assert.ok(!JSON.stringify(board).includes('"id"'), 'account ids stay private');
-  // A hidden rider sees where they would stand; nobody else sees them.
+  const text = JSON.stringify(board);
+  assert.ok(!text.includes('"id"') && !text.includes('"rider"') && !text.includes(client(5)) && !text.includes('Dee'), 'no ids, browser ids or hidden names leave the server');
+  // A hidden rider is on the board with no name and sees their own place.
   const hidden = (await b.call(`/v1/leaderboard?view=today&day=${DAY}`, { key: dee.key })).data;
   assert.equal(hidden.you.listed, false);
   assert.equal(hidden.you.rank, 1);
+  assert.equal(hidden.rows[0].you, true);
+  // Without an account, the browser id finds your row; someone else's id is not you.
+  const anon = (await b.call(`/v1/leaderboard?view=today&day=${DAY}&client=${client(5)}`)).data;
+  assert.equal(anon.you.rank, 2);
+  assert.equal(anon.rows.filter((r) => r.you).length, 1);
+  assert.equal(anon.rows.find((r) => r.you).name, null);
+  assert.equal((await b.call(`/v1/leaderboard?view=today&day=${DAY}&client=nottheirs1234`)).data.you, null);
+  assert.equal((await b.call(`/v1/leaderboard?view=today&day=${DAY}&client=BAD!`)).data.you, null);
   for (const view of ['week', 'all']) {
     const v = (await b.call(`/v1/leaderboard?view=${view}&day=${DAY}`)).data;
-    assert.equal(v.rows.length, 3);
+    assert.equal(v.rows.length, 5);
     assert.equal(v.rows[0].days, 1);
   }
+});
+
+test('score posts are limited per address', async () => {
+  const b = backend();
+  let n = 0;
+  b.env.SCORES = { limit: async () => ({ success: ++n <= 2 }) };
+  assert.equal((await finish(b, 1, loopsAt(0.05))).status, 200);
+  assert.equal((await finish(b, 2, loopsAt(0.05))).status, 200);
+  assert.equal((await finish(b, 3, loopsAt(0.05))).status, 429);
 });
 
 test('one Roundup a day counts per account, and earlier Roundups from this browser join a new account', async () => {
@@ -113,7 +133,8 @@ test('one Roundup a day counts per account, and earlier Roundups from this brows
   const second = await finish(b, 8, loopsAt(0.01), ana.key);
   assert.equal(second.data.counted, false, 'a second device cannot add a second Roundup for the same day');
   board = (await b.call(`/v1/leaderboard?view=today&day=${DAY}`)).data;
-  assert.equal(board.rows[0].score, early.data.score);
+  assert.deepEqual(board.rows.map((r) => r.name), [null, 'Ana'], 'the second device\u2019s Roundup stays on the board without the name');
+  assert.equal(board.rows.find((r) => r.name === 'Ana').score, early.data.score);
   // Someone else's browser id cannot pull another person's Roundups into their account.
   const ben = await join(b, 'Ben', true, 7);
   assert.equal(ben.joined, 0);

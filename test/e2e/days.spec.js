@@ -91,6 +91,11 @@ test('a live Roundup result says how you did against other riders', async ({ pag
     sent = JSON.parse(route.request().postData());
     await route.fulfill({ json: { day: sent.day, riders: 120, better: 63, roped: [80, 70, 60, 50, 40, 30, 20], qriders: 118, qbetter: [91, 12, 50, 0, 100, 47, 66] } });
   });
+  let asked = '';
+  await page.route('**/standings/v1/leaderboard?**', async (route) => {
+    asked = route.request().url();
+    await route.fulfill({ json: { view: 'today', day: 2, from: 2, to: 2, players: 120, rows: [], you: { name: null, listed: false, rank: 45, score: 300, days: 1, best: 300, roped: 4 } } });
+  });
   await at(page, '2026-11-26T09:00:00');
   await page.goto('/#today');
   await playAll(page);
@@ -104,6 +109,9 @@ test('a live Roundup result says how you did against other riders', async ({ pag
   expect(Object.keys(sent).sort()).toEqual(['client', 'day', 'loops']);
   expect(sent.loops).toHaveLength(7);
   for (const l of sent.loops) expect(Object.keys(l).sort()).toEqual(['fence', 'hi', 'lo', 'scout']);
+  // Without an account the Roundup is still on the leaderboard, found by this browser's id.
+  await expect(page.locator('.board-line')).toContainText('#45 of 120 on today\u2019s leaderboard.');
+  expect(asked).toContain(`client=${sent.client}`);
   await expect(page.locator('#result-join')).toHaveAttribute('href', '#account');
 });
 

@@ -59,11 +59,11 @@ function welcome() {
     try { await acct.signIn(keyIn.value); toast('Signed in'); manage(); } catch (e) { msg2.textContent = e.status === 401 ? 'That key does not match an account. Check it, or it may have been deleted.' : e.message; busy(signIn, false, 'Sign in'); }
   } }, 'Sign in');
   main.replaceChildren(page('Your account',
-    h('p', { class: 'lede' }, 'Keep your record on any device and join the leaderboard. No email, no password.'),
+    h('p', { class: 'lede' }, 'Keep your record on any device and put your name on the leaderboard. No email, no password.'),
     h('section', { class: 'card' },
       h('h2', {}, 'Make an account'),
       h('label', { class: 'name-field', for: 'acct-name' }, h('span', {}, 'Your leaderboard name')), name, hint,
-      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'Show me on the leaderboard. '), 'Your name and scores will be public.')),
+      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'Show my name on the leaderboard'))),
       h('p', { class: 'fine' }, h('a', { href: '#privacy' }, 'What we keep')),
       go, msg),
     h('section', { class: 'card' },
@@ -108,7 +108,7 @@ async function manage() {
   } }, 'Change name');
   const listed = h('input', { type: 'checkbox', id: 'acct-listed-toggle', checked: !!me.listed, onchange: async () => {
     listed.disabled = true;
-    try { await acct.update({ listed: listed.checked }); toast(listed.checked ? 'You are on the leaderboard' : 'You are hidden from the leaderboard'); } catch (e) { listed.checked = !listed.checked; toast(e.message); }
+    try { await acct.update({ listed: listed.checked }); toast(listed.checked ? 'Your name is on the leaderboard' : 'Your name is hidden'); } catch (e) { listed.checked = !listed.checked; toast(e.message); }
     listed.disabled = false;
   } });
   const syncBtn = h('button', { class: 'chip', type: 'button', id: 'acct-sync-go', onclick: async () => {
@@ -131,11 +131,11 @@ async function manage() {
     delMsg);
   view.replaceChildren(
     h('h1', {}, me.name),
-    h('p', { class: 'lede' }, h('a', { href: '#leaderboard' }, me.listed ? 'On the leaderboard' : 'Hidden from the leaderboard')),
+    h('p', { class: 'lede' }, h('a', { href: '#leaderboard' }, me.listed ? 'Your name is on the leaderboard' : 'Your name is hidden on the leaderboard')),
     h('section', { class: 'card' },
       h('h2', {}, 'Name and leaderboard'),
       h('div', { class: 'row-field' }, name, rename), msg,
-      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'Show me on the leaderboard')))),
+      h('label', { class: 'check' }, listed, h('span', {}, h('b', {}, 'Show my name on the leaderboard')))),
     h('section', { class: 'card' },
       h('h2', {}, 'Your record'),
       h('div', { class: 'row-field' }, status, syncBtn)),
@@ -162,6 +162,10 @@ async function manage() {
 // ------------------------------------------------------------ the leaderboard
 
 const VIEWS = [['today', 'Today'], ['week', 'This week'], ['all', 'All time']];
+/** Riders without a listed account have no name on the board. */
+const who = (r) => r.name || 'Unnamed rider';
+/** Signed in, the account finds your row; otherwise this browser's random id does. */
+export const boardUrl = (v, n) => `/v1/leaderboard?view=${v}&day=${n}${acct.signedIn() ? '' : `&client=${acct.clientId()}`}`;
 let view = 'today';
 
 export async function showLeaderboard(arg) {
@@ -173,14 +177,15 @@ export async function showLeaderboard(arg) {
     tabs, body));
   if (!acct.apiBase()) { body.replaceChildren(h('p', {}, 'Can\u2019t reach the leaderboard right now.')); return; }
   let d;
-  try { d = await acct.call(`/v1/leaderboard?view=${view}&day=${n}`); } catch (e) { body.replaceChildren(h('p', {}, e.message)); return; }
+  try { d = await acct.call(boardUrl(view, n)); } catch (e) { body.replaceChildren(h('p', {}, e.message)); return; }
   const unit = view === 'today' ? `Roundup No. ${n}, ${longDate(keyOf(n))}` : view === 'week' ? `Roundups No. ${d.from} to ${d.to}` : `Every Roundup up to No. ${d.to}`;
   const you = d.you;
+  const standing = you ? `You are #${you.rank} with ${you.score} points.` : 'No Roundup from you yet.';
   const yours = !acct.signedIn()
-    ? h('div', { class: 'you-card' }, h('p', {}, 'Want your name here?'), h('a', { class: 'go', href: '#account', id: 'lb-join' }, 'Make an account'))
+    ? h('div', { class: 'you-card' }, h('p', {}, standing, ' Want your name on it?'), h('a', { class: 'go', href: '#account', id: 'lb-join' }, 'Make an account'))
     : you
-      ? h('div', { class: 'you-card' }, h('p', {}, you.listed ? `You are #${you.rank} with ${you.score} points.` : `You would be #${you.rank}, but you are hidden.`), you.listed ? null : h('a', { class: 'go quiet', href: '#account' }, 'List me'))
-      : h('div', { class: 'you-card' }, h('p', {}, 'No Roundup from you yet.'), h('a', { class: 'go quiet', href: '#today' }, 'Play today’s Roundup'));
+      ? h('div', { class: 'you-card' }, h('p', {}, you.listed ? standing : `${standing} Your name is hidden.`), you.listed ? null : h('a', { class: 'go quiet', href: '#account' }, 'Show my name'))
+      : h('div', { class: 'you-card' }, h('p', {}, standing), h('a', { class: 'go quiet', href: '#today' }, 'Play today’s Roundup'));
   if (!d.rows.length) {
     body.replaceChildren(h('p', { class: 'fine' }, unit), h('p', { class: 'empty' }, 'Nobody yet.'), yours);
     return;
@@ -188,8 +193,8 @@ export async function showLeaderboard(arg) {
   const card = h('div', { class: 'peek board-peek', role: 'status', hidden: true });
   const detail = (r) => {
     const roped = view === 'today' ? `Roped ${r.roped} of 7` : `Roped ${r.roped} of ${r.days * 7}`;
-    return view === 'today' ? [h('p', { class: 'peek-q' }, r.name), h('p', {}, `${r.score} points. ${roped}.`)]
-      : [h('p', { class: 'peek-q' }, r.name), h('dl', {},
+    return view === 'today' ? [h('p', { class: 'peek-q' }, who(r)), h('p', {}, `${r.score} points. ${roped}.`)]
+      : [h('p', { class: 'peek-q' }, who(r)), h('dl', {},
         h('div', {}, h('dt', {}, 'Roundups'), h('dd', {}, String(r.days))),
         h('div', {}, h('dt', {}, 'Average'), h('dd', {}, String(Math.round(r.score / r.days)))),
         h('div', {}, h('dt', {}, 'Best day'), h('dd', {}, String(r.best))),
@@ -207,10 +212,10 @@ export async function showLeaderboard(arg) {
     card.style.top = `${btn.offsetTop + btn.offsetHeight + 4}px`;
   };
   const list = h('ol', { class: 'board' }, d.rows.map((r) => {
-    const btn = h('button', { type: 'button', class: `rider-row${r.you ? ' you' : ''}${r.rank <= 3 ? ` medal m${r.rank}` : ''}`, 'aria-label': `${r.rank}. ${r.name}, ${r.score} points${r.you ? ', you' : ''}`,
+    const btn = h('button', { type: 'button', class: `rider-row${r.you ? ' you' : ''}${r.rank <= 3 ? ` medal m${r.rank}` : ''}`, 'aria-label': `${r.rank}. ${who(r)}, ${r.score} points${r.you ? ', you' : ''}`,
       onclick: (e) => show(r, e.currentTarget, true), onfocus: (e) => show(r, e.currentTarget), onpointerenter: (e) => { if (e.pointerType === 'mouse') show(r, e.currentTarget); } },
     h('span', { class: 'rk num' }, String(r.rank)),
-    h('span', { class: 'nm' }, r.name, r.you ? h('span', { class: 'you-tag' }, 'you') : null),
+    h('span', { class: `nm${r.name ? '' : ' anon'}` }, who(r), r.you ? h('span', { class: 'you-tag' }, 'you') : null),
     view === 'today' ? h('span', { class: 'dd num' }, `${r.roped}/7`) : h('span', { class: 'dd num' }, `${r.days} day${r.days === 1 ? '' : 's'}`),
     h('span', { class: 'sc num' }, signed(r.score)));
     return h('li', {}, btn);
@@ -239,7 +244,7 @@ export function showPrivacy() {
     sec('Who handles it',
       h('p', {}, 'Cloudflare hosts the site and sees your internet address to serve it. Cinch stores none.')),
     sec('What is public',
-      h('p', {}, 'Only if you list yourself: your name and Roundup scores on the leaderboard.')),
+      h('p', {}, 'Every Roundup score is on the leaderboard. Your name shows only if you list yourself.')),
     sec('Your choices',
       h('p', {}, 'On the Account page: rename, hide, download your data, or delete it all at once.')),
     sec('How long things are kept',

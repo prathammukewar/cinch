@@ -122,9 +122,12 @@ test('hide from the board, download your data, and delete everything', async ({ 
   await page.goto('/#account');
   await page.uncheck('#acct-listed-toggle');
   await expect(page.locator('#acct-listed-toggle')).toBeEnabled();
+  // Hidden means no name: the score stays on the board.
   await page.goto('/#leaderboard');
-  await expect(page.locator('.rider-row')).toHaveCount(0);
-  await expect(page.locator('.you-card')).toContainText('but you are hidden');
+  await expect(page.locator('.rider-row')).toHaveCount(1);
+  await expect(page.locator('.rider-row .nm')).toContainText('Unnamed rider');
+  await expect(page.locator('.rider-row')).not.toContainText('Cass');
+  await expect(page.locator('.you-card')).toContainText('Your name is hidden');
 
   await page.goto('/#account');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#acct-export')]);

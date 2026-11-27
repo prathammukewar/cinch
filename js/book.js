@@ -221,10 +221,7 @@ export function showBook(main, { liveDays, today }) {
       h('div', { class: 'hero-num' }, h('b', { class: 'num' }, pct(st.w.p)), h('span', {}, 'roped. Aim for 90%.')),
       h('p', { class: 'state' }, h('span', { class: 'state-pill' }, st.name), ` ${st.line}`),
       gauge(st.w)),
-    numbers(rows, liveDays, today),
-    h('div', { class: 'book-row' },
-      h('section', {}, h('h2', {}, 'Your throws'), throws(rows), h('h2', {}, 'How you throw'), habits(rows)),
-      h('section', {}, h('h2', {}, 'Your Roundups'), roundups())));
+    numbers(rows, liveDays, today));
 
   const peekBox = h('div', { class: 'peek topic-peek', role: 'status', hidden: true });
   let open = null;
@@ -249,19 +246,40 @@ export function showBook(main, { liveDays, today }) {
   wrap.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') close(); });
   page.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   const m = modes(rows);
-  page.append(h('div', { class: 'book-row' },
-    h('section', {}, h('h2', {}, 'By topic'), wrap),
-    m ? h('section', {}, h('h2', {}, 'By way to play'), m) : null));
-
   const rc = rateChart(rows);
   const cc = curveChart(rows);
-  page.append(h('div', { class: 'book-row' },
+  const sections = [
+    h('section', {}, h('h2', {}, 'Your throws'), throws(rows)),
+    h('section', {}, h('h2', {}, 'How you throw'), habits(rows)),
+    h('section', {}, h('h2', {}, 'Your Roundups'), roundups()),
+    h('section', {}, h('h2', {}, 'By topic'), wrap),
+    m ? h('section', {}, h('h2', {}, 'By way to play'), m) : null,
     h('section', {}, h('h2', {}, 'Roped over time'),
-      rc ? h('figure', { html: rc }, ) : h('p', { class: 'fine' }, 'This chart starts at 11 questions.'),
+      rc ? h('figure', { html: rc }) : h('p', { class: 'fine' }, 'This chart starts at 11 questions.'),
       rc ? h('p', { class: 'fine' }, 'Your last 50 questions.') : null),
     h('section', {}, h('h2', {}, 'How sure your loops really are'),
       cc ? h('figure', { class: 'curve', html: cc }) : h('p', { class: 'fine' }, `This chart appears at ${CURVE_MIN} questions. You have ${rows.length}.`),
-      cc ? h('p', { class: 'fine' }, 'On the dashed line, your loops are exactly as sure as they should be.') : null)));
+      cc ? h('p', { class: 'fine' }, 'On the dashed line, your loops are exactly as sure as they should be.') : null),
+  ].filter(Boolean);
+  const cols = [h('div', { class: 'book-col' }), h('div', { class: 'book-col' })];
+  const grid = h('div', { class: 'book-cols' }, ...cols);
+  page.append(grid);
   tips(page);
   main.replaceChildren(page);
+  // On a wide screen each section goes to whichever column is shorter so far, so neither column
+  // leaves a hole. On a phone they stay in one column, in order.
+  const wide = matchMedia('(min-width: 1000px)');
+  const lay = () => {
+    if (!grid.isConnected) { wide.removeEventListener('change', lay); return; }
+    cols[0].replaceChildren(...sections);
+    cols[1].replaceChildren();
+    if (!wide.matches) return;
+    const tall = sections.map((x) => x.getBoundingClientRect().height + parseFloat(getComputedStyle(x.firstChild).marginTop));
+    const side = [[], []]; const sum = [0, 0];
+    sections.forEach((x, i) => { const k = sum[0] <= sum[1] ? 0 : 1; side[k].push(x); sum[k] += tall[i]; });
+    cols[0].replaceChildren(...side[0]);
+    cols[1].replaceChildren(...side[1]);
+  };
+  lay();
+  wide.addEventListener('change', lay);
 }

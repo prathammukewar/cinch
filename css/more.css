@@ -256,11 +256,11 @@ table.maths tr.us td { font-weight: 700; }
 .modes-table thead th { color: var(--mute); font-weight: 500; font-size: 14px; border-top: 0; }
 .tip { position: absolute; z-index: 30; max-width: min(320px, calc(100% - 16px)); padding: 8px 12px; border-radius: 10px; background: var(--ink); color: var(--paper); font-size: 14px; line-height: 1.35; pointer-events: none; box-shadow: 0 6px 0 -2px var(--shade); }
 .tip[hidden] { display: none; }
-.book .book-row > section > h2:first-child { margin-top: 36px; }
+.book .book-col > section > h2:first-child { margin-top: 36px; }
 .book figure.curve { max-width: 520px; }
 @media (min-width: 1000px) {
   .page.book { max-width: 1080px; }
-  .book .book-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 48px; align-items: start; }
+  .book .book-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 48px; align-items: start; }
   .book .num-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .book .book-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 40px; align-items: center; }
   .book .book-hero .hero-num { grid-row: 1 / span 3; flex-direction: column; gap: 4px; }
@@ -305,6 +305,7 @@ table.maths tr.us td { font-weight: 700; }
 .rider-row:hover, .rider-row:focus-visible { background: color-mix(in srgb, var(--card) 85%, transparent); }
 .rider-row .rk { font: 700 18px var(--display); color: var(--mute); text-align: center; }
 .rider-row .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rider-row .nm.anon { font-weight: 500; color: var(--mute); }
 .rider-row .dd { color: var(--mute); font-size: 14px; }
 .rider-row .sc { font: 700 20px var(--display); text-align: right; }
 .rider-row.you { background: color-mix(in srgb, var(--pin) 22%, transparent); }

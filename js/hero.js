@@ -143,31 +143,46 @@ export function paintScene(ctx, pal, w, h, s) {
     ctx.beginPath(); ctx.arc(xp, top - grip * 0.45, 8 + 90 * easeOut(t), 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
   }
   const faded = s.close > 0.05 || s.miss;
+  const pegW = 18;
+  const pinTipY = s.pin < 0 ? null : lerp(top - post - 40, top + 1, clamp(s.pin, 0, 1));
+  const wrapped = !s.miss && s.close > 0.97;
+  const c = clamp(s.close, 0, 1);
+  const bandY = s.miss ? top - grip : lerp(top - grip, top - 11, c);
+  const band = () => {
+    if (s.miss) {
+      ctx.save(); ctx.globalAlpha = 0.8;
+      bandPath(ctx, { xl, xr, yl: bandY, yr: bandY, sag: 4, r: 5, modes: [0, 0, 0], back: [0, 0, 0] });
+      strokeRubber(ctx, pal, 4.5); ctx.restore();
+    } else {
+      const a = lerp(xl, xp - 4, c); const b = lerp(xr, xp + 4, c);
+      bandPath(ctx, { xl: a, xr: Math.max(b, a + 1), yl: bandY, yr: bandY, sag: Math.max(0, s.sag) * post * 0.55 * (1 - c), r: lerp(6, 4.5, c), sway: clamp(s.sway || 0, -20, 20) * 0.4, modes: [0, 0, 0], back: [0, 0, 0] });
+      strokeRubber(ctx, pal, 5);
+    }
+  };
+  // The rope wraps each post: its upper strand passes behind the post, the rest in front.
+  if (!wrapped) band();
   [xl, xr].forEach((px) => {
     ctx.save(); ctx.globalAlpha = faded ? 0.3 : 1;
-    drawPeg(ctx, { x: px, y: top + 4, len: post + 4, w: 18, h: 26, pal });
+    drawPeg(ctx, { x: px, y: top + 4, len: post + 4, w: pegW, h: 26, pal });
     ctx.restore();
   });
-  const pinLen = post * 0.75;
-  const pinTipY = s.pin < 0 ? null : lerp(top - post - 40, top + 1, clamp(s.pin, 0, 1));
-  if (s.miss) {
-    ctx.save(); ctx.globalAlpha = 0.8;
-    bandPath(ctx, { xl, xr, yl: top - grip, yr: top - grip, sag: 4, r: 5, modes: [0, 0, 0], back: [0, 0, 0] });
-    strokeRubber(ctx, pal, 4.5); ctx.restore();
-    dimension(ctx, xr + 6, xp - 9, top - 12, pal.band, 6);
-  } else if (s.close > 0.97) {
+  if (!wrapped) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, w, h);
+    for (const px of [xl, xr]) ctx.rect(px - pegW * 0.7, 0, pegW * 1.4, bandY);
+    ctx.clip('evenodd');
+    band();
+    ctx.restore();
+  }
+  if (s.miss) dimension(ctx, xr + 6, xp - 9, top - 12, pal.band, 6);
+  if (wrapped) {
     const amp = 0.6 * Math.exp(-4 * (s.since || 9)) * Math.cos((s.since || 0) * 44);
     for (let i = 0; i < 3; i++) {
       ctx.beginPath();
       ctx.ellipse(xp, top - 11 + (i - 1) * 5.5, 14 * (1 + amp * (i === 1 ? 1 : -0.5)), 4.4, (i - 1) * 0.15, 0, Math.PI * 2);
       strokeRubber(ctx, pal, 4);
     }
-  } else {
-    const c = clamp(s.close, 0, 1);
-    const a = lerp(xl, xp - 4, c); const b = lerp(xr, xp + 4, c);
-    const y = lerp(top - grip, top - 11, c);
-    bandPath(ctx, { xl: a, xr: Math.max(b, a + 1), yl: y, yr: y, sag: Math.max(0, s.sag) * post * 0.55 * (1 - c), r: lerp(6, 4.5, c), sway: clamp(s.sway || 0, -20, 20) * 0.4, modes: [0, 0, 0], back: [0, 0, 0] });
-    strokeRubber(ctx, pal, 5);
   }
   if (pinTipY !== null) drawPin(ctx, { x: xp, y: pinTipY, r: 9, color: pal.pin, dark: pal.pinDark, lite: '#fff', lean: (s.wob || 0) * 0.05 + (s.pin > 0 && s.pin < 1 ? s.pin * Math.PI * 2 : 0) });
   for (const d of s.dots || []) {
