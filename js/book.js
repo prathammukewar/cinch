@@ -7,6 +7,7 @@ import { forDay, practiceById } from './bank.js';
 import { withUnit } from './format.js';
 import { CURVE_MIN } from './config.js';
 import { h, signed, plus } from './dom.js';
+import { withEmblem } from './art.js';
 
 const LADDER = [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)];
 const MODES = [['daily', 'Roundup'], ['practice', 'The Corral'], ['quant', 'Quick Draw'], ['duel', 'Showdown'], ['rodeo', 'Rodeo']];
@@ -209,7 +210,7 @@ function tips(page) {
 
 export function showBook(main, { liveDays, today }) {
   const rows = allRows();
-  const page = h('div', { class: 'page book' }, h('h1', {}, 'Brand Book'), h('p', { class: 'lede' }, 'Your stats'));
+  const page = withEmblem(h('div', { class: 'page book' }, h('h1', {}, 'Brand Book'), h('p', { class: 'lede' }, 'Your stats')), 'book');
   if (!rows.length) {
     page.append(h('p', { class: 'lede' }, 'Nothing here yet.'), h('p', { style: 'margin-top:24px' }, h('a', { class: 'go', href: '#today' }, 'Saddle up')));
     main.replaceChildren(page);

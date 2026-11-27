@@ -6,6 +6,7 @@ import { store } from './store.js';
 import { total } from './score.js';
 import { withUnit } from './format.js';
 import { h, say, toast, signed, plus } from './dom.js';
+import { withEmblem } from './art.js';
 
 let ctx;
 export function init(c) { ctx = c; }
@@ -72,12 +73,12 @@ function startButton() {
 function intro() {
   ctx.paintPips([], 0);
   const way = (id, href, title, text) => h('a', { class: 'way', id, href }, h('b', {}, title), h('span', {}, text));
-  ctx.main.replaceChildren(page('Showdown',
+  ctx.main.replaceChildren(withEmblem(page('Showdown',
     h('p', { class: 'lede' }, `Two riders, the same ${PER_DAY} questions, one winner.`),
     h('div', { class: 'ways' },
       way('way-side', '#rodeo', 'Rodeo', 'Two or more devices, live. Up to 12 riders.'),
       way('way-same', '#duel/same', 'Same saddle', 'One device, take turns.'),
-      way('way-send', '#duel/send', 'Send a challenge', 'Send a link. They play later.'))));
+      way('way-send', '#duel/send', 'Send a challenge', 'Send a link. They play later.'))), 'showdown'));
 }
 
 function sendIntro() {

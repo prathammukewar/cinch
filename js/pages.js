@@ -20,6 +20,8 @@ const LADDER = {
 import { Round } from './play.js';
 import { verdict, verdictText, byCategory, rateChart, curveChart, bandAt } from './dash.js';
 import { h, $, toast, signed, plus } from './dom.js';
+import { sound } from './sound.js';
+import { dynamite, fuseScene, withEmblem } from './art.js';
 
 let main, ctx;
 export function init(c) { ctx = c; main = c.main; }
@@ -42,7 +44,7 @@ export async function showQuant() {
     setCurrent(new Round(main, {
       length: list.length,
       seconds: QUANT_SECONDS,
-      dynamite: true,
+      dynamite: dynamite(),
       next: (i) => list[i] || null,
       label: (i) => `Quick Draw, ${i + 1} of ${list.length}`,
       lastText: 'See your Quick Draw',
@@ -63,11 +65,25 @@ export async function showQuant() {
     }));
   };
   const runs = store.data().quant.runs;
-  main.replaceChildren(h('div', { class: 'page' },
+  // The button strikes the fuse's tip and a spark races down it into the sticks; then the draw starts.
+  const scene = h('div', { class: 'qd-stage', html: fuseScene() });
+  let lit = false;
+  const light = () => {
+    if (lit) return;
+    lit = true;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { start(); return; }
+    sound.fizz(true);
+    scene.classList.add('lit');
+    for (const a of scene.querySelectorAll('animate, animateMotion')) a.beginElement();
+    setTimeout(() => scene.classList.add('bang'), 860);
+    setTimeout(() => { if (scene.isConnected) start(); }, 1050);
+  };
+  main.replaceChildren(h('div', { class: 'page qd-page' },
     h('h1', {}, 'Quick Draw'),
     h('p', { class: 'lede' }, `Ten questions, ${QUANT_SECONDS} seconds each.`),
     runs.length ? h('dl', { class: 'statline' }, h('div', {}, h('dt', {}, 'Draws'), h('dd', { class: 'num' }, String(runs.length))), h('div', {}, h('dt', {}, 'Best'), h('dd', { class: 'num' }, signed(Math.max(...runs.map((r) => r.points))))), h('div', {}, h('dt', {}, 'Roped'), h('dd', { class: 'num' }, `${Math.round(100 * rate(runs.flatMap((r) => r.rows)))}%`))) : null,
-    h('p', { style: 'margin-top:28px' }, h('button', { class: 'go', type: 'button', id: 'start-quant', onclick: start }, 'Light the fuse'))));
+    scene,
+    h('p', { class: 'qd-go' }, h('button', { class: 'go', type: 'button', id: 'start-quant', onclick: light }, 'Light the fuse'))));
 }
 const rate = (rows) => (rows.length ? rows.filter((r) => r.hit).length / rows.length : 0);
 
@@ -83,10 +99,10 @@ export async function showArchive() {
       h('span', {}, n === today ? 'Today' : longDate(keyOf(n)), ' ', rec ? h('span', { class: 'dots', 'aria-label': `${rec.rows.filter((r) => r.hit).length} of ${rec.rows.length} caught` }, rec.rows.map((r) => h('i', { class: `${kindOf(r)} t-${tierOf(r).key}` }))) : null),
       rec ? h('span', { class: 's num' }, signed(total(rec.rows))) : h('span', { class: 's none' }, d.open?.[n] ? 'resume' : 'play'))));
   }
-  main.replaceChildren(h('div', { class: 'page' }, h('h1', {}, 'Old Trails'),
+  main.replaceChildren(withEmblem(h('div', { class: 'page' }, h('h1', {}, 'Old Trails'),
     h('p', { class: 'lede' }, 'Every earlier Roundup.'),
     h('ul', { class: 'list' }, items),
-    idx.days < getToday() ? h('p', { class: 'fine', style: 'margin-top:20px' }, 'Older questions are coming round again.') : null));
+    idx.days < getToday() ? h('p', { class: 'fine', style: 'margin-top:20px' }, 'Older questions are coming round again.') : null), 'trails'));
 }
 
 export async function showCalibration() {

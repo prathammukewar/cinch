@@ -10,6 +10,7 @@ import { scoreRange, tierOf } from './score.js';
 import { withUnit } from './format.js';
 import { nameProblem, tidyName } from './names.js';
 import { h, say, toast, plus, signed, reducedMotion } from './dom.js';
+import { withEmblem } from './art.js';
 import { sound } from './sound.js';
 
 let ctx;
@@ -89,14 +90,14 @@ function intro() {
   const msg = h('p', { class: 'room-msg', role: 'status' });
   const code = h('input', { type: 'text', id: 'room-code', maxlength: 4, autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', placeholder: 'ABCD', 'aria-label': 'Room code', oninput: (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); } });
   const start = h('button', { class: 'go', type: 'button', id: 'room-start', onclick: () => open(msg, start) }, 'Start a room');
-  ctx.main.replaceChildren(page('Rodeo',
+  ctx.main.replaceChildren(withEmblem(page('Rodeo',
     h('p', { class: 'lede' }, `A live room for up to ${MAX} riders. Everyone ropes the same ${PER_DAY} questions at once.`),
     nameField(),
     h('p', { style: 'margin-top:20px' }, start),
     h('p', { class: 'or' }, 'or join a room'),
     h('div', { class: 'join-row' }, code, h('button', { class: 'go quiet', type: 'button', id: 'room-join', onclick: () => { if (code.value.length === 4) location.hash = `#rodeo/${code.value}`; else msg.textContent = 'Room codes are four letters.'; } }, 'Join')),
     msg,
-    h('p', { class: 'fine', style: 'margin-top:16px' }, h('a', { href: '#duel' }, 'One on one instead'))));
+    h('p', { class: 'fine', style: 'margin-top:16px' }, h('a', { href: '#duel' }, 'One on one instead'))), 'rodeo'));
   code.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.nextSibling.click(); });
 }
 

@@ -3,6 +3,7 @@ import { dayKey, dayNumber, keyOf, longDate } from './day.js';
 import { nameProblem, tidyName } from './names.js';
 import * as acct from './account.js';
 import { h, toast, say, signed } from './dom.js';
+import { withEmblem } from './art.js';
 
 let main;
 export function init(c) { main = c.main; }
@@ -173,8 +174,8 @@ export async function showLeaderboard(arg) {
   const n = today();
   const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Leaderboard period' }, VIEWS.map(([k, label]) => h('a', { class: 'tab', role: 'tab', href: `#leaderboard/${k}`, 'aria-selected': String(k === view), id: `lb-${k}` }, label)));
   const body = h('div', { class: 'board-wrap', 'aria-live': 'polite' }, h('p', { class: 'fine' }, 'Loading'));
-  main.replaceChildren(page('Leaderboard',
-    tabs, body));
+  main.replaceChildren(withEmblem(page('Leaderboard',
+    tabs, body), 'board'));
   if (!acct.apiBase()) { body.replaceChildren(h('p', {}, 'Can\u2019t reach the leaderboard right now.')); return; }
   let d;
   try { d = await acct.call(boardUrl(view, n)); } catch (e) { body.replaceChildren(h('p', {}, e.message)); return; }

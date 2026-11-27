@@ -339,8 +339,11 @@ body { position: relative; isolation: isolate; }
 .fuse .cord { position: absolute; inset: 0; border-radius: 3px; background: repeating-linear-gradient(115deg, var(--peg) 0 3px, color-mix(in srgb, var(--peg) 60%, var(--ink)) 3px 5px); clip-path: inset(-4px calc((1 - var(--left)) * 100%) -4px 0); transition: clip-path .1s linear; }
 .fuse .track::after { content: ''; position: absolute; top: -2px; bottom: -2px; left: calc(var(--left) * 100% - 44px); width: 44px; border-radius: 4px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--band) 70%, var(--pin))); opacity: 0; transition: left .1s linear, opacity .3s; }
 .fuse .spark { position: absolute; z-index: 1; top: 50%; left: calc(var(--left) * 100%); width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: radial-gradient(circle, #fff7d1 0 25%, var(--pin) 55%, var(--band) 100%); box-shadow: 0 0 6px 1px color-mix(in srgb, var(--pin) 60%, transparent); transition: left .1s linear, width .3s, height .3s, margin .3s; animation: smoulder 1.4s ease-in-out infinite alternate; }
-.fuse .spark i { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: color-mix(in srgb, var(--pin) 45%, var(--band)); box-shadow: 0 0 3px 1px color-mix(in srgb, var(--pin) 70%, transparent); opacity: 0; }
-.fuse .spark i:nth-child(even) { background: var(--band); width: 3px; height: 3px; margin: -1.5px; }
+.fuse .spark i { position: absolute; left: 50%; top: 50%; width: 8px; height: 2px; margin: -1px -4px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--pin) 40%, #fff3c4); opacity: 0; transform: rotate(var(--a)); }
+.fuse .spark i:nth-child(3n) { width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: #fff1c2; box-shadow: 0 0 4px 1px var(--pin); }
+.fuse.lit .spark::before, .fuse.lit .spark::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: color-mix(in srgb, var(--mute) 50%, transparent); pointer-events: none; animation: puff 1.4s ease-out infinite; }
+.fuse.lit .spark::after { animation-delay: -.7s; }
+@keyframes puff { 0% { opacity: .6; transform: translate(0, 0) scale(.5); } 100% { opacity: 0; transform: translate(16px, -26px) scale(2.4); } }
 .fuse .secs { flex: none; min-width: 2.2ch; font: 700 15px/1 var(--display); font-style: normal; font-variant-numeric: tabular-nums; text-align: right; color: var(--mute); transition: color .3s; }
 @keyframes smoulder { to { box-shadow: 0 0 10px 3px color-mix(in srgb, var(--pin) 45%, transparent); } }
 
@@ -349,21 +352,14 @@ body { position: relative; isolation: isolate; }
 .fuse.lit .spark { width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; box-shadow: 0 0 12px 4px color-mix(in srgb, var(--pin) 55%, transparent), 0 0 3px 1px var(--band); animation: flame .16s steps(2) infinite; }
 .fuse.lit .spark i { animation: fly .55s ease-out infinite; }
 .fuse.lit .secs { color: var(--ink); }
-.fuse .spark i:nth-child(1) { --dx: -20px; --dy: -16px; animation-delay: 0s; }
-.fuse .spark i:nth-child(2) { --dx: 14px; --dy: -21px; animation-delay: -.07s; }
-.fuse .spark i:nth-child(3) { --dx: 22px; --dy: -6px; animation-delay: -.14s; }
-.fuse .spark i:nth-child(4) { --dx: -9px; --dy: -24px; animation-delay: -.21s; }
-.fuse .spark i:nth-child(5) { --dx: 18px; --dy: 14px; animation-delay: -.28s; }
-.fuse .spark i:nth-child(6) { --dx: -22px; --dy: 4px; animation-delay: -.35s; }
-.fuse .spark i:nth-child(7) { --dx: 4px; --dy: 21px; animation-delay: -.42s; }
-.fuse .spark i:nth-child(8) { --dx: -14px; --dy: 18px; animation-delay: -.49s; }
 @keyframes flame { 50% { transform: scale(1.22) rotate(25deg); } }
-@keyframes fly { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(calc(var(--dx) * var(--k)), calc(var(--dy) * var(--k) + 4px)) scale(.3); } }
+@keyframes fly { 0% { opacity: 1; transform: translate(0, 0) rotate(var(--a)) scale(.5); } 35% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(var(--dx) * var(--k)), calc(var(--dy) * var(--k) + 7px)) rotate(var(--a)) scale(1); } }
 
 /* The last seconds: bigger sparks, the fuse jitters, the count jumps, the edges of the screen pulse. */
 .fuse.short { --k: 1.9; }
 .fuse.short .spark { width: 17px; height: 17px; margin: -8.5px 0 0 -8.5px; }
 .fuse.short .spark i { animation-duration: .36s; }
+.fuse.short .spark::before, .fuse.short .spark::after { animation-duration: .8s; }
 .fuse.short .track { animation: jitter .09s steps(2) infinite; }
 .fuse.short .secs { color: var(--band); font-size: 19px; }
 .fuse .secs.pop { animation: pop .55s cubic-bezier(.2, 1.6, .4, 1); }
@@ -374,31 +370,15 @@ body { position: relative; isolation: isolate; }
 
 /* Thrown: the spark goes out where it stands. Time up: it bursts. */
 .fuse.spent:not(.out) .spark { animation: none; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: color-mix(in srgb, var(--ink) 45%, var(--peg)); box-shadow: none; }
-.fuse.spent .spark i, .fuse.spent .track::after { display: none; }
+.fuse.spent :is(.spark i, .track::after, .spark::before, .spark::after) { display: none; }
 .fuse.spent .track { animation: none; }
 .fuse.out .spark { width: 17px; height: 17px; margin: -8.5px 0 0 -8.5px; background: radial-gradient(circle, #fff7d1 0 20%, var(--pin) 50%, color-mix(in srgb, var(--band) 60%, transparent) 100%); box-shadow: 0 0 18px 6px color-mix(in srgb, var(--pin) 60%, transparent); animation: burst .5s ease-out forwards; }
 @keyframes burst { 0% { transform: scale(1); opacity: 1; } 35% { transform: scale(3.4); opacity: 1; } 100% { transform: scale(4.5); opacity: 0; } }
 .play.boom::before { content: ''; position: fixed; inset: 0; z-index: 31; pointer-events: none; background: radial-gradient(circle at 50% 0, color-mix(in srgb, var(--pin) 70%, transparent), transparent 70%); opacity: 0; animation: flash .6s ease-out; }
 @keyframes flash { 0% { opacity: .9; } 100% { opacity: 0; } }
 
-/* Quick Draw: a thicker fuse, lit from the first second, burning down to a bundle of dynamite. */
-.fuse.dynamite { height: 30px; gap: 0; }
-.fuse.dynamite .track { height: 8px; margin-left: -6px; }
-.fuse.dynamite .cord { border-radius: 4px; }
-.fuse.dynamite .stick { flex: none; position: relative; z-index: 2; display: block; width: 40px; height: 28px; transform-origin: 60% 50%; }
-.fuse.dynamite .stick svg { display: block; width: 100%; height: 100%; }
-.fuse.dynamite .sticks rect { fill: var(--band); stroke: var(--band-dark); stroke-width: 1.4; }
-.fuse.dynamite .tie { fill: color-mix(in srgb, var(--peg) 50%, #fff4dc); stroke: var(--band-dark); stroke-width: 1; }
-.fuse.dynamite .secs { font-size: 22px; min-width: 2.4ch; margin-left: 8px; }
-.fuse.dynamite.short .secs { font-size: 26px; }
-.fuse.dynamite.short .stick { animation: rattle .12s steps(2) infinite; }
-.fuse.dynamite.out .stick { animation: blow .6s ease-out; }
-.play:has(.fuse.dynamite).boom::before { background: radial-gradient(circle at 8% 0, color-mix(in srgb, var(--pin) 85%, transparent), color-mix(in srgb, var(--band) 30%, transparent) 45%, transparent 80%); animation-duration: .8s; }
-@keyframes rattle { 50% { transform: rotate(-4deg) translateY(-1px); } }
-@keyframes blow { 0% { transform: scale(1); } 25% { transform: scale(1.35) rotate(-10deg); filter: brightness(1.9); } 100% { transform: scale(1); } }
-
 @media (min-width: 760px) { .fuse { margin: 6px auto 0; width: calc(100% - 64px); } }
-@media (prefers-reduced-motion: reduce) { .fuse .spark i, .play.hurry::after, .play.boom::before { display: none; } .fuse .track { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .fuse .spark i, .fuse .spark::before, .fuse .spark::after, .play.hurry::after, .play.boom::before { display: none; } .fuse .track { animation: none !important; } }
 
 /* Side by side: the phone changes hands between riders. */
 .handoff { position: absolute; inset: 0; z-index: 20; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 24px 20px; text-align: center; background: var(--paper); animation: rise .28s var(--ease) both; }

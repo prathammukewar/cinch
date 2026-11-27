@@ -5,21 +5,26 @@ import { h, say } from './dom.js';
 import { sound } from './sound.js';
 
 const WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five'];
-const SPARKS = 8;
-const STICKS = '<svg viewBox="0 0 40 28" aria-hidden="true"><g class="sticks"><rect x="2" y="2" width="30" height="8" rx="4"/><rect x="2" y="18" width="30" height="8" rx="4"/><rect x="5" y="10" width="30" height="8" rx="4"/></g><rect class="tie" x="14" y="1" width="5" height="26" rx="1.5"/></svg>';
+const SPARKS = 10;
+// Each spark's flight: mostly up and back along the burnt cord, a few falling forward.
+const FLIGHT = Array.from({ length: SPARKS }, (_, i) => {
+  const a = -Math.PI * (0.08 + 0.84 * ((i * 0.618) % 1)) + (i % 4 === 3 ? 2.4 : 0);
+  const r = 16 + (i * 7) % 11;
+  return `--dx:${(Math.cos(a) * r).toFixed(1)}px;--dy:${(Math.sin(a) * r).toFixed(1)}px;--a:${Math.round(a * 57.3)}deg;animation-delay:${-i * 0.055}s`;
+});
 
 export class Fuse {
-  /** dynamite: Quick Draw's look. */
-  constructor(seconds, { dynamite = false } = {}) {
+  /** dynamite: Quick Draw's look, the bundle's markup from art.js. */
+  constructor(seconds, { dynamite = '' } = {}) {
     this.total = seconds * 1000;
-    this.dynamite = dynamite;
+    this.dynamite = Boolean(dynamite);
     // The last 5 seconds, or the last 30% of a short fuse, are the hurry.
     this.short = Math.min(5000, Math.round(this.total * 0.3 / 1000) * 1000);
-    this.lit = dynamite ? Infinity : Math.max(this.short, this.total / 3);
+    this.lit = this.dynamite ? Infinity : Math.max(this.short, this.total / 3);
     this.num = h('em', { class: 'secs', 'aria-hidden': 'true' });
-    this.el = h('div', { class: `fuse${dynamite ? ' dynamite' : ''}`, role: 'progressbar', 'aria-label': 'Seconds left', 'aria-valuemin': '0', 'aria-valuemax': String(seconds) },
-      dynamite ? h('span', { class: 'stick', html: STICKS }) : null,
-      h('span', { class: 'track' }, h('i', { class: 'cord' }), h('b', { class: 'spark' }, Array.from({ length: SPARKS }, () => h('i')))),
+    this.el = h('div', { class: `fuse${this.dynamite ? ' dynamite' : ''}`, role: 'progressbar', 'aria-label': 'Seconds left', 'aria-valuemin': '0', 'aria-valuemax': String(seconds) },
+      dynamite ? h('span', { class: 'stick', html: dynamite }) : null,
+      h('span', { class: 'track' }, h('i', { class: 'cord' }), h('b', { class: 'spark' }, FLIGHT.map((style) => h('i', { style })))),
       this.num);
   }
 

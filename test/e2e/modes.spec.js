@@ -43,6 +43,9 @@ test('Quick Draw runs ten on the fuse and pitches when time is up', async ({ pag
   await at(page, '2026-11-27T09:00:00');
   await page.goto('/#draw');
   await page.click('#start-quant');
+  // A spark runs down the fuse on the start page, then the draw begins.
+  await expect(page.locator('.qd-stage')).toHaveClass(/lit/);
+  await page.clock.runFor(1100);
   await expect(page.locator('.ask .meta')).toContainText('Quick Draw, 1 of 10');
   // Ten seconds on a dynamite fuse that is lit from the start.
   await expect(page.locator('.fuse')).toHaveClass(/dynamite/);
