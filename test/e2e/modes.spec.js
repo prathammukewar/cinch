@@ -44,7 +44,15 @@ test('Quick Draw runs ten on the fuse and pitches when time is up', async ({ pag
   await page.goto('/#draw');
   await page.click('#start-quant');
   await expect(page.locator('.ask .meta')).toContainText('Quick Draw, 1 of 10');
-  await page.clock.runFor(21000);
+  // Ten seconds on a dynamite fuse that is lit from the start.
+  await expect(page.locator('.fuse')).toHaveClass(/dynamite/);
+  await expect(page.locator('.fuse')).toHaveClass(/lit/);
+  await expect(page.locator('.fuse .secs')).toHaveText('10');
+  await page.clock.runFor(7500);
+  await expect(page.locator('.fuse')).toHaveClass(/short/);
+  await expect(page.locator('.play')).toHaveClass(/hurry/);
+  await page.clock.runFor(3000);
+  await expect(page.locator('.fuse')).toHaveClass(/out/);
   await page.clock.runFor(3000);
   await expect(page.locator('.panel.done')).toBeVisible();
   await next(page);
@@ -187,7 +195,12 @@ test('the daily fuse pitches the loop when it burns out', async ({ page }) => {
   await at(page, '2026-11-27T09:00:00');
   await page.goto('/#today');
   await expect(page.locator('.fuse')).toBeVisible();
-  await page.clock.runFor(25500);
+  await expect(page.locator('.fuse')).not.toHaveClass(/lit/);
+  // It catches fire for the last ten seconds and hurries for the last five.
+  await page.clock.runFor(21000);
+  await expect(page.locator('.fuse')).toHaveClass(/lit/);
+  await expect(page.locator('.fuse')).not.toHaveClass(/short/);
+  await page.clock.runFor(4500);
   await expect(page.locator('.fuse')).toHaveClass(/short/);
   await page.clock.runFor(5000);
   await page.clock.runFor(3000);

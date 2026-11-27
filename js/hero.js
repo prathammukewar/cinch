@@ -176,15 +176,19 @@ export function paintScene(ctx, pal, w, h, s) {
     ctx.restore();
   }
   if (s.miss) dimension(ctx, xr + 6, xp - 9, top - 12, pal.band, 6);
-  if (wrapped) {
+  // The rope cinches around the shoe's legs, below the arch: the far half of each loop goes
+  // behind the shoe, the near half in front.
+  const coil = (front) => {
     const amp = 0.6 * Math.exp(-4 * (s.since || 9)) * Math.cos((s.since || 0) * 44);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       ctx.beginPath();
-      ctx.ellipse(xp, top - 11 + (i - 1) * 5.5, 14 * (1 + amp * (i === 1 ? 1 : -0.5)), 4.4, (i - 1) * 0.15, 0, Math.PI * 2);
-      strokeRubber(ctx, pal, 4);
+      ctx.ellipse(xp, top - 2.5 - i * 5, 12.5 * (1 + amp * (i ? -0.5 : 1)), 2.8, (i ? -1 : 1) * 0.07, front ? 0 : Math.PI, front ? Math.PI : Math.PI * 2);
+      strokeRubber(ctx, pal, 3.4);
     }
-  }
+  };
+  if (wrapped) coil(false);
   if (pinTipY !== null) drawPin(ctx, { x: xp, y: pinTipY, r: 9, color: pal.pin, dark: pal.pinDark, lite: '#fff', lean: (s.wob || 0) * 0.05 + (s.pin > 0 && s.pin < 1 ? s.pin * Math.PI * 2 : 0) });
+  if (wrapped) coil(true);
   for (const d of s.dots || []) {
     ctx.globalAlpha = clamp((d.life - d.age) * 3, 0, 1); ctx.fillStyle = d.color;
     ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();

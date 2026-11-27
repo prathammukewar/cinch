@@ -42,6 +42,7 @@ export class PairRound extends Round {
     if (!this.touched && !timeUp) return;
     if (this.turn === 0) {
       clearInterval(this.timer);
+      this.fuse?.stop();
       this.picks[this.seat] = this.pick();
       sound.lock();
       this.handOff();
@@ -49,6 +50,7 @@ export class PairRound extends Round {
     }
     this.locked = true;
     clearInterval(this.timer);
+    this.fuse?.stop();
     this.picks[this.seat] = this.pick();
     this.revealBoth();
   }

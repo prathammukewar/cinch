@@ -5,7 +5,8 @@ import { ticks, short, withUnit, friendly, sig } from './format.js';
 import { toUnit, fromUnit, FADE } from './score.js';
 
 let SWEEP = 1.3; // seconds the shoe hunts along the rail; shorter once the player knows the game
-export function quickerReveals(on) { SWEEP = on ? 0.85 : 1.3; }
+/** 0: the first throws, 1: once the player knows the game, 2: Quick Draw. */
+export function quickerReveals(level) { SWEEP = [1.3, 0.85, 0.5][Number(level)] ?? 1.3; }
 const HOLD = 0.14;
 const FALL = 0.13;
 
@@ -743,13 +744,14 @@ export class Stage {
     ctx.save();
     ctx.translate(x, this.top);
     ctx.rotate(lean);
-    for (let i = 0; i < 3; i++) {
-      const y = -16 + (i - 1) * 7 + amp * 3 * (i - 1);
-      const rx = 19 * (1 + amp * (i === 1 ? 1 : -0.6));
-      const ry = 6 * (1 - amp * 0.6);
+    // Two loops bind the shoe's legs below the arch, so the shoe stays in sight.
+    for (let i = 0; i < 2; i++) {
+      const y = -3.5 - i * 7 + amp * 3 * (i ? -1 : 1);
+      const rx = 18 * (1 + amp * (i ? -0.6 : 1));
+      const ry = 4 * (1 - amp * 0.6);
       ctx.beginPath();
-      ctx.ellipse(0, y, Math.max(6, rx), Math.max(2, ry), (i - 1) * 0.14 + amp * 0.2, behind ? Math.PI : 0, behind ? Math.PI * 2 : Math.PI);
-      strokeRubber(ctx, pal, 5);
+      ctx.ellipse(0, y, Math.max(6, rx), Math.max(1.5, ry), (i ? -1 : 1) * 0.07 + amp * 0.2, behind ? Math.PI : 0, behind ? Math.PI * 2 : Math.PI);
+      strokeRubber(ctx, pal, 4.6);
     }
     ctx.restore();
   }

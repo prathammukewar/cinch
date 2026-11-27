@@ -490,16 +490,11 @@ class RodeoRound extends Round {
   /** The fuse burns on the room's clock, so every rider runs out at the same moment. */
   startTimer() {
     clearInterval(this.timer);
-    const fuse = this.ui.timer;
-    const total = this.seconds * 1000;
-    let lastTick = null;
+    const fuse = this.fuse;
+    fuse.start();
     const tick = () => {
-      const left = Math.min(total, this.room.s.ends - this.room.serverNow());
-      fuse.style.setProperty('--left', (Math.max(0, left) / total).toFixed(4));
-      fuse.classList.toggle('short', left < 5000);
-      const sec = Math.ceil(left / 1000);
-      fuse.setAttribute('aria-valuenow', String(Math.max(0, sec)));
-      if (left < 5000 && sec !== lastTick && sec > 0 && !this.locked) { lastTick = sec; sound.tick(1 - sec / 5); if (sec === 5) say('Five seconds left'); }
+      const left = Math.min(fuse.total, this.room.s.ends - this.room.serverNow());
+      fuse.paint(left, { quiet: this.locked });
       if (left <= 0) { clearInterval(this.timer); this.lock(true); }
     };
     tick();
@@ -542,6 +537,7 @@ class RodeoRound extends Round {
     if (!this.touched && !timeUp) return;
     this.locked = true;
     clearInterval(this.timer);
+    this.fuse?.stop();
     const u = this.ui;
     u.go.disabled = true;
     this.paintHints();
@@ -576,6 +572,7 @@ class RodeoRound extends Round {
     this.locked = true;
     this.waitText = null;
     clearInterval(this.timer);
+    this.fuse?.stop();
     sound.unlock();
     document.activeElement?.blur?.();
     const u = this.ui;

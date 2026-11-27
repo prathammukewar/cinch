@@ -12,7 +12,7 @@ const buzz = (p) => {
   // Vibration only after the player has touched the page, and never from the welcome animation.
   try { if (store.get('haptics') !== false && navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.(p); } catch { /* not supported */ }
 };
-const VIBRATE = { grab: 5, lock: 10, thunk: 18, twang: [10, 30, 16], slip: 20 };
+const VIBRATE = { grab: 5, lock: 10, thunk: 18, twang: [10, 30, 16], slip: 20, blast: 16 };
 
 const wake = () => {
   if (!store.get('sound')) return;

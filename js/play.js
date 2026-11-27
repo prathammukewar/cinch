@@ -4,6 +4,7 @@ import { sound } from './sound.js';
 import { scoreRange, toUnit, tierOf, PERFECT, HINTS } from './score.js';
 import { num, withUnit, parse } from './format.js';
 import { h, $, say, reducedMotion, plus } from './dom.js';
+import { Fuse } from './fuse.js';
 import { store } from './store.js';
 
 const PRE = { 'US dollars': '$' };
@@ -74,7 +75,8 @@ export class Round {
     u.panel = h('section', { class: 'panel', 'aria-label': 'Your range' },
       h('div', { class: 'before' }, h('div', { class: 'ends' }, end('low', 'Low'), end('high', 'High')), u.worth, u.go),
       h('div', { class: 'after' }, h('div', { class: 'verdict' }, u.pts, u.why), h('div', { class: 'teach-wrap' }, u.teach, u.src), u.on));
-    u.timer = this.seconds ? h('div', { class: 'fuse', role: 'progressbar', 'aria-label': 'Seconds left', 'aria-valuemin': '0', 'aria-valuemax': String(this.seconds) }, h('i'), h('b')) : null;
+    this.fuse = this.seconds ? new Fuse(this.seconds, { dynamite: this.opts.dynamite }) : null;
+    u.timer = this.fuse?.el ?? null;
     u.ask = h('section', { class: 'ask', 'aria-label': 'Question' }, h('div', { class: 'meta' }, u.meta, u.tag), u.q, u.note);
     const desk = h('div', { class: 'desk' }, u.canvas, u.hint, u.hints, u.thumbs);
     this.root.replaceChildren(h('div', { class: 'play' }, u.timer, u.ask, desk, u.panel));
@@ -131,7 +133,7 @@ export class Round {
     const teach = !store.data().seenIntro && this.rows.length === 0;
     u.hint.textContent = teach ? 'Pull the posts in until you are 90% sure the answer is between them.' : '';
     u.hint.classList.toggle('gone', !teach);
-    quickerReveals(this.rows.length >= 2);
+    quickerReveals(this.opts.dynamite ? 2 : this.rows.length >= 2 ? 1 : 0);
     this.stage.setQuestion(q, rulerOf(q));
     this.paintHints();
     u.go.disabled = true;
@@ -145,24 +147,17 @@ export class Round {
 
   startTimer() {
     clearInterval(this.timer);
-    const fuse = this.ui.timer;
-    const total = this.seconds * 1000;
-    let left = total;
+    const fuse = this.fuse;
+    fuse.start();
+    let left = fuse.total;
     let last = performance.now();
-    let lastTick = null;
     const tick = () => {
       const now = performance.now();
       if (!document.hidden) left -= now - last;
       last = now;
-      const f = Math.max(0, left) / total;
-      fuse.style.setProperty('--left', f.toFixed(4));
-      fuse.classList.toggle('short', left < 5000);
-      const s = Math.ceil(left / 1000);
-      fuse.setAttribute('aria-valuenow', String(Math.max(0, s)));
-      if (left < 5000 && s !== lastTick && s > 0) { lastTick = s; sound.tick(1 - s / 5); if (s === 5) say('Five seconds left'); }
+      fuse.paint(left);
       if (left <= 0) { clearInterval(this.timer); this.lock(true); }
     };
-    tick();
     this.timer = setInterval(tick, 100);
   }
 
@@ -311,6 +306,7 @@ export class Round {
     if (!this.touched && !timeUp) return;
     this.locked = true;
     clearInterval(this.timer);
+    this.fuse?.stop();
     sound.unlock();
     document.activeElement?.blur?.();
     const u = this.ui;

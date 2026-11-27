@@ -42,6 +42,7 @@ export async function showQuant() {
     setCurrent(new Round(main, {
       length: list.length,
       seconds: QUANT_SECONDS,
+      dynamite: true,
       next: (i) => list[i] || null,
       label: (i) => `Quick Draw, ${i + 1} of ${list.length}`,
       lastText: 'See your Quick Draw',

@@ -74,6 +74,30 @@ function chime(f, gain = 0.07, at = 0, decay = 1.6) {
   partial(f * 5.4, { at, gain: gain * 0.06, decay: decay * 0.2, wet: 0.6 });
 }
 
+/** Filtered noise: a fuse hiss or the puff of a blast. sweep moves the filter to that frequency as it fades. */
+let hiss = null;
+function noise({ at = 0, gain = 0.05, attack = 0.01, decay = 0.4, freq = 2400, q = 0.8, type = 'bandpass', sweep, wet = 0.3 }) {
+  if (!hiss) {
+    hiss = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const d = hiss.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const t = ctx.currentTime + at + 0.005;
+  const src = ctx.createBufferSource();
+  src.buffer = hiss;
+  src.loop = true;
+  const f = ctx.createBiquadFilter();
+  f.type = type; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
+  if (sweep) f.frequency.exponentialRampToValueAtTime(sweep, t + attack + decay);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(gain, t + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+  src.connect(f); f.connect(g); g.connect(out);
+  if (wet) { const s = ctx.createGain(); s.gain.value = wet; g.connect(s); s.connect(room); }
+  src.start(t, Math.random() * 0.5); src.stop(t + attack + decay + 0.05);
+}
+
 const buzz = (p) => {
   // Vibration only after the player has touched the page, and never from the welcome animation.
   try { if (store.get('haptics') !== false && navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.(p); } catch { /* not supported */ }
@@ -102,6 +126,15 @@ export const synth = {
   },
   slip() { buzz(20); if (ready()) partial(note(8), { gain: 0.05, decay: 0.55, glide: note(3), wet: 0.6, type: 'triangle' }); },
   fly() { if (ready()) { mallet(note(4), 0.05, 0.6); mallet(note(1), 0.04, 0.8, 0.14); } },
+  /** The fuse catches. */
+  fizz(big) { if (ready()) noise({ gain: big ? 0.05 : 0.035, attack: 0.03, decay: big ? 0.5 : 0.38, freq: 3800, sweep: 1600, q: 1.2 }); },
+  /** Time is up: a pop, or the dynamite going off. */
+  blast(big) {
+    buzz(big ? [30, 20, 40] : 16);
+    if (!ready()) return;
+    noise({ gain: big ? 0.16 : 0.07, attack: 0.004, decay: big ? 0.7 : 0.3, freq: big ? 1800 : 2600, sweep: 160, type: 'lowpass', q: 0.7, wet: 0.5 });
+    partial(big ? 92 : 140, { gain: big ? 0.2 : 0.09, decay: big ? 0.55 : 0.25, glide: big ? 40 : 70, wet: 0.3 });
+  },
   count(i) { if (ready() && i % 2 === 0) mallet(note(9 + (i % 6)), 0.012, 0.07); },
   line(i, hit) { if (ready()) { if (hit) chime(note(7 + (i % 7)), 0.04, 0, 1.1); else mallet(note(2), 0.035, 0.4); } },
   finale(score) {
