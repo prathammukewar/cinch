@@ -355,6 +355,7 @@ export class Round {
     this.rows = [...this.rows, row];
     this.onRow?.(row, q, this.rows);
     if (!store.data().seenIntro) store.change((d) => { d.seenIntro = true; d.newcomer = true; });
+    if (r.tier === 'dead') import('./deadcinch.js').catch(() => {});
     this.stage.reveal(r, { onLand: () => { if (!this.dead) this.landed(q, r, row); } }).then(() => { if (!this.dead) this.settle(); });
   }
 
@@ -376,6 +377,7 @@ export class Round {
       u.hint.classList.remove('gone');
     }
     u.on.style.visibility = 'visible';
+    if (tier.key === 'dead') import('./deadcinch.js').then((m) => { if (!this.dead) m.celebrate(this.root.querySelector('.play'), this.rows); }, () => {});
     this.count(r.points);
     say(`${withUnit(q.answer, q)}. ${label}. ${r.points} points. ${q.explainer}`);
     document.dispatchEvent(new CustomEvent('round:row', { detail: this.rows }));
@@ -411,6 +413,7 @@ export class Round {
     const play = this.root.querySelector('.play');
     this.moving = true;
     play.classList.add('leaving');
+    import('./flair.js').then((m) => { if (!this.dead) m.tumbleweed(play.querySelector('.desk')); }, () => {});
     setTimeout(() => {
       this.moving = false;
       if (this.dead) return;
@@ -419,7 +422,7 @@ export class Round {
       this.ask();
       void play.offsetWidth;
       play.classList.remove('entering');
-    }, 170);
+    }, 230);
   }
 }
 

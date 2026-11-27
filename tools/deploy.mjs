@@ -4,7 +4,7 @@ import { cpSync, rmSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const PROJECT = 'playcinch';
-const FILES = ['index.html', '_headers', 'site.webmanifest', 'og.png', 'icon.svg', 'icon-180.png', 'icon-512.png', 'LICENSE', 'js', 'css', 'data', 'fonts'];
+const FILES = ['index.html', '_headers', 'site.webmanifest', 'og.png', 'icon.svg', 'icon-180.png', 'icon-512.png', 'LICENSE', 'js', 'css', 'data', 'fonts', 'sfx'];
 
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist');

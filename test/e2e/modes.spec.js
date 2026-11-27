@@ -3,6 +3,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 test('the Corral deals sets of seven, no category twice, then shows a result', async ({ page }) => {
   await page.goto('/#practice');
+  await expect(page.locator('#corral-go')).toHaveText('Rope seven');
+  await page.click('#corral-go');
   let last = new Set();
   for (let i = 0; i < 7; i++) {
     await expect(page.locator('.ask .meta')).toContainText(`The Corral, set 1, ${i + 1} of 7`);
@@ -20,6 +22,38 @@ test('the Corral deals sets of seven, no category twice, then shows a result', a
   await expect(page.locator('.facts')).toContainText('of 7');
   await page.click('#again');
   await expect(page.locator('.ask .meta')).toContainText('The Corral, set 2, 1 of 7');
+});
+
+test('the Corral gate narrows a set by topic, difficulty, size and clock, and remembers the picks', async ({ page }) => {
+  await page.goto('/#practice');
+  await page.click('#corral-all');
+  await expect(page.locator('#corral-go')).toBeDisabled();
+  await expect(page.locator('.corral-count')).toContainText('Nothing fits');
+  await page.locator('.g-cat .pick', { hasText: 'Space' }).click();
+  await page.locator('.g-level .pick', { hasText: 'Tenderfoot' }).click();
+  const sets = page.locator('.pick-sets .seg');
+  await sets.nth(0).getByRole('button', { name: '5', exact: true }).click();
+  await sets.nth(1).getByRole('button', { name: '30 s' }).click();
+  await expect(page.locator('#corral-go')).toHaveText('Rope five');
+  await page.reload();
+  await expect(page.locator('#corral-go')).toHaveText('Rope five');
+  await expect(page.locator('.g-level .pick', { hasText: 'Tenderfoot' })).toHaveAttribute('aria-pressed', 'false');
+  await page.click('#corral-go');
+  await expect(page.locator('.fuse')).toBeVisible();
+  for (let i = 0; i < 5; i++) {
+    await expect(page.locator('.ask .meta')).toContainText(`${i + 1} of 5`);
+    const tag = await page.locator('.ask .meta span').nth(1).textContent();
+    expect(tag.split(' \u00b7 ')[0]).toBe('Space');
+    expect(tag).not.toContain('Tenderfoot');
+    await squeeze(page, 0.3, 0.7);
+    await page.click('#drop');
+    await page.waitForTimeout(50);
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.panel.done')).toBeVisible({ timeout: 6000 });
+    await next(page);
+  }
+  await expect(page.locator('#corral-picks')).toBeVisible();
+  await expect(page.locator('#again')).toHaveText('Rope another five');
 });
 
 test('practice never uses a daily question, and Showdown links survive a round trip', async ({ page }) => {
@@ -166,7 +200,7 @@ test('a failed download offers another try', async ({ page }) => {
 
 test('hints: fencing in shortens the rail and costs points, scouting adds landmarks', async ({ page }) => {
   await at(page, '2026-11-27T09:00:00');
-  await page.goto('/#practice');
+  await page.goto('/#practice/go');
   let found = false;
   for (let i = 0; i < 7 && !found; i++) {
     if (await page.locator('#hint-scout').isVisible()) { found = true; break; }

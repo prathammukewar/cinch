@@ -74,3 +74,38 @@
 @keyframes scrap { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + 28px)) rotate(var(--r)); } }
 @keyframes shake { 10%, 90% { translate: -1px 0; } 20%, 80% { translate: 3px 1px; } 30%, 50%, 70% { translate: -6px -1px; } 40%, 60% { translate: 6px 1px; } }
 @media (prefers-reduced-motion: reduce) { .fuse .blast { display: none; } .fuse .stick .art, .play > :is(.fuse, .ask, .desk) { animation: none !important; } }
+
+/* The Corral's gate: chips for topics, difficulty and kind of answer, then the set's size and clock. */
+.art.corral .coil { transform-box: view-box; transform-origin: 145px 43px; animation: coil-sway 4.5s ease-in-out infinite; }
+@keyframes coil-sway { 0%, 100% { rotate: -2deg; } 50% { rotate: 2.5deg; } }
+.corral-page h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 22px 0 10px; font-size: 18px; }
+.picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px 0 12px; border-radius: 22px; border: 1.5px solid var(--line); background: transparent; color: var(--mute); font: 500 15px var(--text); cursor: pointer; transition: background-color .15s, border-color .15s, color .15s, transform .15s var(--ease); }
+.pick::before { content: ''; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid currentColor; flex: none; transition: background-color .15s, border-color .15s; }
+.pick:hover { border-color: var(--ink); color: var(--ink); }
+.pick:active { transform: scale(.96); }
+.pick[aria-pressed='true'] { background: color-mix(in srgb, var(--band) 11%, var(--card)); border-color: color-mix(in srgb, var(--band) 70%, var(--ink)); color: var(--ink); }
+.pick[aria-pressed='true']::before { background: var(--band); border-color: var(--band); }
+.pick .sub { color: var(--mute); font-size: 12.5px; }
+.pick .n { color: var(--mute); font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+.pick.none:not([aria-pressed='true']) { opacity: .6; }
+.pick-all { border: 0; background: none; color: var(--band-text, var(--band)); font: 500 15px var(--text); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0 2px; cursor: pointer; }
+.pick-sets { margin-top: 18px; }
+.pick-sets .seg button[disabled] { opacity: .4; cursor: default; }
+.corral-go { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; margin-top: 20px; padding: 14px 0 calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--paper); }
+.corral-count { margin: 0; color: var(--mute); font-variant-numeric: tabular-nums; }
+.corral-go .go { min-width: 200px; }
+.corral-go .go[disabled] { opacity: .45; cursor: default; }
+@media (min-width: 720px) {
+  .corral-page .pick-group { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 16px; align-items: start; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .corral-page h2 { flex-direction: column; align-items: flex-start; gap: 0; margin: 7px 0 0; }
+  .pick, .pick-all, .pick-sets .seg button { min-height: 38px; }
+  .pick-all { font-size: 14px; }
+  .pick-sets { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 12px; padding: 12px 0 0 128px; border-top: 1px solid var(--line); }
+  .pick-sets .set { display: grid; justify-content: start; gap: 6px; padding: 0; border: 0; min-height: 0; }
+  .pick-sets .set > div:first-child { color: var(--mute); font-size: 14px; }
+  .corral-go { flex-wrap: nowrap; margin-top: 16px; padding: 12px 0 16px; }
+  .corral-go .go { width: auto; flex: none; }
+}
+@media (min-width: 980px) { .corral-page { max-width: 940px; } }
+@media (prefers-reduced-motion: reduce) { .art.corral .coil { animation: none; } }

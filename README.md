@@ -13,7 +13,7 @@ Inside your loop you score 100 minus the share of the rail it covers. Just outsi
 ## Ways to play
 
 - **Roundup**: today's seven, 30 seconds each, one try, a spoiler-free share line and a picture sized for stories
-- **The Corral**: practice in sets of seven, never using daily questions
+- **The Corral**: practice on your own terms. Pick the topics, the difficulty (Tenderfoot, Wrangler, Trail boss), the kind of answer (years, percentages, temperatures, amounts), 5 to 15 questions, no clock or a 30 or 10 second one, and whether to deal the ones you have seen least or the ones you missed. Daily questions never turn up here
 - **Quick Draw**: ten questions, 10 seconds each
 - **Rodeo**: a live room for up to twelve riders, each on their own device. One rider opens a room and sends the code or link; the others join, and the host starts it. Everyone ropes the same seven questions against the same 30-second fuse, every loop lands on the rail at once, and the standings come at the end. The host can run it again with new questions
 - **Showdown**: two riders, the same seven questions. **Same saddle** is for one device passed between two people. **Send a challenge** is for later: rope seven, send a link, and your friend ropes the same seven when they like
@@ -25,7 +25,7 @@ Two hints cost a share of the points. **Fence in** shortens the rail to a stretc
 
 **See context** is free: one or two sentences on what the subject is (a mountain, a board game, a cheese), for when you have never heard of it. It says nothing about the number.
 
-Each throw gets a name by its points: Tumbleweed (0), Dust devil (1 to 20), Snagged (21 to 40), Roped (41 to 60), Hog-tied (61 to 80), Ringer (81 to 95) and Dead ringer (96 to 100). A near miss worth 41 or more is a Leaner.
+Each throw gets a name by its points: Tumbleweed (0), Dust devil (1 to 20), Snagged (21 to 40), Roped (41 to 60), Hog-tied (61 to 80), Ringer (81 to 95) and Dead cinch (96 to 100), old cow-country talk for a sure thing. A near miss worth 41 or more is a Leaner.
 
 ## Questions
 
@@ -58,4 +58,4 @@ Without an account, a Roundup finished on its own day sends the day, the loops t
 
 ## Licence
 
-Code under the MIT licence. Question data comes from the sources named with each question, under their own licences. Fonts under the SIL Open Font License.
+Code under the MIT licence. Question data comes from the sources named with each question, under their own licences. Fonts under the SIL Open Font License. Sound effects are recordings from Kenney's Impact Sounds and RPG Audio packs (CC0), cut into one file by `tools/sfx.py`; the guitar and the whip crack are made in the browser.

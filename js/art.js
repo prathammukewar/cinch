@@ -188,7 +188,34 @@ function board() {
     + `<g clip-path="url(#${g}c)"><rect class="glint" x="-30" y="-10" width="16" height="140" transform="rotate(22 80 56)" style="fill:#fff;opacity:.4"/></g>`);
 }
 
-const EMBLEMS = { showdown, rodeo, trails, book, board };
+/** The Corral: a fence gate with a coiled rope hung on its post. */
+function corral() {
+  const g = uid();
+  const wood = `fill:url(#${g}w);${ln()}`;
+  const HEMP = '#c89d5e';
+  const rail = (y) => `<rect x="18" y="${y}" width="124" height="11" rx="2" style="${wood}"/><path d="M24 ${y + 4}H136" style="stroke:${lo('var(--steel-2)', 20)};stroke-width:.8;opacity:.6"/>`;
+  const post = (x) => `<rect x="${x}" y="16" width="13" height="94" rx="2" style="fill:url(#${g}p);${ln()}"/>`
+    + `<path d="M${x + 3.5} 26V102M${x + 8.5} 34V96" style="stroke:${lo('var(--steel-2)', 30)};stroke-width:.9;opacity:.6"/>`
+    + `<path d="M${x - 1.5} 17.5h16l-8-7z" style="fill:${lo('var(--steel-1)', 18)};${ln(1.8)}"/>`
+    + [33, 57, 81].map((y) => `<circle cx="${x + 6.5}" cy="${y + 5.5}" r="1.5" style="fill:${LINE}"/>`).join('');
+  const brace = `<path d="M30 92L128 40" style="fill:none;${ln(12)}"/><path d="M30 92L128 40" style="fill:none;stroke:url(#${g}w);stroke-width:8;stroke-linecap:round"/>`;
+  const loop = (cx, cy, rx, ry, r) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${cx} ${cy})" style="fill:none;${ln(6.4)}"/>`
+    + `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${cx} ${cy})" style="fill:none;stroke:${HEMP};stroke-width:3.6"/>`
+    + `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${cx} ${cy})" style="fill:none;stroke:${hi(HEMP, 50)};stroke-width:1.2;stroke-dasharray:2.4 3.2;opacity:.8"/>`;
+  const tail = 'M134 84c4 8-3 12 2 19s8 6 6 9';
+  const tuft = (x, s) => `<path d="M${x} 110l-${3 * s}-${7 * s}M${x} 110l${1 * s}-${9 * s}M${x} 110l${4 * s}-${6 * s}" style="stroke:var(--good);stroke-width:1.8;stroke-linecap:round;opacity:.85"/>`;
+  return svg('0 0 160 120', `<defs>${lin(`${g}w`, [[0, hi('var(--steel-1)', 18)], [0.6, 'var(--steel-1)'], [1, lo('var(--steel-1)', 22)]])}${lin(`${g}p`, [[0, hi('var(--steel-2)', 15)], [0.5, 'var(--steel-1)'], [1, lo('var(--steel-2)', 25)]], [0, 0, 1, 0])}</defs>`
+    + `<ellipse cx="80" cy="110" rx="76" ry="8" style="fill:var(--far);opacity:.7"/>`
+    + shadow(80, 110, 66, 3)
+    + rail(33) + rail(57) + rail(81) + brace
+    + post(8) + post(139)
+    + `<path d="M140 44c-6 2-8 5-8 9" style="fill:none;${ln(2)}"/><circle cx="145.5" cy="43" r="2" style="fill:${LINE}"/>`
+    + `<g class="coil">${loop(139, 66, 12, 19, 8)}${loop(143, 68, 12, 18, -6)}${loop(141, 64, 11, 20, 2)}`
+    + `<path d="${tail}" style="fill:none;${ln(6.4)}"/><path d="${tail}" style="fill:none;stroke:${HEMP};stroke-width:3.6;stroke-linecap:round"/></g>`
+    + tuft(24, 1) + tuft(60, 0.8) + tuft(100, 0.9) + tuft(122, 0.7), 'corral');
+}
+
+const EMBLEMS = { showdown, rodeo, trails, book, board, corral };
 
 /** The emblem that sits beside a mode page's title. */
 export function emblem(name) {

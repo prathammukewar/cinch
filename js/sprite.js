@@ -1,0 +1,2 @@
+// Where each recorded sound sits in sfx/ranch.mp3: [start, length] in seconds. Made by tools/sfx.py.
+export const SPRITE = {"tap":[0.0,0.2],"tick":[0.36,0.14],"count":[0.66,0.17],"grab":[0.99,0.3063],"creak":[1.4563,0.5413],"settle":[2.1576,0.3538],"swish":[2.6714,0.6264],"swish2":[3.4578,0.3841],"thud":[4.0018,0.54],"clank":[4.7018,0.3088],"clatter":[5.1707,0.5288],"bell":[5.8595,0.7373],"bell-big":[6.7568,1.54],"bell-ring":[8.4568,1.44],"buckle":[10.0568,0.3006],"knock":[10.5174,0.3],"rubble":[10.9774,0.87],"soft":[12.0074,0.22]};

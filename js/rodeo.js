@@ -12,6 +12,7 @@ import { nameProblem, tidyName } from './names.js';
 import { h, say, toast, plus, signed, reducedMotion } from './dom.js';
 import { withEmblem } from './art.js';
 import { sound } from './sound.js';
+import { accountName } from './account.js';
 
 let ctx;
 export function init(c) { ctx = c; }
@@ -74,7 +75,7 @@ function page(title, ...kids) {
 
 function nameField() {
   return h('label', { class: 'name-field' }, h('span', {}, 'Your name'),
-    h('input', { type: 'text', id: 'rodeo-name', maxlength: 20, autocomplete: 'nickname', value: store.get('name') || '', placeholder: 'Optional', oninput: (e) => store.set('name', clean(e.target.value)) }));
+    h('input', { type: 'text', id: 'rodeo-name', maxlength: 20, autocomplete: 'nickname', value: clean(accountName()) || store.get('name') || '', placeholder: 'Optional', oninput: (e) => store.set('name', clean(e.target.value)) }));
 }
 
 /** The name typed in, or a reason it cannot be used. */

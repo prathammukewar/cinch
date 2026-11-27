@@ -17,7 +17,8 @@ const LADDER = {
   dust: '1 to 20',
   tumble: '0',
 };
-import { Round } from './play.js';
+import { Round, DIFFICULTY } from './play.js';
+import { LEVELS, KINDS, SIZES, CLOCKS, tidyPick, missedIds, matching, countFor } from './deal.js';
 import { verdict, verdictText, byCategory, rateChart, curveChart, bandAt } from './dash.js';
 import { h, $, toast, signed, plus } from './dom.js';
 import { sound } from './sound.js';
@@ -34,6 +35,88 @@ const resultView = (o) => ctx.resultView(o);
 const setCurrent = (v) => ctx.setCurrent(v);
 const getCurrent = () => ctx.getCurrent();
 const getToday = () => ctx.today();
+
+// ------------------------------------------------------------------ corral
+
+const WORD = { 5: 'five', 7: 'seven', 10: 'ten', 15: 'fifteen' };
+export const setWord = (n) => WORD[n] || String(n);
+
+/** The Corral's gate: pick the topics, difficulty, kind of answer, set size and clock, then rope. */
+export async function showCorral() {
+  const pool = await practicePool();
+  const missed = missedIds(store.data().practice.rows);
+  const seen = store.data().practice.seen;
+  let pick = tidyPick(store.data().practice.pick);
+  const save = () => store.change((d) => { d.practice.pick = pick; });
+  const cats = [...new Set(pool.map((q) => q.category))].sort((a, b) => a.localeCompare(b));
+  const chips = [];
+  const segs = [];
+  const toggle = (key, v) => {
+    const off = pick.off[key];
+    pick = { ...pick, off: { ...pick.off, [key]: off.includes(v) ? off.filter((x) => x !== v) : [...off, v] } };
+    save(); paint();
+  };
+  const all = h('button', { class: 'pick-all', type: 'button', id: 'corral-all', onclick: () => {
+    pick = { ...pick, off: { ...pick.off, cat: pick.off.cat.length ? [] : cats.slice() } };
+    save(); paint();
+  } });
+  const group = (key, title, options, extra = null) => {
+    const row = h('div', { class: 'picks', role: 'group', 'aria-label': title });
+    for (const [v, text, sub] of options) {
+      const n = h('small', { class: 'n' });
+      const b = h('button', { type: 'button', class: 'pick', onclick: () => toggle(key, v) }, h('span', {}, text), sub ? h('small', { class: 'sub' }, sub) : null, n);
+      chips.push({ b, key, v, n, text });
+      row.append(b);
+    }
+    return h('section', { class: `pick-group g-${key}` }, h('h2', {}, title, extra), row);
+  };
+  const seg = (key, label, options) => {
+    const wrap = h('div', { class: 'seg', role: 'group', 'aria-label': label });
+    for (const [v, text] of options) wrap.append(h('button', { type: 'button', onclick: () => { pick = { ...pick, [key]: v }; save(); paint(); } }, text));
+    segs.push({ wrap, key, options });
+    return h('div', { class: 'set' }, h('div', {}, label), wrap);
+  };
+  const line = h('p', { class: 'corral-count', 'aria-live': 'polite' });
+  const go = h('button', { class: 'go', type: 'button', id: 'corral-go', onclick: () => { sound.tap(); location.hash = '#practice/go'; } });
+  function paint() {
+    for (const c of chips) {
+      const on = !pick.off[c.key].includes(c.v);
+      const k = countFor(pool, pick, missed, c.key, c.v);
+      c.b.setAttribute('aria-pressed', String(on));
+      c.b.setAttribute('aria-label', `${c.text}, ${k} ${k === 1 ? 'question' : 'questions'}`);
+      c.n.textContent = String(k);
+      c.b.classList.toggle('none', !k);
+    }
+    for (const s of segs) [...s.wrap.children].forEach((b, i) => {
+      const v = s.options[i][0];
+      b.setAttribute('aria-pressed', String(pick[s.key] === v));
+      if (s.key === 'draw' && v === 'missed') { b.disabled = !missed.size; b.textContent = `Missed (${missed.size})`; }
+    });
+    all.textContent = pick.off.cat.length ? 'All' : 'None';
+    all.setAttribute('aria-label', pick.off.cat.length ? 'Turn every topic on' : 'Turn every topic off');
+    const fits = matching(pool, pick, missed);
+    const fresh = fits.filter((q) => !seen[q.id]).length;
+    const size = Math.min(pick.n, fits.length);
+    line.textContent = !fits.length ? 'Nothing fits those picks. Turn one back on.'
+      : fits.length < pick.n ? `Only ${fits.length} ${fits.length === 1 ? 'question fits' : 'questions fit'}, so the set is ${size}.`
+        : `${fits.length.toLocaleString()} questions fit, ${fresh.toLocaleString()} new to you.`;
+    go.textContent = fits.length ? `Rope ${setWord(size)}` : 'Rope';
+    go.disabled = !fits.length;
+  }
+  main.replaceChildren(withEmblem(h('div', { class: 'page corral-page' },
+    h('h1', {}, 'The Corral'),
+    h('p', { class: 'lede' }, 'Practice on your own terms. Daily questions never turn up here.'),
+    group('cat', 'Topics', cats.map((c) => [c, c]), all),
+    h('div', { class: 'pick-pair' },
+      group('level', 'Difficulty', LEVELS.map((l) => [l, DIFFICULTY[l], ['easy', 'medium', 'hard'][l - 1]])),
+      group('kind', 'Answers', KINDS)),
+    h('div', { class: 'pick-sets' },
+      seg('n', 'Questions', SIZES.map((n) => [n, String(n)])),
+      seg('clock', 'Clock', CLOCKS.map((c) => [c, c ? `${c} s` : 'Off'])),
+      seg('draw', 'Deal', [['new', 'Least seen'], ['missed', 'Missed']])),
+    h('div', { class: 'corral-go' }, line, go)), 'corral'));
+  paint();
+}
 
 export async function showQuant() {
   const pool = await practicePool();
@@ -122,6 +205,7 @@ export async function showSources() {
     h('p', {}, 'Animal ages, pregnancies and weights come from AnAge: Tacutu R. et al. (2018), Human Ageing Genomic Resources, Nucleic Acids Research 46(D1):D1083-D1090.'),
     h('p', {}, 'Food figures are from USDA FoodData Central. World figures are from World Bank Open Data and from FAO through Our World in Data, both under CC BY 4.0. Wikidata facts are CC0 and were each checked against the matching English Wikipedia article.'),
     h('p', {}, 'Fonts: Anybody and Familjen Grotesk, both under the SIL Open Font License.'),
+    h('p', {}, 'Sounds: recordings from Kenney\u2019s Impact Sounds and RPG Audio packs (CC0); the guitar and the whip are made in the browser.'),
     h('p', { class: 'foot' }, 'Spot a wrong number? The source link on each answer is the place to start.')));
 }
 

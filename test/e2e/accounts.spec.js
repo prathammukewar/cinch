@@ -60,7 +60,11 @@ test('a second device signs in with the key and gets the same record', async ({ 
   const b = backend();
   await serve(page, b);
   const key = await makeAccount(page, 'Ben', false);
-  await page.goto('/#practice');
+  await page.goto('/#duel/send');
+  await expect(page.locator('#duel-name')).toHaveValue('Ben');
+  await page.goto('/#rodeo');
+  await expect(page.locator('#rodeo-name')).toHaveValue('Ben');
+  await page.goto('/#practice/go');
   for (let i = 0; i < 3; i++) {
     await page.locator('.thumb').first().focus();
     await page.keyboard.press('PageUp');

@@ -158,8 +158,8 @@ test('throws are named by points, and a good miss is a Leaner', () => {
   assert.equal(name(80), 'Hog-tied');
   assert.equal(name(81), 'Ringer');
   assert.equal(name(95), 'Ringer');
-  assert.equal(name(96), 'Dead ringer');
-  assert.equal(name(100), 'Dead ringer');
+  assert.equal(name(96), 'Dead cinch');
+  assert.equal(name(100), 'Dead cinch');
   assert.equal(name(97, false), 'Leaner');
 });
 

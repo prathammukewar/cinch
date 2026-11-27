@@ -85,17 +85,17 @@ const liveDays = () => Object.entries(store.data().days).filter(([, r]) => r.liv
 // ------------------------------------------------------------------ router
 
 const lazyDuel = async (arg) => {
-  const [duel] = await Promise.all([import('./duel.js'), moreStyles(), loadResultKit()]);
+  const [duel] = await Promise.all([import('./duel.js'), moreStyles(), loadResultKit(), dealKit()]);
   duel.init({ main, sound, pickSet, paintPips, setCurrent: (v) => { current = v; }, getCurrent: () => current, route });
   return duel.show(arg);
 };
 const lazyRodeo = async (arg) => {
-  const [rodeo] = await Promise.all([import('./rodeo.js'), moreStyles(), loadResultKit()]);
+  const [rodeo] = await Promise.all([import('./rodeo.js'), moreStyles(), loadResultKit(), dealKit()]);
   rodeo.init({ main, pickSet, paintPips, setCurrent: (v) => { current = v; }, getCurrent: () => current });
   return rodeo.show(arg);
 };
 const lazy = (name) => async (arg) => {
-  const [pages] = await Promise.all([import('./pages.js'), moreStyles()]);
+  const [pages] = await Promise.all([import('./pages.js'), moreStyles(), dealKit()]);
   pages.init({ main, kit: loadResultKit, liveDays, paintTheme, paintSound, paintPips, picker, pickSet, resultView, today: () => today, setCurrent: (v) => { current = v; }, getCurrent: () => current });
   return pages[name](arg);
 };
@@ -114,6 +114,8 @@ function route() {
 }
 
 let first = true;
+let lastScreen = null;
+let flair = null; // js/flair.js once loaded
 async function show() {
   const [name, arg] = (location.hash.slice(1) || 'home').split('/');
   const render = async () => {
@@ -128,11 +130,18 @@ async function show() {
   try {
     // Screens cross-fade where the browser can do it; the header stays put.
     if (!first && document.startViewTransition && !reducedMotion()) {
-      const vt = document.startViewTransition(render);
-      vt.ready.catch(() => {}); vt.finished.catch(() => {});
+      // A new screen comes through the saloon doors; a new tab of the same screen just fades.
+      const swing = flair && name !== lastScreen;
+      flair?.clearDoors();
+      document.documentElement.classList.toggle('doors', !!swing);
+      const vt = document.startViewTransition(async () => { await render(); if (swing) flair.doors(); });
+      vt.ready.catch(() => {});
+      vt.finished.catch(() => {}).then(() => document.documentElement.classList.remove('doors'));
       await vt.updateCallbackDone;
     }
     else await render();
+    lastScreen = name;
+    if (first) (globalThis.requestIdleCallback || setTimeout)(() => import('./flair.js').then((m) => { flair = m; }, () => {}));
     first = false;
   } catch (err) {
     main.replaceChildren(h('div', { class: 'center' }, h('div', {},
@@ -320,13 +329,20 @@ const resultView = (o) => K.resultView(o);
 
 // ------------------------------------------------------- practice and quant
 
-async function showPractice() {
-  const [pool, { Round }] = await Promise.all([practicePool(), import('./play.js')]);
-  const set = pickSet(pool, PER_DAY);
-  const n = (store.data().practice.sets?.length || 0) + 1;
+async function showPractice(arg) {
+  if (arg !== 'go') return lazy('showCorral')();
+  const [pool, { Round }] = await Promise.all([practicePool(), import('./play.js'), dealKit()]);
+  const d0 = store.data();
+  const pick = D.tidyPick(d0.practice.pick);
+  const fits = D.matching(pool, pick, D.missedIds(d0.practice.rows));
+  if (!fits.length) { location.hash = '#practice'; return; }
+  const set = pickSet(fits, pick.n);
+  const n = (d0.practice.sets?.length || 0) + 1;
+  const word = { 5: 'five', 7: 'seven', 10: 'ten', 15: 'fifteen' }[set.length] || String(set.length);
   paintPips([], set.length);
   current = new Round(main, {
     length: set.length,
+    seconds: pick.clock,
     next: (i) => set[i] || null,
     label: (i) => `The Corral, set ${n}, ${i + 1} of ${set.length}`,
     lastText: 'See how the set went',
@@ -339,11 +355,12 @@ async function showPractice() {
       await loadResultKit();
       store.change((d) => { (d.practice.sets ||= []).push({ at: Date.now(), rows, points: sum(rows) }); });
       current?.destroy?.();
-      const best = Math.max(...store.data().practice.sets.map((r) => r.points));
+      const best = Math.max(...store.data().practice.sets.filter((r) => r.rows?.length === set.length).map((r) => r.points));
       const view = K.resultView({
         rows, questions: set, instant: false, heading: `The Corral, set ${n}`, of: set.length * 100, shareTitle: `Corral set ${n}`,
-        third: () => ['Best set', signed(best)], extras: [h('a', { class: 'go quiet', href: '#duel' }, 'Showdown'), h('a', { class: 'go quiet', href: '#home' }, 'Home')],
-        restart: () => route(), restartText: 'Rope another seven',
+        third: () => [`Best set of ${set.length}`, signed(best)],
+        extras: [h('a', { class: 'go quiet', href: '#practice', id: 'corral-picks' }, 'Change picks'), h('a', { class: 'go quiet', href: '#home' }, 'Home')],
+        restart: () => route(), restartText: `Rope another ${word}`,
       });
       main.replaceChildren(view.el);
       current = view;
@@ -352,24 +369,12 @@ async function showPractice() {
   });
 }
 
-/**
- * A set of practice questions: least seen first, an easy start and a hard finish,
- * no category twice.
- */
+// How sets are dealt lives in its own file, loaded with the first screen that deals one.
+let D = null;
+const dealKit = () => (D ? Promise.resolve(D) : import('./deal.js').then((m) => { D = m; return m; }));
+/** A set of practice questions: least seen first, an easy start and a hard finish, no topic twice. */
 function pickSet(pool, n) {
-  const seen = store.data().practice.seen;
-  const order = [...pool].sort(() => Math.random() - 0.5).sort((a, b) => (seen[a.id] || 0) - (seen[b.id] || 0));
-  const want = n === 7 ? [1, 2, 2, 2, 2, 3, 3] : [1, 1, 2, 2, 2, 2, 3, 2, 3, 3].slice(0, n);
-  const out = [];
-  const cats = new Set();
-  for (const d of want) {
-    const q = order.find((x) => !out.includes(x) && !cats.has(x.category) && x.difficulty === d)
-      || order.find((x) => !out.includes(x) && !cats.has(x.category))
-      || order.find((x) => !out.includes(x));
-    if (!q) break;
-    out.push(q); cats.add(q.category);
-  }
-  return out.map(open);
+  return D.deal(pool, n, store.data().practice.seen).map(open);
 }
 
 /** Least-seen questions first, never the same category twice running. */

@@ -71,9 +71,10 @@ export function scoreRange(low, high, answer, ruler, view = [0, 1]) {
 /** A catch is tight when it covers at most this share of the ruler. */
 export const TIGHT = 0.25;
 
-/** What each throw is called, by the points it scored. A miss that still scores well is a Leaner. */
+/** What each throw is called, by the points it scored. A miss that still scores well is a Leaner.
+ *  The best is a Dead cinch, old cow-country talk for a sure thing. */
 export const TIERS = [
-  { key: 'dead', name: 'Dead ringer', min: 96 },
+  { key: 'dead', name: 'Dead cinch', min: 96 },
   { key: 'ringer', name: 'Ringer', min: 81 },
   { key: 'hogtied', name: 'Hog-tied', min: 61 },
   { key: 'roped', name: 'Roped', min: 41 },

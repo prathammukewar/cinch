@@ -261,8 +261,9 @@ main { flex: 1; display: flex; flex-direction: column; width: 100%; }
 .play .ask, .play .panel, .play .desk canvas { transition: opacity .34s var(--ease), transform .4s var(--ease); }
 .play .desk canvas { transition-delay: .03s; }
 .play .panel { transition-delay: .06s; }
-.play.leaving .ask, .play.leaving .panel, .play.leaving .desk canvas { opacity: 0; transform: translateX(-22px); transition-duration: .16s; transition-timing-function: cubic-bezier(.4, 0, 1, 1); transition-delay: 0s; }
-.play.entering .ask, .play.entering .panel, .play.entering .desk canvas { opacity: 0; transform: translateX(26px); transition: none; }
+/* Between questions the wind blows the old one off to the right and the new one drifts in behind it. */
+.play.leaving .ask, .play.leaving .panel, .play.leaving .desk canvas { opacity: 0; transform: translateX(46px) skewX(-9deg); transition-duration: .22s; transition-timing-function: cubic-bezier(.5, 0, 1, 1); transition-delay: 0s; }
+.play.entering .ask, .play.entering .panel, .play.entering .desk canvas { opacity: 0; transform: translateX(-30px); transition: none; }
 
 /* screens */
 .bar { view-transition-name: bar; }

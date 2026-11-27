@@ -14,6 +14,8 @@ export const getKey = () => slot(KEY_SLOT);
 export const signedIn = () => !!getKey();
 export function me() { try { return JSON.parse(slot(ME_SLOT) || 'null'); } catch { return null; } }
 const setMe = (m) => slot(ME_SLOT, m ? JSON.stringify(m) : null);
+/** The public name of the account signed in here, or ''. Group games start with it filled in. */
+export const accountName = () => (signedIn() && me()?.name) || '';
 
 /** Shown in groups of five so it can be read out or typed on another device. */
 export const formatKey = (k) => (k || '').match(/.{1,5}/g)?.join('-') || '';

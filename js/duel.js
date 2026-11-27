@@ -7,6 +7,7 @@ import { total } from './score.js';
 import { withUnit } from './format.js';
 import { h, say, toast, signed, plus } from './dom.js';
 import { withEmblem } from './art.js';
+import { accountName } from './account.js';
 
 let ctx;
 export function init(c) { ctx = c; }
@@ -25,7 +26,10 @@ export const encode = enc;
 
 const link = (code) => `${SITE || `${location.origin}${location.pathname}`}#duel/${code}`;
 const clean = (s) => String(s || '').replace(/[^\p{L}\p{N} '.-]/gu, '').trim().slice(0, 20);
-const myName = () => clean(store.get('name')) || 'A friend';
+// Signed in, the account's name is filled in; a name typed here counts for this game.
+let typed = null;
+const startName = () => clean(accountName()) || clean(store.get('name'));
+const myName = () => (typed ?? startName()) || 'A friend';
 
 export async function show(code) {
   if (!code) return intro();
@@ -62,8 +66,9 @@ function page(title, ...kids) {
 }
 
 function nameField(label = 'Your name') {
+  typed = null;
   return h('label', { class: 'name-field' }, h('span', {}, label),
-    h('input', { type: 'text', id: 'duel-name', maxlength: 20, autocomplete: 'nickname', value: store.get('name') || '', placeholder: 'Optional', oninput: (e) => store.set('name', clean(e.target.value)) }));
+    h('input', { type: 'text', id: 'duel-name', maxlength: 20, autocomplete: 'nickname', value: startName(), placeholder: 'Optional', oninput: (e) => { typed = clean(e.target.value); store.set('name', typed); } }));
 }
 
 function startButton() {
@@ -95,7 +100,7 @@ function sameIntro() {
   ctx.paintPips([], 0);
   ctx.main.replaceChildren(page('Same saddle',
     h('p', { class: 'lede' }, 'Take turns on one device.'),
-    field('rider-1', 'First rider', clean(store.get('name')), 'Rider 1'),
+    field('rider-1', 'First rider', startName(), 'Rider 1'),
     field('rider-2', 'Second rider', clean(store.get('name2')), 'Rider 2'),
     h('p', { style: 'margin-top:24px' }, h('button', { class: 'go', type: 'button', id: 'side-start', onclick: () => {
       const a = clean(document.getElementById('rider-1').value) || 'Rider 1';

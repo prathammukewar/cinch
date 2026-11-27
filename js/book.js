@@ -63,7 +63,7 @@ function numbers(rows, live, today) {
     tile('Average day', days.length ? signed(Math.round(mean(days.map((d) => d.score)))) : '–', 'of 700'),
     tile('Best day', best ? signed(best.score) : '–', best ? `No. ${best.n}, ${longDate(keyOf(best.n)).replace(/^\w+, /, '')}` : 'Play a Roundup'),
     tile('Per question', plus(Math.round(mean(rows.map((r) => r.points))))),
-    tile('Dead ringers', String(dead), null, dead ? 'gold' : ''),
+    tile('Dead cinches', String(dead), null, dead ? 'gold' : ''),
     tile('Last 20', pct(lastRate), trend));
 }
 
