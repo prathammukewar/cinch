@@ -68,7 +68,7 @@ export class PairRound extends Round {
       r.tier = tierOf(r).key;
       return r;
     });
-    const pair = results.map((r, i) => rowOf(q, r, this.picks[i].low, this.picks[i].high, this.picks[i].hint));
+    const pair = results.map((r, i) => rowOf(q, r, this.picks[i].low, this.picks[i].high, this.picks[i].hint, this.picks[i].mult));
     this.pairs = [...this.pairs, pair];
     const best = pair[0].points >= pair[1].points ? pair[0] : pair[1];
     this.rows = [...this.rows, best];

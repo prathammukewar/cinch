@@ -171,15 +171,16 @@ test('hints: fencing in shortens the rail and costs points, scouting adds landma
   await expect(page.locator('#hint-fence')).toHaveText(/Fence in more/);
   const after = await page.evaluate(() => [document.getElementById('low-value').value, document.getElementById('high-value').value]);
   expect(after).not.toEqual(before);
-  await expect(page.locator('.worth')).toContainText('85% with hints');
+  await expect(page.locator('.worth')).toContainText('75% with hints');
   await page.click('#hint-scout');
   await expect(page.locator('#hint-scout')).toHaveText('Scouted');
-  await expect(page.locator('.worth')).toContainText('72% with hints');
+  await expect(page.locator('.worth')).toContainText('64% with hints');
   await page.click('#drop');
   await page.clock.runFor(3000);
   await expect(page.locator('.panel.done')).toBeVisible();
   const row = await page.evaluate(() => JSON.parse(localStorage.getItem('cinch')).practice.rows.at(-1));
   expect(row.hints).toEqual({ scout: true, fence: 1 });
+  expect(row.m).toBeCloseTo(0.75 * 0.85);
 });
 
 test('the daily fuse pitches the loop when it burns out', async ({ page }) => {

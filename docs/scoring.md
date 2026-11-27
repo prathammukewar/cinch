@@ -10,7 +10,7 @@ Every question has a fixed rail (the ruler). Positions on it run from 0 to 1, on
     fade   = max(0, 1 - gap / (0.5 * width))
     points = inside * fade^2                         if x is outside
 
-In words: inside your loop you score 100 minus the share of the rail it covers. Outside it, those points fade to nothing once the answer is half a loop's width beyond the edge. Tight loops are worth more and fade faster. Nothing goes below zero. Fence in shortens the rail to a stretch that holds the answer, and the loop is then measured against that shorter rail, so a loop around the whole fenced stretch scores 0. On top of that, fence in once keeps 85% of the points, twice 70%, and a scout keeps 85%. Scout marks can sit on either side of the answer.
+In words: inside your loop you score 100 minus the share of the rail it covers. Outside it, those points fade to nothing once the answer is half a loop's width beyond the edge. Tight loops are worth more and fade faster. Nothing goes below zero. Fence in shortens the rail to a stretch that holds the answer, and the loop is then measured against that shorter rail, so a loop around the whole fenced stretch scores 0. The answer can sit anywhere from 3% to 97% of a fenced stretch, so its middle is not a sure catch. On top of that, fence in once keeps 75% of the points, twice 50%, and a scout keeps 85%. Scout marks can sit on either side of the answer. (Roundups 1 to 3 were played when fencing kept 85% and 70% and the answer sat between 12% and 88% of the stretch; they keep those rules.)
 
 ## What it rewards
 

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { backend, SITE } from '../backend.js';
 import { forDay, setBase } from '../../js/bank.js';
-import { scoreRange, HINTS } from '../../js/score.js';
+import { scoreRange, hintsFor } from '../../js/score.js';
 
 // The day that is live right now, by the server's own clock, so these tests never go stale.
 const DAY = Math.floor((Date.now() - Date.UTC(2026, 10, 25)) / 864e5) + 1;
@@ -16,7 +16,8 @@ const loopsAt = (shrink, extra = () => ({})) => questions.map((q, i) => {
 const clientPoints = (loops) => questions.map((q, i) => {
   const p = loops[i];
   const r = scoreRange(p.lo, p.hi, q.answer, { min: q.min, max: q.max, scale: q.scale }, p.fence ? q.trims[p.fence - 1] : [0, 1]);
-  return Math.round(r.exact * (p.scout ? HINTS.scout : 1) * HINTS.fence[p.fence]);
+  const H = hintsFor(DAY);
+  return Math.round(r.exact * (p.scout ? H.scout : 1) * H.fence[p.fence]);
 });
 const finish = (b, n, loops, key) => b.call('/v1/score', { method: 'POST', body: { day: DAY, client: client(n), loops }, key });
 const join = async (b, name, listed = true, n = 900) => (await b.call('/v1/account', { method: 'POST', body: { name, listed, client: client(n) } })).data;

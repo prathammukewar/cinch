@@ -13,12 +13,12 @@ export const rulerOf = (q) => ({ min: q.min, max: q.max, scale: q.scale });
 
 export { HINTS };
 export const DIFFICULTY = { 1: 'Tenderfoot', 2: 'Wrangler', 3: 'Trail boss' };
-const multiplier = (h) => (h.scout ? HINTS.scout : 1) * HINTS.fence[h.fence];
+const multiplier = (h, c = HINTS) => (h.scout ? c.scout : 1) * c.fence[h.fence];
 
-/** What gets saved for one answered question. */
-export function rowOf(q, r, low, high, hints) {
+/** What gets saved for one answered question. m is the share of the points the hints left. */
+export function rowOf(q, r, low, high, hints, m) {
   const row = { id: q.id, cat: q.category, lo: low, hi: high, l: r5(r.l), u: r5(r.u), x: r5(r.x), hit: r.hit, width: r5(r.width), points: r.points, at: Date.now() };
-  if (hints && (hints.scout || hints.fence)) row.hints = { ...hints };
+  if (hints && (hints.scout || hints.fence)) { row.hints = { ...hints }; if (m) row.m = m; }
   return row;
 }
 const r5 = (v) => Math.round(v * 1e5) / 1e5;
@@ -29,8 +29,8 @@ export class Round {
    * label(i) -> text at the top, onRow(row, q), onEnd(rows), seconds: time limit per question
    */
   constructor(root, opts) {
-    const { next, rows = [], length = 0, label, onRow, onEnd, lastText = 'See your roundup', seconds = 0, quickNext = false } = opts;
-    Object.assign(this, { root, next, rows, length, label, onRow, onEnd, lastText, seconds, quickNext, opts });
+    const { next, rows = [], length = 0, label, onRow, onEnd, lastText = 'See your roundup', seconds = 0, quickNext = false, costs = HINTS } = opts;
+    Object.assign(this, { root, next, rows, length, label, onRow, onEnd, lastText, seconds, quickNext, opts, costs });
     this.isRound = true;
     this.build();
     this.ask();
@@ -255,12 +255,13 @@ export class Round {
     const f = this.hint.fence;
     u.fence.hidden = !q.trims?.length;
     u.fence.disabled = f >= 2 || this.locked;
-    u.fence.textContent = f >= 2 ? 'Fenced in' : f === 1 ? `Fence in more ${pct(HINTS.fence[2])}` : `Fence in ${pct(HINTS.fence[1])}`;
-    u.fence.setAttribute('aria-label', f >= 2 ? 'Fenced in twice' : `Fence in: shorten the rail around the answer. You keep ${Math.round(HINTS.fence[f + 1] * 100)}% of the points`);
+    const c = this.costs;
+    u.fence.textContent = f >= 2 ? 'Fenced in' : f === 1 ? `Fence in more ${pct(c.fence[2])}` : `Fence in ${pct(c.fence[1])}`;
+    u.fence.setAttribute('aria-label', f >= 2 ? 'Fenced in twice' : `Fence in: shorten the rail around the answer. You keep ${Math.round(c.fence[f + 1] * 100)}% of the points`);
     u.scout.hidden = !q.marks?.length;
     u.scout.disabled = this.hint.scout || this.locked;
-    u.scout.textContent = this.hint.scout ? 'Scouted' : `Scout ${pct(HINTS.scout)}`;
-    u.scout.setAttribute('aria-label', this.hint.scout ? 'Scouted' : 'Scout: mark known numbers of the same kind on the rail. Costs 15% of the points');
+    u.scout.textContent = this.hint.scout ? 'Scouted' : `Scout ${pct(c.scout)}`;
+    u.scout.setAttribute('aria-label', this.hint.scout ? 'Scouted' : `Scout: mark known numbers of the same kind on the rail. Costs ${Math.round((1 - c.scout) * 100)}% of the points`);
   }
 
   useScout() {
@@ -285,7 +286,7 @@ export class Round {
     say('The rail is shorter now, and the answer is still on it.');
   }
 
-  get mult() { return multiplier(this.hint); }
+  get mult() { return multiplier(this.hint, this.costs); }
 
   /** The stretch of the rail still showing, as shares of the full rail. Loops are measured against it. */
   get view() { return this.hint.fence ? this.q.trims[this.hint.fence - 1] : [0, 1]; }
@@ -321,7 +322,7 @@ export class Round {
     r.points = Math.round(r.exact * this.mult);
     r.fenced = this.hint.fence > 0;
     r.tier = tierOf(r).key;
-    const row = rowOf(q, r, low, high, this.hint);
+    const row = rowOf(q, r, low, high, this.hint, this.mult);
     this.paintHints();
     this.rows = [...this.rows, row];
     this.onRow?.(row, q, this.rows);

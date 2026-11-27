@@ -198,10 +198,11 @@ function resultOf(q, p) {
   const hint = { fence: [1, 2].includes(p[2]) && q.trims?.[p[2] - 1] ? p[2] : 0, scout: !!p[3] };
   const view = hint.fence ? q.trims[hint.fence - 1] : [0, 1];
   const r = scoreRange(p[0], p[1], q.answer, rulerOf(q), view);
-  r.points = Math.round(r.exact * (hint.scout ? HINTS.scout : 1) * HINTS.fence[hint.fence]);
+  const m = (hint.scout ? HINTS.scout : 1) * HINTS.fence[hint.fence];
+  r.points = Math.round(r.exact * m);
   r.fenced = hint.fence > 0;
   r.tier = tierOf(r).key;
-  return { r, row: rowOf(q, r, p[0], p[1], hint) };
+  return { r, row: rowOf(q, r, p[0], p[1], hint, m) };
 }
 
 /** Every rider's points on every question shown so far. */

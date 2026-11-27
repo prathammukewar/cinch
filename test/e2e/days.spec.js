@@ -131,3 +131,14 @@ test('a past day played live shows how it compared, without posting again', asyn
   await expect(page.locator('.recap .crowd').first()).toContainText('Better than 11% of players');
   expect(posts).toBe(1);
 });
+
+test('Roundups before day 4 keep the old Fence in cost; from day 4 it costs more', async ({ page }) => {
+  for (const [iso, label] of [['2026-11-27T09:00:00', /^Fence in −15%$/], ['2026-11-28T09:00:00', /^Fence in −25%$/]]) {
+    await at(page, iso);
+    await page.goto('about:blank');
+    await page.goto('/#today');
+    await expect(page.locator('#drop')).toBeVisible();
+    await expect(page.locator('#hint-fence')).toHaveText(label);
+    await page.evaluate(() => localStorage.clear());
+  }
+});

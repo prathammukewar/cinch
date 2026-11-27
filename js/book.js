@@ -1,11 +1,10 @@
 // Brand Book: your own record in one place. Nothing here compares you with other people.
 import { allRows, store } from './store.js';
-import { tierOf, TIERS, LEANER, wilson, total } from './score.js';
+import { tierOf, TIERS, LEANER, wilson, total, OLD_HINTS } from './score.js';
 import { rateChart, curveChart } from './dash.js';
 import { streaks, keyOf, longDate } from './day.js';
 import { forDay, practiceById } from './bank.js';
 import { withUnit } from './format.js';
-import { HINTS } from './play.js';
 import { CURVE_MIN } from './config.js';
 import { h, signed, plus } from './dom.js';
 
@@ -15,7 +14,8 @@ const pct = (p) => `${Math.round(p * 100)}%`;
 const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
 /** -1 when the answer fell below the loop (a guess too high), 1 when above (too low), 0 when roped. */
 const sideOf = (r) => (r.hit ? 0 : r.x < r.l ? -1 : 1);
-const multOf = (hints) => (hints?.scout ? HINTS.scout : 1) * HINTS.fence[hints?.fence || 0];
+// Rows keep the share of the points their hints left (m). Older rows were played at the old costs.
+const multOf = (r) => r.m ?? (r.hints?.scout ? OLD_HINTS.scout : 1) * OLD_HINTS.fence[r.hints?.fence || 0];
 const plural = (n, one, many = `${one}s`) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
 
 /** The numbers the home screen and the Brand Book both lead with. */
@@ -120,7 +120,7 @@ function habits(rows) {
   if (best >= 3) out.push(`Longest run of ropes: ${best}.`);
   const hinted = rows.filter((r) => r.hints);
   if (hinted.length) {
-    const cost = Math.round(hinted.reduce((s, r) => s + (r.points / multOf(r.hints) - r.points), 0));
+    const cost = Math.round(hinted.reduce((s, r) => s + (r.points / multOf(r) - r.points), 0));
     out.push(`Hints on ${plural(hinted.length, 'question')} cost you about ${plural(cost, 'point')}.`);
   }
   return h('ul', { class: 'habits' }, out.map((t) => h('li', {}, t)));

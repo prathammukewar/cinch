@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { intervalScore, scoreRange, pointsAt, toUnit, fromUnit, kindOf, wilson, binomCdf, total, tierOf } from '../../js/score.js';
+import { intervalScore, scoreRange, pointsAt, toUnit, fromUnit, kindOf, wilson, binomCdf, total, tierOf, hintsFor, HINTS } from '../../js/score.js';
 import { probit, calibratedTotals, coverageCurve } from '../../js/stats.js';
 
 const log = { min: 1000, max: 1e7, scale: 'log' };
@@ -161,4 +161,13 @@ test('throws are named by points, and a good miss is a Leaner', () => {
   assert.equal(name(96), 'Dead ringer');
   assert.equal(name(100), 'Dead ringer');
   assert.equal(name(97, false), 'Leaner');
+});
+
+test('Fence in costs more from Roundup 4 on; earlier Roundups keep the costs they were played with', () => {
+  assert.deepEqual(hintsFor(3).fence, [1, 0.85, 0.7]);
+  assert.deepEqual(hintsFor(4).fence, [1, 0.75, 0.5]);
+  assert.deepEqual(hintsFor(undefined), HINTS);
+  // Fenced twice, even a dead-centre loop around a tenth of the stretch cannot reach Ringer.
+  const r = scoreRange(47.5, 52.5, 50, { min: 0, max: 100, scale: 'linear' }, [0.375, 0.625]);
+  assert.ok(Math.round(r.exact * HINTS.fence[2]) <= 50);
 });

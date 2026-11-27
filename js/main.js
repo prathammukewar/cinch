@@ -1,7 +1,7 @@
 import { NAME, PER_DAY, QUANT_SECONDS, DAILY_SECONDS } from './config.js';
 import { dayKey, dayNumber, keyOf, longDate, untilMidnight, streaks } from './day.js';
 import { forDay, practicePool, open } from './bank.js';
-import { total as sum } from './score.js';
+import { total as sum, hintsFor } from './score.js';
 import { store, askPersist, allRows } from './store.js';
 import * as acct from './account.js';
 import { sound } from './sound.js';
@@ -259,6 +259,7 @@ async function playDay(n, live) {
     rows,
     length: PER_DAY,
     seconds: DAILY_SECONDS,
+    costs: hintsFor(n),
     next: (i) => questions[i] || null,
     label: (i) => `${n === today ? 'Roundup' : `Roundup No. ${n}`}, ${i + 1} of ${PER_DAY}`,
     onRow: (row, q, all) => {

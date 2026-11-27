@@ -3,7 +3,7 @@ import { NAME, QUANT_LENGTH, QUANT_SECONDS, CURVE_MIN } from './config.js';
 import { dayKey, keyOf, longDate, streaks } from './day.js';
 import { practicePool, index } from './bank.js';
 import { store, askPersist, exportSave, importSave, allRows } from './store.js';
-import { total, kindOf, wilson, tierOf, TIERS, LEANER } from './score.js';
+import { total, kindOf, wilson, tierOf, TIERS, LEANER, HINTS } from './score.js';
 import { ICONS } from './share.js';
 import * as acct from './account.js';
 
@@ -116,7 +116,7 @@ export function showScoring() {
     h('h2', {}, 'Points'),
     h('p', {}, 'Inside your loop: 100 minus the share of the rail it covers. Just outside, the points fade to zero. Never below zero.'),
     h('h2', {}, 'Hints'),
-    h('p', {}, 'Fence in shortens the rail: 85% of the points, or 70% twice. Scout shows two known numbers of the same kind: 85%.'),
+    h('p', {}, `Fence in shortens the rail to a stretch that holds the answer, somewhere in it: ${Math.round(HINTS.fence[1] * 100)}% of the points, or ${Math.round(HINTS.fence[2] * 100)}% twice. Scout shows two known numbers of the same kind: ${Math.round(HINTS.scout * 100)}%.`),
     h('h2', {}, 'Names for a throw'),
     h('ul', { class: 'ladder' }, ladder.map((t) => h('li', {}, h('span', { class: `tier-pill t-${t.key}` }, t.name), ' ', LADDER[t.key]))),
     h('p', {}, 'In a shared result: ', ladder.map((t) => `${ICONS[t.key]} ${t.name}`).join(', '), '.'),

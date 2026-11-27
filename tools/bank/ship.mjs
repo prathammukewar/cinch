@@ -145,14 +145,19 @@ const practiceSet = new Set();
 const unit = (v, q) => (q.scale === 'log' ? Math.log(v / q.min) / Math.log(q.max / q.min) : (v - q.min) / (q.max - q.min));
 const r3 = (v) => Math.round(v * 1000) / 1000;
 
-/** Two nested windows of the ruler that still hold the answer, for the trim hint. */
+/**
+ * Two nested windows of the ruler that still hold the answer, for the trim hint. The answer can sit anywhere
+ * from 3% to 97% of each, so the middle of a fenced rail is not a sure catch. Until Roundup 4 it sat at 12% to 88%,
+ * and a loop around that middle always roped it; those days keep the windows they were played with.
+ */
+const FENCE_FROM = 4;
 function trims(q) {
   const r = rng(hash(`trim:${q.id}`));
   const x = unit(q.answer, q);
   const out = [];
   let [a, b] = [0, 1];
   for (const len of [0.5, 0.25]) {
-    let lo = x - len * (0.12 + 0.76 * r());
+    let lo = x - len * (0.03 + 0.94 * r());
     lo = Math.min(Math.max(lo, a), b - len);
     out.push([r3(lo), r3(lo + len)]);
     [a, b] = [lo, lo + len];
@@ -188,18 +193,24 @@ function marks(q) {
 }
 
 // Scout marks come from the practice pool, which grows. Days already shipped keep the marks they shipped with.
+// Days before FENCE_FROM keep their fence windows too.
 const shippedMarks = new Map();
+const shippedTrims = new Map();
 for (const f of existsSync(new URL('data/', root)) ? readdirSync(new URL('data/', root)) : []) {
   if (!/^\d{4}-\d\d\.json$/.test(f)) continue;
   for (const [n, rows] of Object.entries(read(`data/${f}`).days)) {
     if (!frozen.days[n]) continue;
-    for (const r of rows) shippedMarks.set(`${n}:${r.id}`, JSON.parse(unscramble(r.id, r.x)).marks);
+    for (const r of rows) {
+      const old = JSON.parse(unscramble(r.id, r.x));
+      shippedMarks.set(`${n}:${r.id}`, old.marks);
+      if (Number(n) < FENCE_FROM) shippedTrims.set(`${n}:${r.id}`, old.trims);
+    }
   }
 }
 
 const row = (id, n) => {
   const q = byId.get(id);
-  const secret = { answer: q.answer, explainer: q.explainer, source_name: q.source_name, source_url: q.source_url, trims: trims(q), marks: shippedMarks.get(`${n}:${id}`) ?? marks(q) };
+  const secret = { answer: q.answer, explainer: q.explainer, source_name: q.source_name, source_url: q.source_url, trims: shippedTrims.get(`${n}:${id}`) ?? trims(q), marks: shippedMarks.get(`${n}:${id}`) ?? marks(q) };
   const out = { id: q.id, question: q.question, unit: q.unit, category: q.category, difficulty: q.difficulty, scale: q.scale, min: q.min, max: q.max, licence: q.licence, x: scramble(q.id, JSON.stringify(secret)) };
   if (q.as_of) out.as_of = q.as_of;
   if (q.whole) out.whole = true;
