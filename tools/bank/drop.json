@@ -10,5 +10,8 @@
  "yr-lego-p571": "brand year, not company year",
  "an-hedgehog-preg": "AnAge and PanTHERIA disagree (second check)",
  "an-sloth-preg": "AnAge and PanTHERIA disagree (second check)",
- "en-roads": "page could not be read again (second check)"
+ "en-roads": "page could not be read again (second check)",
+ "yr-c-p571": "C++ reads the same as C to the duplicate check, and C is kept",
+ "yr-dogespalace-p571": "the palace was built over a century; 1340 is when work began, not a founding",
+ "yr-templeinstitute-p571": "politically charged subject"
 }

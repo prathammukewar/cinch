@@ -2,7 +2,7 @@
 // Days that were already shipped are frozen in bank/schedule.json and never change.
 //   node tools/bank/ship.mjs [--days 60]
 import { readFileSync, writeFileSync, existsSync, readdirSync, unlinkSync, mkdirSync } from 'node:fs';
-import { scramble } from '../../js/bank.js';
+import { scramble, unscramble } from '../../js/bank.js';
 import { keyOf } from '../../js/day.js';
 import { rng, hash, toUnit } from '../../js/score.js';
 import { PER_DAY } from '../../js/config.js';
@@ -62,7 +62,9 @@ for (const q of bank) {
 
 
 const arg = process.argv.indexOf('--days');
-const wanted = arg > 0 ? Number(process.argv[arg + 1]) : 60;
+const wanted = arg > 0 ? Number(process.argv[arg + 1]) : 400;
+/** Share of new questions kept for practice, chosen by each question's own id so it never moves. */
+const PRACTICE_SHARE = 30;
 
 /** What makes two questions feel alike. */
 const COARSE = new Set(['sp', 'ma', 'ge', 'en', 'te', 'so', 'hu', 'ev', 'hi', 'mlb', 'nfl', 'ru', 'fo', 'mo', 'el', 'sc']);
@@ -73,6 +75,8 @@ const family = (q) => {
   if (/water$/.test(q.id)) return `${parts[0]}-water`;
   return q.topic === 'sp' ? `sp-${parts[parts.length - 1]}` : `${parts[0]}-${parts[1]}`;
 };
+/** "How many ... in <country>" questions read alike, so a day takes two at most. */
+const isCountry = (q) => q.topic?.startsWith('wb-');
 const magnitude = (q) => (q.scale === 'linear' ? 'linear' : Math.floor(Math.log10(Math.abs(q.answer) || 1) / 2));
 /** Harder when the ruler is long or the author said so. */
 const hard = (q) => q.difficulty;
@@ -82,20 +86,30 @@ function plan() {
   const used = new Set(frozen.practice);
   for (const [n, ids] of Object.entries(frozen.days)) if (ids.every((id) => byId.has(id))) { days[n] = ids; ids.forEach((id) => used.add(id)); }
   const r = rng(hash('schedule-1'));
+  const kept = [...bank].filter((q) => !used.has(q.id) && (hash(`practice:${q.id}`) >>> 0) % 100 < PRACTICE_SHARE);
+  kept.forEach((q) => used.add(q.id));
   const shuffled = [...bank].filter((q) => !used.has(q.id));
   for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
   const left = new Set(shuffled);
   const start = Math.max(0, ...Object.keys(days).map(Number)) + 1;
+  const gaps = {};
   for (let n = start; n <= wanted; n++) {
-    const recent = new Set();
-    const lastCats = new Map();
-    for (let k = Math.max(1, n - 6); k < n; k++) for (const id of days[k] || []) { const q = byId.get(id); recent.add(family(q)); lastCats.set(q.category, (lastCats.get(q.category) || 0) + 1); }
-    const day = build(left, recent, lastCats, r);
+    // A family of questions waits a week before it comes back. When too few families are left for
+    // that, the wait shortens, never below two days. Every day still has seven topics and seven families.
+    let day = null;
+    for (const back of [6, 4, 3, 2]) {
+      const recent = new Set();
+      const lastCats = new Map();
+      for (let k = Math.max(1, n - back); k < n; k++) for (const id of days[k] || []) { const q = byId.get(id); recent.add(family(q)); lastCats.set(q.category, (lastCats.get(q.category) || 0) + 1); }
+      day = build(left, recent, lastCats, r);
+      if (day) { gaps[back] = (gaps[back] || 0) + 1; break; }
+    }
     if (!day) { console.log(`stopped at day ${n - 1}: not enough variety left`); break; }
     days[n] = day.map((q) => q.id);
     day.forEach((q) => left.delete(q));
   }
-  return { days, practice: [...left].map((q) => q.id).concat(frozen.practice.filter((id) => byId.has(id))) };
+  if (Object.keys(gaps).length) console.log(`new days by family gap (days): ${JSON.stringify(gaps)}`);
+  return { days, practice: [...left, ...kept].map((q) => q.id).concat(frozen.practice.filter((id) => byId.has(id))) };
 }
 
 function build(left, recent, lastCats, r) {
@@ -113,7 +127,7 @@ function build(left, recent, lastCats, r) {
     const mags = new Map();
     let ok = true;
     for (const slot of slots) {
-      const list = pool.filter((q) => !day.includes(q) && !cats.has(q.category) && !fams.has(family(q)) && !(q.label && day.some((d) => d.label === q.label)) && (mags.get(magnitude(q)) || 0) < (magnitude(q) === 'linear' ? 3 : 2) && (loose && slot !== slots[0] && slot !== slots[6] ? true : slot(hard(q))));
+      const list = pool.filter((q) => !day.includes(q) && !cats.has(q.category) && !fams.has(family(q)) && !(q.label && day.some((d) => d.label === q.label)) && !(isCountry(q) && day.filter(isCountry).length >= 2) && (mags.get(magnitude(q)) || 0) < (magnitude(q) === 'linear' ? 3 : 2) && (loose && slot !== slots[0] && slot !== slots[6] ? true : slot(hard(q))));
       if (!list.length) { ok = false; break; }
       list.sort((a, b) => w.get(b) - w.get(a));
       const q = list[0];
@@ -173,9 +187,19 @@ function marks(q) {
   return chosen.sort((a, b) => a.t - b.t).map(({ s }) => ({ label: s.label, value: s.answer }));
 }
 
-const row = (id) => {
+// Scout marks come from the practice pool, which grows. Days already shipped keep the marks they shipped with.
+const shippedMarks = new Map();
+for (const f of existsSync(new URL('data/', root)) ? readdirSync(new URL('data/', root)) : []) {
+  if (!/^\d{4}-\d\d\.json$/.test(f)) continue;
+  for (const [n, rows] of Object.entries(read(`data/${f}`).days)) {
+    if (!frozen.days[n]) continue;
+    for (const r of rows) shippedMarks.set(`${n}:${r.id}`, JSON.parse(unscramble(r.id, r.x)).marks);
+  }
+}
+
+const row = (id, n) => {
   const q = byId.get(id);
-  const secret = { answer: q.answer, explainer: q.explainer, source_name: q.source_name, source_url: q.source_url, trims: trims(q), marks: marks(q) };
+  const secret = { answer: q.answer, explainer: q.explainer, source_name: q.source_name, source_url: q.source_url, trims: trims(q), marks: shippedMarks.get(`${n}:${id}`) ?? marks(q) };
   const out = { id: q.id, question: q.question, unit: q.unit, category: q.category, difficulty: q.difficulty, scale: q.scale, min: q.min, max: q.max, licence: q.licence, x: scramble(q.id, JSON.stringify(secret)) };
   if (q.as_of) out.as_of = q.as_of;
   if (q.whole) out.whole = true;
@@ -189,11 +213,11 @@ const months = new Map();
 for (const [n, ids] of Object.entries(days)) {
   const m = keyOf(Number(n)).slice(0, 7);
   if (!months.has(m)) months.set(m, {});
-  months.get(m)[n] = ids.map(row);
+  months.get(m)[n] = ids.map((id) => row(id, n));
 }
 for (const [m, d] of months) write(`data/${m}.json`, { days: d });
 const packs = [];
-for (let i = 0; i < practice.length; i += 120) { const name = `practice-${packs.length + 1}.json`; write(`data/${name}`, { rows: practice.slice(i, i + 120).map(row) }); packs.push(name); }
+for (let i = 0; i < practice.length; i += 120) { const name = `practice-${packs.length + 1}.json`; write(`data/${name}`, { rows: practice.slice(i, i + 120).map((id) => row(id)) }); packs.push(name); }
 write('data/index.json', { days: total, months: [...months.keys()], practice: packs });
 writeFileSync(new URL('bank/schedule.json', root), JSON.stringify({ days, practice }, null, 1) + '\n');
 

@@ -8,7 +8,7 @@ from pathlib import Path
 import lib
 from lib import HERE, QUESTIONS, FAILED, TODAY
 
-MODULES = ["s_space", "s_animals", "s_science", "s_food", "s_money", "s_geo", "s_tech", "s_sports", "s_everyday", "s_wikidata", "s_books"]
+MODULES = ["s_space", "s_animals", "s_science", "s_food", "s_money", "s_geo", "s_tech", "s_sports", "s_everyday", "s_wikidata", "s_books", "s_more"]
 OUT = HERE.parent.parent / "bank" / "questions.json"
 
 

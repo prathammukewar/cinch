@@ -122,7 +122,7 @@ def check(q):
         if v and v > 0:
             if q["unit"] == "kg": v /= 1000
             return {"source": "PanTHERIA", "value": v, "tol": 0.4}
-    if ev.startswith("wb|SP.POP") and not ev.endswith("WLD"):
+    if ev.startswith("wb|SP.POP.TOTL") and not ev.endswith("WLD"):
         v = safe(lambda: countries()[ev.split("|")[2]]["pop"])
         if v: return {"source": "GeoNames", "value": v, "tol": 0.2}
     if ev.startswith("wb|AG.SRF"):
