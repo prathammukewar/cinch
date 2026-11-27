@@ -22,7 +22,7 @@ try {
   }
 } catch { /* no _headers */ }
 // Locally the page may also talk to a standings server running on this machine.
-if (headers['Content-Security-Policy']) headers['Content-Security-Policy'] = headers['Content-Security-Policy'].replace("connect-src 'self'", "connect-src 'self' http://localhost:8788 http://127.0.0.1:8788");
+if (headers['Content-Security-Policy']) headers['Content-Security-Policy'] = headers['Content-Security-Policy'].replace("connect-src 'self'", "connect-src 'self' http://localhost:8788 http://127.0.0.1:8788 ws://localhost:8788 ws://127.0.0.1:8788");
 
 http.createServer(async (req, res) => {
   try {

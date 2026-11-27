@@ -73,11 +73,25 @@ export class Stage {
 
   theme() { this.pal = { ...palette(), ...(this.rope || {}) }; this.wake(); }
 
-  /** Side by side: each rider's rope has its own colours. null goes back to the theme's red. */
+  /** Same saddle and Rodeo: each rider's rope has its own colours. null goes back to the theme's red. */
   setRope(colors) { this.rope = colors; this.theme(); }
 
-  /** The other rider's loop, shown while the horseshoe flies. l and u are shares of the full rail. */
-  setGhost(g) { this.ghost = g; this.wake(); }
+  /** Other riders' loops, shown while the horseshoe flies. l and u are shares of the full rail. */
+  setGhosts(list) {
+    // Loops that would cross get a lane of their own, stacked up from the rule, four at most.
+    const [a, b] = this.view;
+    const at = (t) => clamp((t - a) / (b - a), 0, 1);
+    const ends = [];
+    this.ghosts = [...list].sort((p, q) => p.l - q.l).map((g) => {
+      let k = ends.findIndex((end) => at(g.l) > end + 0.015);
+      if (k < 0) k = ends.length < 4 ? ends.length : ends.indexOf(Math.min(...ends));
+      ends[k] = Math.max(ends[k] ?? -1, at(g.u));
+      return { ...g, lane: k };
+    });
+    this.wake();
+  }
+
+  setGhost(g) { this.setGhosts(g ? [g] : []); }
 
   x(t) { return this.pad + t * (this.w - this.pad * 2); }
   unX(px) { return clamp((px - this.pad) / (this.w - this.pad * 2), 0, 1); }
@@ -94,7 +108,7 @@ export class Stage {
     this.worthNow = null;
     this.phase = 'set';
     this.flyer = null; this.close = null; this.result = null; this.pin = null; this.pinSettled = false; this.landed = false;
-    this.dots = []; this.rings = []; this.tumble = null; this.ghost = null;
+    this.dots = []; this.rings = []; this.tumble = null; this.ghosts = [];
     this.gapAlpha = 0;
     this.marks = ticks(ruler, q, this.w - this.pad * 2);
     this.setUnits(start[0], start[1], true);
@@ -523,7 +537,7 @@ export class Stage {
     const worth = this.worthNow ?? 1 - (this.t[1] - this.t[0]);
     pointsBand(ctx, pal, xs[0], xs[1], this.top + 1, this.rulerH - 1, (after ? 0.1 : 0.12) + 0.3 * Math.max(0, worth), FADE);
     this.drawLandmarks(after);
-    if (this.ghost) this.drawGhost();
+    for (const g of this.ghosts || []) this.drawGhost(g);
     for (const r of this.rings) this.drawRing(r);
     if (this.phase === 'reveal' && !this.landed) this.drawPinShadow();
 
@@ -551,7 +565,7 @@ export class Stage {
     if (this.flyer) this.drawFlyer();
     for (const d of this.dots) this.drawDot(d);
     if (this.tumble) this.drawTumble();
-    if (this.ghost) this.drawGhostTag();
+    if (this.ghosts?.length) this.drawGhostTags();
     if (!after) this.drawLandmarkTags();
     if (after && !this.result.hit && this.gapAlpha > 0) this.drawGap(xs);
     // On a short rail the hint buttons sit where the value tags go; the numbers are right below in the panel anyway.
@@ -610,14 +624,13 @@ export class Stage {
     return spots;
   }
 
-  drawGhost() {
-    const { ctx, w } = this;
-    const g = this.ghost;
+  drawGhost(g) {
+    const { ctx } = this;
     const [a, b] = this.view;
     const at = (t) => this.x(clamp((t - a) / (b - a), 0, 1));
     const xl = at(g.l);
     const xr = Math.max(at(g.u), xl + 3);
-    const y = this.top - 8;
+    const y = this.top - 8 - g.lane * 10;
     ctx.save();
     ctx.lineCap = 'round';
     for (const x of [xl, xr]) {
@@ -634,13 +647,23 @@ export class Stage {
     ctx.restore();
   }
 
-  /** The other rider's name rides above everything, so the rope never hides it. */
-  drawGhostTag() {
+  /** Riders' names ride above everything, so the rope never hides them. A name that would sit on another is left off. */
+  drawGhostTags() {
     const { ctx, w } = this;
-    const g = this.ghost;
     const [a, b] = this.view;
-    const xl = this.x(clamp((g.l - a) / (b - a), 0, 1));
-    tag(ctx, g.name, xl, this.top - 22, { fill: g.color, ink: '#fff', font: `650 12px ${TEXT}`, w, h: 20, padX: 7, align: 'left' });
+    const font = `650 12px ${TEXT}`;
+    ctx.font = font;
+    const taken = [];
+    for (const g of [...this.ghosts].sort((p, q) => p.lane - q.lane || p.l - q.l)) {
+      const xl = this.x(clamp((g.l - a) / (b - a), 0, 1));
+      const y = this.top - 22 - g.lane * 10;
+      const tw = ctx.measureText(g.name).width + 14;
+      const left = clamp(xl - 12, 4, w - tw - 4);
+      const box = [left - 3, y - 23, left + tw + 3, y + 6];
+      if (taken.some((t) => box[0] < t[2] && t[0] < box[2] && box[1] < t[3] && t[1] < box[3])) continue;
+      taken.push(box);
+      tag(ctx, g.name, xl, y, { fill: g.color, ink: g.ink || '#fff', font, w, h: 20, padX: 7, align: 'left' });
+    }
   }
 
   drawTumble() {

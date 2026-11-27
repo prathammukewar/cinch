@@ -23,9 +23,9 @@ export function nameKey(name) {
 }
 
 /** null when the name is fine, otherwise a short reason in plain words. */
-export function nameProblem(raw) {
+export function nameProblem(raw, { min = MIN } = {}) {
   const name = tidyName(raw);
-  if (name.length < MIN) return `Use at least ${MIN} characters.`;
+  if (name.length < min) return `Use at least ${min} characters.`;
   if (name.length > MAX) return `Use at most ${MAX} characters.`;
   if (!/^[\p{L}\p{N}][\p{L}\p{N} '._-]*$/u.test(name)) return 'Use letters, numbers, spaces and . _ - ’ only, starting with a letter or number.';
   if ((name.match(/\p{L}/gu) || []).length < 2) return 'Use at least two letters.';

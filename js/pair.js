@@ -1,4 +1,4 @@
-// Side by side: two riders share one phone. Each ropes the question in secret, the phone
+// Same saddle: two riders share one phone. Each ropes the question in secret, the phone
 // changes hands, and one horseshoe lands for both loops. Who goes first swaps every question.
 import { Round, rowOf, rulerOf } from './play.js';
 import { scoreRange, tierOf } from './score.js';

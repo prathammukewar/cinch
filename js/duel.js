@@ -28,10 +28,11 @@ const myName = () => clean(store.get('name')) || 'A friend';
 
 export async function show(code) {
   if (!code) return intro();
-  if (code === 'side') return liveIntro();
+  // Side by side rooms moved to the Rodeo, which holds a whole group.
+  if (code === 'side') { location.replace('#rodeo'); return; }
   if (code === 'same') return sameIntro();
   if (code === 'send') return sendIntro();
-  if (/^[A-Za-z]{4}$/.test(code)) return joinPage(code.toUpperCase());
+  if (/^[A-Za-z]{4}$/.test(code)) { location.replace(`#rodeo/${code.toUpperCase()}`); return; }
   const o = decode(code);
   if (!o) {
     ctx.main.replaceChildren(page('Showdown', h('p', {}, 'That Showdown link is broken or cut short. Ask for it again, or start your own.'), startButton()));
@@ -74,7 +75,7 @@ function intro() {
   ctx.main.replaceChildren(page('Showdown',
     h('p', { class: 'lede' }, `Two riders, the same ${PER_DAY} questions, one winner.`),
     h('div', { class: 'ways' },
-      way('way-side', '#duel/side', 'Side by side', 'Two devices, live.'),
+      way('way-side', '#rodeo', 'Rodeo', 'Two or more devices, live. Up to 12 riders.'),
       way('way-same', '#duel/same', 'Same saddle', 'One device, take turns.'),
       way('way-send', '#duel/send', 'Send a challenge', 'Send a link. They play later.'))));
 }
@@ -141,118 +142,6 @@ function sideResult(names, qs, pairs) {
 }
 
 const sum = (p) => p.reduce((s, x) => s + x, 0);
-
-// ------------------------------------------------------------ Side by side, live on two devices
-
-const ROOM_POLL = 1500;
-const roomLink = (code) => `${SITE || `${location.origin}${location.pathname}`}#duel/${code}`;
-
-function liveIntro() {
-  ctx.paintPips([], 0);
-  const msg = h('p', { class: 'room-msg', role: 'status' });
-  const code = h('input', { type: 'text', id: 'room-code', maxlength: 4, autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', placeholder: 'ABCD', 'aria-label': 'Room code', oninput: (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); } });
-  ctx.main.replaceChildren(page('Side by side',
-    h('p', { class: 'lede' }, 'Play live on two devices.'),
-    nameField(),
-    h('p', { style: 'margin-top:20px' }, h('button', { class: 'go', type: 'button', id: 'room-start', onclick: () => startRoom(msg) }, 'Start a room')),
-    h('p', { class: 'or' }, 'or join a friend’s room'),
-    h('div', { class: 'join-row' }, code, h('button', { class: 'go quiet', type: 'button', id: 'room-join', onclick: () => { if (code.value.length === 4) location.hash = `#duel/${code.value}`; else msg.textContent = 'Room codes are four letters.'; } }, 'Join')),
-    msg, back()));
-}
-
-async function startRoom(msg) {
-  const [{ call }, pool] = await Promise.all([import('./live.js'), practicePool()]);
-  const qs = ctx.pickSet(pool, PER_DAY);
-  msg.textContent = 'Opening a room';
-  let room;
-  try {
-    room = await call('/v1/room', { name: myName(), q: qs.map((q) => q.id) });
-  } catch (e) {
-    msg.textContent = e.status === 0 ? 'Side by side needs the internet, and this browser has no connection to the server.' : 'Could not open a room just now. Try again in a moment.';
-    return;
-  }
-  const url = roomLink(room.code);
-  const status = h('p', { class: 'wait-line', role: 'status' }, 'Waiting for a rider to join', h('span', { class: 'dots', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')));
-  ctx.main.replaceChildren(page('Side by side',
-    h('p', { class: 'lede' }, 'Send this to your friend.'),
-    h('p', { class: 'room-code', id: 'room-code-show', 'aria-label': `Room code ${room.code.split('').join(' ')}` }, room.code),
-    h('div', { class: 'actions' },
-      h('button', { class: 'go wide', type: 'button', id: 'room-send', onclick: async () => {
-        const text = `Join my Cinch room: ${room.code}`;
-        if (matchMedia('(pointer: coarse)').matches && navigator.share) { try { await navigator.share({ text, url }); return; } catch (e) { if (e?.name === 'AbortError') return; } }
-        try { await navigator.clipboard.writeText(`${text}\n${url}`); toast('Link copied'); } catch { toast('Copying is blocked in this browser'); }
-      } }, 'Send the link'),
-      h('input', { class: 'link-box', type: 'text', readonly: true, value: url, 'aria-label': 'Room link', onfocus: (e) => e.target.select() })),
-    status,
-    h('p', { class: 'fine', style: 'margin-top:16px' }, h('a', { href: '#duel' }, 'Cancel'))));
-  say(`Room ${room.code} is open. Waiting for a rider to join.`);
-  while (document.body.contains(status)) {
-    try {
-      const s = await call(`/v1/room/${room.code}?token=${encodeURIComponent(room.token)}`);
-      if (s.names[1]) { startLive({ ...room, names: s.names }, qs); return; }
-    } catch (e) {
-      if (e.status === 404) { status.textContent = 'This room has closed. Start a new one.'; return; }
-    }
-    await new Promise((r) => setTimeout(r, ROOM_POLL));
-  }
-}
-
-function joinPage(code) {
-  ctx.paintPips([], 0);
-  const msg = h('p', { class: 'room-msg', role: 'status' });
-  const go = h('button', { class: 'go', type: 'button', id: 'room-join-go', onclick: async () => {
-    go.disabled = true;
-    const { call } = await import('./live.js');
-    try {
-      const room = await call(`/v1/room/${code}/join`, { name: myName() });
-      const qs = await practiceById(room.q);
-      if (qs.some((q) => !q)) { msg.textContent = 'This room uses questions this version of the game does not have. Reload the page and try again.'; go.disabled = false; return; }
-      startLive(room, qs);
-    } catch (e) {
-      go.disabled = false;
-      msg.textContent = e.status === 404 ? 'That room has closed, or the code is wrong.' : e.status === 409 ? 'That room already has two riders.' : e.status === 0 ? 'Side by side needs the internet, and this browser has no connection to the server.' : 'Could not join just now. Try again in a moment.';
-    }
-  } }, 'Join the room');
-  ctx.main.replaceChildren(page(`Join room ${code}`,
-    nameField(),
-    h('p', { style: 'margin-top:20px' }, go), msg, back()));
-}
-
-async function startLive(room, qs) {
-  const { LiveRound } = await import('./live.js');
-  ctx.getCurrent()?.destroy?.();
-  ctx.paintPips([], qs.length);
-  const names = room.names.map((n, i) => clean(n) || `Rider ${i + 1}`);
-  const round = new LiveRound(ctx.main, {
-    names,
-    room,
-    length: qs.length,
-    seconds: 30,
-    next: (i) => qs[i] || null,
-    label: (i) => `Side by side, ${i + 1} of ${qs.length}`,
-    lastText: 'See who won',
-    onRow: (pair, q) => store.change((d) => { d.practice.seen[q.id] = (d.practice.seen[q.id] || 0) + 1; }),
-    onEnd: () => {
-      ctx.getCurrent()?.destroy?.();
-      liveResult(names, room.seat, qs, round.pairs);
-    },
-  });
-  ctx.setCurrent(round);
-}
-
-function liveResult(names, seat, qs, pairs) {
-  const left = { name: names[0], p: pairs.map((p) => p[0].points) };
-  const right = { name: names[1], p: pairs.map((p) => p[1].points) };
-  const [lt, rt] = [sum(left.p), sum(right.p)];
-  const mine = seat === 0 ? lt : rt;
-  const theirs = seat === 0 ? rt : lt;
-  const verdict = lt === rt ? 'A dead heat.' : mine > theirs ? `You win by ${mine - theirs}.` : `${names[1 - seat]} wins by ${theirs - mine}.`;
-  ctx.paintPips([], 0);
-  ctx.main.replaceChildren(board({ qs, left: { ...left, name: seat === 0 ? 'You' : left.name }, right: { ...right, name: seat === 1 ? 'You' : right.name }, leftLabel: seat === 0 ? 'You' : left.name, verdict, actions: [
-    h('a', { class: 'go wide', href: '#duel/side' }, 'Play again'),
-    h('a', { class: 'go quiet wide', href: '#home' }, 'Home')] }));
-  say(`Side by side. ${verdict}`);
-}
 
 /** Two riders' scores, question by question. */
 function board({ qs, left, right, leftLabel, verdict, actions }) {

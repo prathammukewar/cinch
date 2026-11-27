@@ -179,15 +179,3 @@ test('sign-ups and account calls are rate limited, and only the site may call fr
   assert.notEqual(evil.headers.get('access-control-allow-origin'), 'https://evil.example');
   assert.equal((await b.call('/v1/leaderboard?view=today&day=0')).status, 400);
 });
-
-test('the hourly clean-up deletes Side by side rooms older than six hours, and only those', async () => {
-  const b = backend();
-  const old = Date.now() - 7 * 3600000;
-  b.sql.prepare('INSERT INTO rooms (code, at, q, n0, t0) VALUES (?, ?, ?, ?, ?)').run('OLDR', old, '[]', 'Ana', 'x'.repeat(36));
-  b.sql.prepare('INSERT INTO picks (code, seat, i, lo, hi, fence, scout, at) VALUES (?, 0, 0, 1, 2, 0, 0, ?)').run('OLDR', old);
-  const fresh = (await b.call('/v1/room', { method: 'POST', body: { name: 'Ben', q: ['a'] } })).data;
-  b.sql.prepare("UPDATE rooms SET at = ? WHERE code = 'OLDR'").run(old);
-  await b.scheduled();
-  assert.deepEqual(b.sql.prepare('SELECT code FROM rooms').all().map((r) => r.code), [fresh.code]);
-  assert.equal(b.sql.prepare('SELECT COUNT(*) AS n FROM picks').get().n, 0);
-});

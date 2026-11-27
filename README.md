@@ -15,8 +15,9 @@ Inside your loop you score 100 minus the share of the rail it covers. Just outsi
 - **Roundup**: today's seven, 30 seconds each, one try, a spoiler-free share line and a picture sized for stories
 - **The Corral**: practice in sets of seven, never using daily questions
 - **Quick Draw**: ten questions, 20 seconds each
-- **Showdown**: two riders, the same seven questions. **Side by side** is live on two devices: one starts a room, the other joins with its code, and each question shows both loops once both are in. **Same saddle** is for one device passed between two people. **Send a challenge** is for later: rope seven, send a link, and your friend ropes the same seven when they like
-- **Leaderboard**: today, this week and all time, for riders who choose to be listed. Scores are worked out by the server from the loops thrown, so they cannot be made up
+- **Rodeo**: a live room for up to twelve riders, each on their own device. One rider opens a room and sends the code or link; the others join, and the host starts it. Everyone ropes the same seven questions against the same 30-second fuse, every loop lands on the rail at once, and the standings come at the end. The host can run it again with new questions
+- **Showdown**: two riders, the same seven questions. **Same saddle** is for one device passed between two people. **Send a challenge** is for later: rope seven, send a link, and your friend ropes the same seven when they like
+- **Leaderboard**: today, this week and all time. Every Roundup is on it; a name shows only for riders who choose to be listed. Scores are worked out by the server from the loops thrown, so they cannot be made up
 - **Old Trails**: every earlier Roundup
 - **Brand Book**: your stats: how often your loops hold the answer, every throw by name, each Roundup, your habits, and each topic
 

@@ -10,7 +10,7 @@ import { CURVE_MIN } from './config.js';
 import { h, signed, plus } from './dom.js';
 
 const LADDER = [...TIERS.slice(0, 4), LEANER, ...TIERS.slice(4)];
-const MODES = [['daily', 'Roundup'], ['practice', 'The Corral'], ['quant', 'Quick Draw'], ['duel', 'Showdown']];
+const MODES = [['daily', 'Roundup'], ['practice', 'The Corral'], ['quant', 'Quick Draw'], ['duel', 'Showdown'], ['rodeo', 'Rodeo']];
 const pct = (p) => `${Math.round(p * 100)}%`;
 const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
 /** -1 when the answer fell below the loop (a guess too high), 1 when above (too low), 0 when roped. */

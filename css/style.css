@@ -275,7 +275,8 @@ body[data-screen='home'] .mark { visibility: hidden; }
 .home-state b { color: var(--ink); }
 .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: auto; padding-top: 32px; }
 .modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 420px; margin: auto auto 0; padding-top: 28px; }
-@media (min-width: 720px) { .modes { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; } }
+@media (min-width: 720px) { .modes { grid-template-columns: repeat(10, minmax(0, 1fr)); max-width: 660px; } .modes > .mode { grid-column: span 2; } }
+@media (max-width: 719px) and (orientation: portrait) { .modes > .mode:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 .mode { display: grid; justify-items: center; gap: 1px; min-height: 56px; padding: 8px 10px; border-radius: 14px; border: 1.5px solid var(--line); background: color-mix(in srgb, var(--card) 88%, transparent); color: var(--ink); text-decoration: none; text-align: center; transition: background-color .15s, border-color .15s, transform .2s var(--ease); }
 .mode:hover, .mode:focus-visible { border-color: var(--band); transform: translateY(-1px); }
 .mode b { font-weight: 600; font-size: 16px; line-height: 1.25; }
@@ -372,12 +373,12 @@ body { position: relative; isolation: isolate; }
   .home .hero { height: 130px; }
   .home .tag { margin-top: 0; font-size: 16px; } .home-actions { margin-top: 12px; gap: 8px; } .go.big { min-height: 56px; }
   .home .modes { padding-top: 12px; margin: 0; } .home-state { margin-top: 8px; } .home-date { margin-top: 10px; }
-  .home .modes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } .home .mode { padding: 6px 2px; min-height: 48px; } .home .mode b { font-size: 14px; white-space: nowrap; } .home .mode small { font-size: 12.5px; white-space: nowrap; }
+  .home .modes { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; } .home .modes > .mode { grid-column: span 2; } .home .modes > .mode.stats, .home .modes > .mode:nth-last-child(-n+2) { grid-column: span 3; } .home .mode { padding: 6px 2px; min-height: 48px; } .home .mode b { font-size: 14px; white-space: nowrap; } .home .mode small { font-size: 12.5px; white-space: nowrap; }
 }
 
 /* Home: the Brand Book tile */
 .mode.stats { grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: start; text-align: left; gap: 4px 14px; padding: 10px 14px; }
-@media (min-width: 720px) { .mode.stats { grid-column: span 2; grid-template-columns: auto minmax(0, 1fr); } }
+@media (min-width: 720px) { .modes > .mode.stats { grid-column: span 5; grid-template-columns: auto minmax(0, 1fr); } }
 .mode.stats .names { display: grid; gap: 1px; }
 .mode.stats .nums { display: flex; gap: 14px; font-variant-numeric: tabular-nums; }
 @media (min-width: 720px) { .mode.stats .nums { justify-self: end; } }

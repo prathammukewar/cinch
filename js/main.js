@@ -56,6 +56,7 @@ function drawer(open) {
     item('#practice', 'The Corral', 'practice'),
     item('#draw', 'Quick Draw', `${QUANT_SECONDS} s each`),
     item('#duel', 'Showdown', 'one on one'),
+    item('#rodeo', 'Rodeo', 'a live room'),
     item('#archive', 'Old Trails', 'past days'),
     h('hr'),
     item('#calibration', 'Brand Book', 'your stats'),
@@ -88,6 +89,11 @@ const lazyDuel = async (arg) => {
   duel.init({ main, sound, pickSet, paintPips, setCurrent: (v) => { current = v; }, getCurrent: () => current, route });
   return duel.show(arg);
 };
+const lazyRodeo = async (arg) => {
+  const [rodeo] = await Promise.all([import('./rodeo.js'), moreStyles(), loadResultKit()]);
+  rodeo.init({ main, pickSet, paintPips, setCurrent: (v) => { current = v; }, getCurrent: () => current });
+  return rodeo.show(arg);
+};
 const lazy = (name) => async (arg) => {
   const [pages] = await Promise.all([import('./pages.js'), moreStyles()]);
   pages.init({ main, kit: loadResultKit, liveDays, paintTheme, paintSound, paintPips, picker, pickSet, resultView, today: () => today, setCurrent: (v) => { current = v; }, getCurrent: () => current });
@@ -98,7 +104,7 @@ const riders = (name) => async (arg) => {
   m.init({ main });
   return m[name](arg);
 };
-const screens = { account: riders('showAccount'), leaderboard: riders('showLeaderboard'), privacy: riders('showPrivacy'), home: showHome, today: showToday, practice: showPractice, day: showDay, duel: lazyDuel, draw: lazy('showQuant'), quant: lazy('showQuant'), archive: lazy('showArchive'), calibration: lazy('showCalibration'), scoring: lazy('showScoring'), settings: lazy('showSettings'), sources: lazy('showSources') };
+const screens = { account: riders('showAccount'), leaderboard: riders('showLeaderboard'), privacy: riders('showPrivacy'), home: showHome, today: showToday, practice: showPractice, day: showDay, duel: lazyDuel, rodeo: lazyRodeo, draw: lazy('showQuant'), quant: lazy('showQuant'), archive: lazy('showArchive'), calibration: lazy('showCalibration'), scoring: lazy('showScoring'), settings: lazy('showSettings'), sources: lazy('showSources') };
 
 // Screens load in order, so a slow one can never draw over the one that came after it.
 let chain = Promise.resolve();
@@ -195,6 +201,7 @@ async function showHome() {
       mode('#practice', 'The Corral', 'Practice'),
       mode('#draw', 'Quick Draw', 'Speed round'),
       mode('#duel', 'Showdown', 'Play a friend'),
+      mode('#rodeo', 'Rodeo', 'Play a group'),
       mode('#archive', 'Old Trails', 'Past days')),
     h('p', { class: 'home-date' }, `Roundup No. ${today}`, h('span', { 'aria-hidden': 'true' }, ' \u00b7 '), longDate(keyOf(today))));
   main.replaceChildren(view);
