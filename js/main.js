@@ -189,24 +189,21 @@ async function showHome() {
       boardNum.replaceChildren(d.you ? stat(`#${d.you.rank}`, 'today') : stat(String(d.players), d.players === 1 ? 'rider today' : 'riders today'));
     }).catch(() => boardNum.replaceChildren(stat('Top', 'riders')));
   } else boardNum.replaceChildren(stat('Top', 'riders'));
-  // Two groups: on a phone they read as one column, on a computer they sit side by side.
   const view = h('section', { class: 'home', 'aria-label': 'Welcome' },
-    h('div', { class: 'home-main' },
-      h('div', { class: 'hero-box' }, canvas),
-      word,
-      h('p', { class: 'tag' }, 'Seven numbers a day. Throw a loop you are 90% sure will rope each one.'),
-      h('div', { class: 'home-actions' }, play, h('button', { class: 'go quiet', type: 'button', id: 'howto-open', onclick: () => howTo(false) }, 'How to rope')),
-      state),
-    h('div', { class: 'home-more' },
-      h('nav', { class: 'modes', 'aria-label': 'More ways to play' },
-        statsTile,
-        boardTile,
-        mode('#practice', 'The Corral', 'Practice'),
-        mode('#draw', 'Quick Draw', 'Speed round'),
-        mode('#duel', 'Showdown', 'Play a friend'),
-        mode('#rodeo', 'Rodeo', 'Play a group'),
-        mode('#archive', 'Old Trails', 'Past days')),
-      h('p', { class: 'home-date' }, `Roundup No. ${today}`, h('span', { 'aria-hidden': 'true' }, ' \u00b7 '), longDate(keyOf(today)))));
+    h('div', { class: 'hero-box' }, canvas),
+    word,
+    h('p', { class: 'tag' }, 'Seven numbers a day. Throw a loop you are 90% sure will rope each one.'),
+    h('div', { class: 'home-actions' }, play, h('button', { class: 'go quiet', type: 'button', id: 'howto-open', onclick: () => howTo(false) }, 'How to rope')),
+    state,
+    h('nav', { class: 'modes', 'aria-label': 'More ways to play' },
+      statsTile,
+      boardTile,
+      mode('#practice', 'The Corral', 'Practice'),
+      mode('#draw', 'Quick Draw', 'Speed round'),
+      mode('#duel', 'Showdown', 'Play a friend'),
+      mode('#rodeo', 'Rodeo', 'Play a group'),
+      mode('#archive', 'Old Trails', 'Past days')),
+    h('p', { class: 'home-date' }, `Roundup No. ${today}`, h('span', { 'aria-hidden': 'true' }, ' \u00b7 '), longDate(keyOf(today))));
   main.replaceChildren(view);
   const { Hero } = await import('./hero.js');
   const hero = new Hero(canvas, {

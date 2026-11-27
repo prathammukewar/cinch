@@ -5,6 +5,7 @@ Every number in the game comes out of a response fetched by these scripts or a c
     python3 tools/bank/build.py      # fetch (or reuse the cache) and write bank/questions.json
     python3 tools/bank/validate.py   # schema, units, rulers, duplicates and near duplicates
     python3 tools/bank/verify.py     # second check: fetch everything again and compare
+    python3 tools/bank/context.py    # check the context lines in bank/context.json
     node tools/bank/ship.mjs         # plan the days and write data/*.json
 
 ## How a question is made
@@ -21,6 +22,10 @@ Each `s_*.py` file reads one kind of source and registers questions with `add()`
 - Wikidata years are kept only when a Wikipedia sentence gives that year with no other year within three of it and no hedge (c., around, 1907/08), and when the infobox's date field gives that year and no other. Titles that contain a nearby year are skipped.
 - `s_more.py` makes questions in bulk: the most famous items of a class (ranked by how many Wikipedias cover them), every country in a World Bank indicator, the periodic table, USDA foods and AnAge animals. Buildings, stadiums and companies that no longer exist or are not finished are skipped, as are grim subjects and obscure catalogue names. A number must be the first figure in the infobox field for that measure (stadium capacity, episode count, runtime), or follow a word naming it in prose. Names follow the article's own first line, including whether it says "the".
 - `drop.json` lists questions removed by hand and why.
+
+## Context
+
+`bank/context.json` gives most questions one or two sentences on what the subject is, for players who have never heard of it ("K2 is a mountain in the Karakoram range, on the border between Pakistan and China."). The game shows it behind a See context button, before the answer, so it must give nothing away. Lines are written by hand against each subject's Wikipedia intro and say only what the thing is: no numbers, ranks, sizes, amounts, ages, eras, wealth, fame or units, and for foods, elements and planets nothing about nutrients, states of matter or orbits. `context.py` rejects any line that uses such a word unless the question itself already does, and each line was then read against its question and answer for hints made of allowed words. Self-explanatory questions (a chessboard puzzle, seconds in a week) have no line and show no button.
 
 ## Adding questions
 

@@ -114,6 +114,35 @@ test('typed numbers work, including words like million', async ({ page }) => {
   await expect(page.locator('#drop')).toBeEnabled();
 });
 
+test('typing one end past the other carries the other along at the same width', async ({ page }) => {
+  await at(page, '2026-11-27T09:00:00'); // Roundup 3 opens on Mount Everest, a log rail from 200 to 20,000 meters
+  await page.goto('/#today');
+  const read = async () => (await ends(page)).map((v) => Number(v.replace(/,/g, '')));
+  const type = async (id, text) => {
+    await page.locator(id).click();
+    await page.keyboard.press('ControlOrMeta+a');
+    await page.locator(id).pressSequentially(text, { delay: 20 });
+    await page.locator(id).blur();
+  };
+  await type('#low-value', '1000');
+  await type('#high-value', '3000');
+  expect(await read()).toEqual([1000, 3000]);
+  // A first keystroke that crosses for a moment does not move the low end for good.
+  await type('#high-value', '12000');
+  expect(await read()).toEqual([1000, 12000]);
+  await type('#high-value', '3000');
+  // Low typed above high: the high end moves up and the loop stays three times as wide.
+  await type('#low-value', '5000');
+  const [lo, hi] = await read();
+  expect(lo).toBe(5000);
+  expect(hi / lo).toBeCloseTo(3, 1);
+  // High typed below low: the low end moves down the same way.
+  await type('#high-value', '900');
+  const [lo2, hi2] = await read();
+  expect(hi2).toBe(900);
+  expect(hi2 / lo2).toBeCloseTo(3, 1);
+});
+
 test('the keyboard alone can play a question', async ({ page }) => {
   await page.goto('/#today');
   await page.waitForTimeout(200);

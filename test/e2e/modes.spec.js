@@ -208,6 +208,38 @@ test('the daily fuse pitches the loop when it burns out', async ({ page }) => {
   await expect(page.locator('.pts')).toHaveText('0');
 });
 
+test('See context explains the subject over the rail, and hides where there is nothing to explain', async ({ page }) => {
+  await at(page, '2026-11-27T09:00:00'); // Roundup 3 opens on Mount Everest
+  await page.goto('/#today');
+  const open = page.locator('#context-open');
+  await expect(open).toHaveText('See context');
+  await expect(page.locator('#context-card')).toBeHidden();
+  const rail = await page.locator('.desk').boundingBox();
+  await open.click();
+  await expect(page.locator('#context-card')).toBeVisible();
+  await expect(page.locator('#context-card')).toContainText('Everest');
+  await expect(page.locator('#context-card')).not.toContainText(/\d/);
+  await expect(open).toHaveAttribute('aria-expanded', 'true');
+  // It floats over the rail, so nothing moves.
+  expect(await page.locator('.desk').boundingBox()).toEqual(rail);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#context-card')).toBeHidden();
+  await expect(open).toHaveText('See context');
+  // Throwing the loop (here from the keyboard, so no tap closes it first) puts it away.
+  await open.click();
+  await squeeze(page, 0.3, 0.7);
+  await expect(page.locator('#context-card')).toBeVisible();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#context-card')).toBeHidden();
+});
+
+test('a question with nothing to explain has no context button', async ({ page }) => {
+  await at(page, '2026-12-01T09:00:00'); // Roundup 7 opens on the speed of light
+  await page.goto('/#today');
+  await expect(page.locator('.ask h1')).toContainText('light');
+  await expect(page.locator('#context-open')).toBeHidden();
+});
+
 test('questions show their difficulty', async ({ page }) => {
   await page.goto('/#today');
   await expect(page.locator('.ask .meta')).toContainText(/Tenderfoot|Wrangler|Trail boss/);

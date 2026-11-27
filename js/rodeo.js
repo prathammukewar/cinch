@@ -538,6 +538,7 @@ class RodeoRound extends Round {
     this.locked = true;
     clearInterval(this.timer);
     this.fuse?.stop();
+    this.showContext(false);
     const u = this.ui;
     u.go.disabled = true;
     this.paintHints();
@@ -573,6 +574,7 @@ class RodeoRound extends Round {
     this.waitText = null;
     clearInterval(this.timer);
     this.fuse?.stop();
+    this.showContext(false);
     sound.unlock();
     document.activeElement?.blur?.();
     const u = this.ui;

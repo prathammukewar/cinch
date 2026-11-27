@@ -42,6 +42,7 @@ export class Round {
     clearInterval(this.timer);
     this.stage?.destroy();
     document.removeEventListener('keydown', this.onKey);
+    document.removeEventListener('pointerdown', this.onDown);
   }
 
   build() {
@@ -59,6 +60,10 @@ export class Round {
     u.tag = h('span');
     u.q = h('h1', { tabindex: '-1' });
     u.note = h('p', { class: 'note' });
+    // What the subject is, for players who have never heard of it. It sits over the rail, so opening it moves nothing.
+    u.ctxText = h('p', {});
+    u.ctx = h('div', { class: 'context', id: 'context-card', hidden: true }, u.ctxText);
+    u.ctxBtn = h('button', { class: 'ctx-btn', type: 'button', id: 'context-open', 'aria-expanded': 'false', 'aria-controls': 'context-card', onclick: () => this.showContext(this.ui.ctx.hidden) }, 'See context');
     u.canvas = h('canvas', { 'aria-hidden': 'true' });
     u.hint = h('p', { class: 'hint gone' });
     u.thumbs = ['Low post', 'High post'].map((name, i) => h('div', { class: 'thumb', role: 'slider', tabindex: '0', 'aria-label': name, 'data-i': String(i) }));
@@ -77,7 +82,7 @@ export class Round {
       h('div', { class: 'after' }, h('div', { class: 'verdict' }, u.pts, u.why), h('div', { class: 'teach-wrap' }, u.teach, u.src), u.on));
     this.fuse = this.seconds ? new Fuse(this.seconds, { dynamite: this.opts.dynamite }) : null;
     u.timer = this.fuse?.el ?? null;
-    u.ask = h('section', { class: 'ask', 'aria-label': 'Question' }, h('div', { class: 'meta' }, u.meta, u.tag), u.q, u.note);
+    u.ask = h('section', { class: 'ask', 'aria-label': 'Question' }, h('div', { class: 'meta' }, u.meta, u.tag), u.q, h('div', { class: 'note-row' }, u.note, u.ctxBtn, u.ctx));
     const desk = h('div', { class: 'desk' }, u.canvas, u.hint, u.hints, u.thumbs);
     this.root.replaceChildren(h('div', { class: 'play' }, u.timer, u.ask, desk, u.panel));
 
@@ -90,9 +95,10 @@ export class Round {
 
     for (const [i, side] of ['low', 'high'].entries()) {
       const { input } = u[side];
-      input.addEventListener('focus', () => { input.select(); });
+      // Typing measures against the loop as it was when typing began.
+      input.addEventListener('focus', () => { input.select(); this.typedFrom = { values: [...this.stage.values], t: [...this.stage.t] }; });
       input.addEventListener('input', () => { fitWidth(input); this.typed(i); });
-      input.addEventListener('blur', () => { input.classList.remove('bad'); this.show(); });
+      input.addEventListener('blur', () => { input.classList.remove('bad'); this.typedFrom = null; this.show(); });
       input.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); this.touch(); this.stage.nudge(i, e.key === 'ArrowUp' ? 1 : -1); this.show(); }
         if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (i === 0 && !this.typedHigh) u.high.input.focus(); else { input.blur(); u.go.focus(); } }
@@ -100,12 +106,15 @@ export class Round {
       u.thumbs[i].addEventListener('keydown', (e) => this.slideKey(e, i));
     }
     this.onKey = (e) => {
+      if (e.key === 'Escape' && !this.ui.ctx.hidden) { this.showContext(false); this.ui.ctxBtn.focus({ preventScroll: true }); return; }
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
       if (this.stage.phase === 'reveal' && (e.key === ' ' || e.key === 'Enter')) {
         if (!this.stage.landed) { e.preventDefault(); this.stage.skip(); }
       }
     };
     document.addEventListener('keydown', this.onKey);
+    this.onDown = (e) => { if (!this.ui.ctx.hidden && !this.ui.ctx.contains(e.target) && !this.ui.ctxBtn.contains(e.target)) this.showContext(false); };
+    document.addEventListener('pointerdown', this.onDown);
   }
 
   ask() {
@@ -125,6 +134,9 @@ export class Round {
     u.ask.classList.toggle('longer', q.question.length > 95);
     const said = q.unit && q.question.toLowerCase().includes(q.unit.toLowerCase().split(' ')[0].replace(/s$/, ''));
     u.note.textContent = [q.unit && q.unit !== 'year' && !said && !PRE[q.unit] && !SUF[q.unit] ? `Answer in ${q.unit}.` : '', q.as_of ? `${q.as_of}.` : ''].filter(Boolean).join(' ');
+    u.ctxText.textContent = q.context || '';
+    u.ctxBtn.hidden = !q.context;
+    this.showContext(false);
     for (const side of ['low', 'high']) {
       u[side].pre.textContent = PRE[q.unit] || '';
       u[side].suf.textContent = SUF[q.unit] || '';
@@ -143,6 +155,16 @@ export class Round {
     this.nudged = false;
     if (this.rows.length) u.q.focus({ preventScroll: true });
     say(`${u.meta.textContent}. ${q.question} ${u.note.textContent}`);
+  }
+
+  /** Open or close the line about what the subject is. */
+  showContext(open) {
+    const u = this.ui;
+    if (open && !this.q?.context) return;
+    u.ctx.hidden = !open;
+    u.ctxBtn.setAttribute('aria-expanded', String(open));
+    u.ctxBtn.textContent = open ? 'Hide context' : 'See context';
+    if (open) { sound.tap(); say(this.q.context); }
   }
 
   startTimer() {
@@ -181,11 +203,20 @@ export class Round {
     if (!ok) return;
     if (i === 1) this.typedHigh = true;
     this.touch();
-    const other = this.stage.values[1 - i];
+    const from = this.typedFrom || { values: [...this.stage.values], t: [...this.stage.t] };
+    const other = from.values[1 - i];
     const c = Math.min(this.q.max, Math.max(this.q.min, v));
     this.editing = side;
-    // While one end is being typed the other stays put. Crossed ends swap on their own.
-    if ((i === 0 && c <= other) || (i === 1 && c >= other)) this.stage.setValues(i === 0 ? c : other, i === 0 ? other : c);
+    if ((i === 0 && c <= other) || (i === 1 && c >= other)) {
+      // The other end stays where it was.
+      this.stage.setValues(i === 0 ? c : other, i === 0 ? other : c);
+    } else {
+      // Typed past the other end: carry it along so the loop keeps the width it had.
+      const width = from.t[1] - from.t[0];
+      const at = toUnit(c, this.stage.ruler);
+      const moved = this.stage.valueAt(Math.min(1, Math.max(0, i === 0 ? at + width : at - width)));
+      this.stage.setValues(i === 0 ? c : moved, i === 0 ? moved : c);
+    }
     this.editing = null;
   }
 
@@ -307,6 +338,7 @@ export class Round {
     this.locked = true;
     clearInterval(this.timer);
     this.fuse?.stop();
+    this.showContext(false);
     sound.unlock();
     document.activeElement?.blur?.();
     const u = this.ui;

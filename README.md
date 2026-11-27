@@ -23,6 +23,8 @@ Inside your loop you score 100 minus the share of the rail it covers. Just outsi
 
 Two hints cost a share of the points. **Fence in** shortens the rail to a stretch that holds the answer, and your loop is then measured against that shorter rail, so roping the whole fenced stretch scores nothing. The answer can sit anywhere in the stretch, near its ends too. Fencing once keeps 75% of the points, twice 50%. **Scout** marks two known numbers of the same kind on the rail, and the answer is not always between them.
 
+**See context** is free: one or two sentences on what the subject is (a mountain, a board game, a cheese), for when you have never heard of it. It says nothing about the number.
+
 Each throw gets a name by its points: Tumbleweed (0), Dust devil (1 to 20), Snagged (21 to 40), Roped (41 to 60), Hog-tied (61 to 80), Ringer (81 to 95) and Dead ringer (96 to 100). A near miss worth 41 or more is a Leaner.
 
 ## Questions

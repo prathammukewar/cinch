@@ -13,6 +13,8 @@ const write = (p, v) => writeFileSync(new URL(p, root), JSON.stringify(v));
 const bank = read('bank/questions.json');
 const byId = new Map(bank.map((q) => [q.id, q]));
 const frozen = existsSync(new URL('bank/schedule.json', root)) ? read('bank/schedule.json') : { days: {}, practice: [] };
+// One or two sentences on what each question's subject is, shown before the answer (checked by tools/bank/context.py).
+const context = existsSync(new URL('bank/context.json', root)) ? read('bank/context.json') : {};
 
 // ------------------------------------------------------------ standard rails
 // Every rail of the same kind has the same length, so the same loop always scores the same:
@@ -214,6 +216,7 @@ const row = (id, n) => {
   const out = { id: q.id, question: q.question, unit: q.unit, category: q.category, difficulty: q.difficulty, scale: q.scale, min: q.min, max: q.max, licence: q.licence, x: scramble(q.id, JSON.stringify(secret)) };
   if (q.as_of) out.as_of = q.as_of;
   if (q.whole) out.whole = true;
+  if (context[q.id]) out.context = context[q.id];
   return out;
 };
 
