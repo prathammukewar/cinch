@@ -205,7 +205,6 @@ export async function showSources() {
     h('p', {}, 'Animal ages, pregnancies and weights come from AnAge: Tacutu R. et al. (2018), Human Ageing Genomic Resources, Nucleic Acids Research 46(D1):D1083-D1090.'),
     h('p', {}, 'Food figures are from USDA FoodData Central. World figures are from World Bank Open Data and from FAO through Our World in Data, both under CC BY 4.0. Wikidata facts are CC0 and were each checked against the matching English Wikipedia article.'),
     h('p', {}, 'Fonts: Anybody and Familjen Grotesk, both under the SIL Open Font License.'),
-    h('p', {}, 'Sounds: recordings from Kenney\u2019s Impact Sounds and RPG Audio packs (CC0); the guitar and the whip are made in the browser.'),
     h('p', { class: 'foot' }, 'Spot a wrong number? The source link on each answer is the place to start.')));
 }
 

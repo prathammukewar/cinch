@@ -251,6 +251,8 @@ async function showToday() {
 }
 
 async function showDay(arg) {
+  // Fresh, not the last 5-second check: just after midnight yesterday must not count as today and post again.
+  today = dayNumber(dayKey());
   const n = Number(arg);
   if (!Number.isInteger(n) || n > today || n < 1) { location.hash = '#archive'; return undefined; }
   if (store.data().days[n]) return showResult(n, { instant: true });

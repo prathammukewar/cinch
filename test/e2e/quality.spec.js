@@ -63,8 +63,7 @@ test('the page weighs under 150 KB, as sent compressed, before questions', async
   const got = new Map();
   page.on('response', async (r) => {
     const u = new URL(r.url());
-    // Questions are counted in their own test; the sound recordings stream in the background and never hold anything up.
-    if (u.pathname.startsWith('/data/') || u.pathname.startsWith('/sfx/')) return;
+    if (u.pathname.startsWith('/data/')) return; // questions are counted in their own test
     try { got.set(u.pathname, await r.body()); } catch { /* not a body */ }
   });
   await page.goto('/');
@@ -78,7 +77,7 @@ test('the page weighs under 150 KB, as sent compressed, before questions', async
   console.log(`raw ${(raw / 1024).toFixed(1)} KB, compressed ${(zipped / 1024).toFixed(1)} KB`);
   expect(zipped).toBeLessThan(150 * 1024);
   // Raw size guards parse time. It includes what loads while the first screen is idle, like the
-  // screen transitions in js/flair.js; drawn art and sound samples load only where they are used.
+  // screen transitions in js/flair.js; drawn art loads only where it is used.
   expect(raw).toBeLessThan(260 * 1024);
 });
 

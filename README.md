@@ -58,4 +58,4 @@ Without an account, a Roundup finished on its own day sends the day, the loops t
 
 ## Licence
 
-Code under the MIT licence. Question data comes from the sources named with each question, under their own licences. Fonts under the SIL Open Font License. Sound effects are recordings from Kenney's Impact Sounds and RPG Audio packs (CC0), cut into one file by `tools/sfx.py`; the guitar and the whip crack are made in the browser.
+Code under the MIT licence. Question data comes from the sources named with each question, under their own licences. Fonts under the SIL Open Font License.
